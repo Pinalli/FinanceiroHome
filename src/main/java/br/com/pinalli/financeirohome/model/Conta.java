@@ -1,14 +1,15 @@
 package br.com.pinalli.financeirohome.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
+
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Data
 public class Conta {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,4 +20,18 @@ public class Conta {
     @ManyToOne
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
+
+    public class ContaService {
+        public void criarConta(String descricao, double valor, boolean tipo, int usuarioId) {
+            // criar uma nova conta no banco de dados
+            Conta conta = new Conta();
+            conta.setDescricao(descricao);
+            conta.setValor(valor);
+            conta.setTipo(tipo);
+            // conta.setUsuarioId(usuarioId);
+
+            // inserir a conta no banco de dados
+            // ...
+        }
+    }
 }
