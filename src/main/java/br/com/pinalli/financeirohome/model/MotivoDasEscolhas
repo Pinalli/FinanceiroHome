@@ -1,0 +1,27 @@
+Motivo das escolhas
+
+1. Lombok: Utilizei Lombok para simplificar a criação de construtores, getters e setters,
+ tornando o código mais conciso e fácil de manter. Além disso,
+ Lombok ajuda a reduzir a verbosidade do código e a evitar erros comuns,
+ como a criação de construtores e métodos que não são necessários.
+
+2. Entidades: Defini as entidades Usuario, Conta, CartaoCredito e
+RelatorioFinanceiro como classes Java, utilizando anotações
+JPA (Java Persistence API) para mapeá-las para tabelas no banco de dados.
+Isso permite que as entidades sejam persistidas e recuperadas facilmente do banco de dados.
+
+3. Tipo de dados: Escolhi os tipos de dados apropriados para cada campo,
+como Long para os IDs, String para descrições e emails,
+Double para valores financeiros e Boolean para campos de tipo lógico.
+
+4. Relacionamentos: Defini relacionamentos entre as entidades utilizando anotações JPA,
+ como @ManyToOne e @JoinColumn. Isso permite que as entidades sejam relacionadas
+ entre si de forma precisa e eficiente.
+
+5. Script SQL: Criei um script SQL para criar as tabelas necessárias no banco de dados.
+Esse script utiliza sintaxe SQL padrão para criar as tabelas
+ com os campos e relacionamentos apropriados.
+
+6. Banco de dados: Não especifiquei um banco de dados específico,
+pois o sistema pode ser adaptado para trabalhar com diferentes bancos de dados,
+como PostgreSQL, MySQL, Oracle, etc.
