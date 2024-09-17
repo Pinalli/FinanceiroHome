@@ -3,6 +3,8 @@ package br.com.pinalli.financeirohome.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Date;
+
 
 @Getter
 @Setter
@@ -17,6 +19,10 @@ public class Conta {
     private String descricao;
     private Double valor;
     private Boolean tipo; // true = conta a pagar, false = conta a receber
+    @Setter
+    private Date dataVencimento;
+    @Setter
+    private boolean pago;
     @ManyToOne
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
@@ -34,4 +40,6 @@ public class Conta {
             // ...
         }
     }
+
+
 }

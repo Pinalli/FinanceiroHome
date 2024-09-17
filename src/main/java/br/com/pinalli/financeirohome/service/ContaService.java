@@ -32,10 +32,38 @@ public class ContaService {
         // inserir a conta no banco de dados
         // ...
     }
-    public void registarContaPagar(String descricao, double valor, Date dataVencimento, int usuarioId) {
-        // ...
+    public void criarContaPagar(String descricao, double valor, Date dataVencimento, int usuarioId) {
+        Conta conta = new Conta();
+        conta.setDescricao(descricao);
+        conta.setValor(valor);
+        conta.setTipo(false); // conta a pagar
+        conta.setDataVencimento(dataVencimento);
+
+        Usuario usuario = new Usuario();
+        usuario.setId((long) usuarioId);
+        conta.setUsuario(usuario);
+
+        contaRepository.save(conta);
     }
 
+    public void editarContaPagar(Long id, String descricao, double valor, Date dataVencimento) {
+        Conta conta = contaRepository.findById(id).orElseThrow();
+        conta.setDescricao(descricao);
+        conta.setValor(valor);
+        conta.setDataVencimento(dataVencimento);
+        contaRepository.save(conta);
+    }
+
+    public void excluirContaPagar(Long id) {
+        Conta conta = contaRepository.findById(id).orElseThrow();
+        contaRepository.delete(conta);
+    }
+
+    public void pagarContaPagar(Long id) {
+        Conta conta = contaRepository.findById(id).orElseThrow();
+        conta.setPago(true);
+        contaRepository.save(conta);
+    }
     public List<Conta> listarContasPagar(int usuarioId) {
         return contaRepository.findByUsuarioIdAndTipo((long) usuarioId, false);
     }
