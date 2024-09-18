@@ -1,23 +1,37 @@
 package br.com.pinalli.financeirohome.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import java.util.Date;
+import java.time.LocalDate;
+import java.util.List;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
+
 @Entity
+@Table(name = "relatorios_financeiros")
+@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class RelatorioFinanceiro {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Date data;
-    private Double valorTotal;
-    @ManyToOne
-    @JoinColumn(name = "usuario_id")
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
+
+    @Column(name = "data_inicio", nullable = false)
+    private LocalDate dataInicio;
+
+    @Column(name = "data_fim", nullable = false)
+    private LocalDate dataFim;
+
+    @OneToMany(mappedBy = "relatorioFinanceiro", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RelatorioFinanceiroItem> itens;
+
+    // Getters e Setters (opcional, se não estiver usando Lombok)
 }
