@@ -15,6 +15,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class ContaPagar {
 
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

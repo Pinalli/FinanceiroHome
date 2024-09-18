@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ContaPagarService {
@@ -22,5 +23,24 @@ public class ContaPagarService {
         return contaPagarRepository.findAll();
     }
 
-    // Adicione outros métodos para atualizar, excluir, etc. conforme necessário
+    public Optional<ContaPagar> obterContaPagarPorId(Long id) {
+        return contaPagarRepository.findById(id);
+    }
+
+    public Optional<ContaPagar> atualizarContaPagar(Long id, ContaPagar contaPagarAtualizada) {
+        return contaPagarRepository.findById(id)
+                .map(contaExistente -> {
+                    contaExistente.setDescricao(contaPagarAtualizada.getDescricao());
+                    // Atualize outros campos conforme necessário
+                    return contaPagarRepository.save(contaExistente);
+                });
+    }
+
+    public boolean excluirContaPagar(Long id) {
+        if (contaPagarRepository.existsById(id)) {
+            contaPagarRepository.deleteById(id);
+            return true;
+        }
+        return false;
+    }
 }

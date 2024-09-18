@@ -16,6 +16,19 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Optional<Usuario> usuarioOptional = usuarioRepository.findByEmail(username);
+        if (usuarioOptional.isPresent()) {
+            Usuario usuario = usuarioOptional.get();
+            // Retornar o Usuario diretamente
+            return (UserDetails) usuario;
+        } else {
+            throw new UsernameNotFoundException("Usuário não encontrado");
+        }
+    }
+/**
 @Override
 public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
     Optional<Usuario> usuarioOptional = usuarioRepository.findByEmail(username);
@@ -31,5 +44,5 @@ public UserDetails loadUserByUsername(String username) throws UsernameNotFoundEx
         throw new UsernameNotFoundException("Usuário não encontrado");
     }
 }
-
+*/
 }

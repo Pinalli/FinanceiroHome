@@ -1,5 +1,6 @@
 package br.com.pinalli.financeirohome.controller;
 
+import br.com.pinalli.financeirohome.dto.LoginForm;
 import br.com.pinalli.financeirohome.dto.TokenDTO;
 import br.com.pinalli.financeirohome.model.Usuario;
 import br.com.pinalli.financeirohome.dto.UsuarioDTO;
@@ -27,22 +28,24 @@ public class UsuarioController {
 
     @Autowired
     private UsuarioService usuarioService;
+    @Autowired
+    private AuthenticationManager authManager; // Declarar e injetar
 
     @Autowired
     private AuthenticationManager authenticationManager; // Injetar o AuthenticationManager
 
 
-
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UsuarioDTO usuarioDTO) {
-        UsernamePasswordAuthenticationToken dadosLogin = usuarioDTO.converter();
-        try {
-            Authentication authentication = authenticationManager.authenticate(dadosLogin);
-            String token = tokenService.gerarToken(authentication);
+    public ResponseEntity<TokenDTO> autenticar(@RequestBody LoginForm form) { // Usar LoginForm como parâmetro
+        UsernamePasswordAuthenticationToken dadosLogin = form.converter();
 
+        try {
+            Authentication authentication = authManager.authenticate(dadosLogin);
+            String token = tokenService.gerarToken(authentication);
             return ResponseEntity.ok(new TokenDTO(token, "Bearer"));
         } catch (AuthenticationException e) {
-            return ResponseEntity.badRequest().body("Erro ao autenticar usuário");
+            // Retorne um TokenDTO com a mensagem de erro
+            return ResponseEntity.badRequest().body(new TokenDTO(null, e.getMessage()));
         }
     }
 
