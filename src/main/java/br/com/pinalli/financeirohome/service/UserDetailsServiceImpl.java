@@ -30,4 +30,6 @@ public UserDetails loadUserByUsername(String username) throws UsernameNotFoundEx
     } else {
         throw new UsernameNotFoundException("Usuário não encontrado");
     }
-}}
+}
+
+}
