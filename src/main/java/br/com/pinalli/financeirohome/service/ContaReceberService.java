@@ -2,7 +2,9 @@ package br.com.pinalli.financeirohome.service;
 
 import br.com.pinalli.financeirohome.model.ContaReceber;
 import br.com.pinalli.financeirohome.model.TipoNotificacao;
+import br.com.pinalli.financeirohome.model.Usuario;
 import br.com.pinalli.financeirohome.repository.ContaReceberRepository;
+import br.com.pinalli.financeirohome.repository.UsuarioRepository;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,8 @@ public class ContaReceberService {
     @Setter
     @Autowired
     private ContaReceberRepository contaReceberRepository;
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
     @Autowired // Injetar o NotificacaoService
     private NotificacaoService notificacaoService;
@@ -25,12 +29,22 @@ public class ContaReceberService {
             throw new IllegalArgumentException("A descrição da conta a receber é obrigatória.");
         }
 
-        ContaReceber novaConta = contaReceberRepository.save(contaReceber); // Salvar apenas uma vez
+        ContaReceber novaConta = contaReceberRepository.save(contaReceber);
+
+        // Buscar o usuário pelo ID
+        Usuario usuario = usuarioRepository.findById(contaReceber.getUsuario().getId())
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        // Definir o usuário na conta
+        novaConta.setUsuario(usuario);
 
         notificacaoService.criarNotificacao(novaConta.getUsuario(), novaConta, TipoNotificacao.EMAIL);
 
         return novaConta;
     }
+
+
+
 
     public List<ContaReceber> listarContasReceber() {
         return contaReceberRepository.findAll();

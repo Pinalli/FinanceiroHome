@@ -1,5 +1,6 @@
 package br.com.pinalli.financeirohome.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -32,6 +33,7 @@ public class Usuario implements UserDetails {
     @Column(nullable = false)
     private String senha;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ContaPagar> contasPagar;
 
@@ -40,6 +42,10 @@ public class Usuario implements UserDetails {
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartaoCredito> cartoesCredito;
+
+    public Usuario(String usuarioTeste, String email, String senha123) {
+    }
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
