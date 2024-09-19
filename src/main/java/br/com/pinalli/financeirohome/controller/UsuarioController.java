@@ -4,17 +4,18 @@ import br.com.pinalli.financeirohome.dto.LoginForm;
 import br.com.pinalli.financeirohome.dto.TokenDTO;
 import br.com.pinalli.financeirohome.model.Usuario;
 import br.com.pinalli.financeirohome.dto.UsuarioDTO;
+import jakarta.validation.Valid;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.token.TokenService;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import br.com.pinalli.financeirohome.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,6 +23,8 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/usuario")
 public class UsuarioController {
+
+    private static final Logger log = LoggerFactory.getLogger(UsuarioController .class);
 
     @Autowired
     private br.com.pinalli.financeirohome.service.TokenService tokenService;
@@ -31,12 +34,15 @@ public class UsuarioController {
     @Autowired
     private AuthenticationManager authManager; // Declarar e injetar
 
-    @Autowired
-    private AuthenticationManager authenticationManager; // Injetar o AuthenticationManager
-
 
     @PostMapping("/login")
-    public ResponseEntity<TokenDTO> autenticar(@RequestBody LoginForm form) { // Usar LoginForm como parâmetro
+    public ResponseEntity<?> autenticar(@Valid @RequestBody LoginForm form, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().body(new TokenDTO(null,
+                    bindingResult.getFieldError().
+                            getDefaultMessage()));
+        }
+
         UsernamePasswordAuthenticationToken dadosLogin = form.converter();
 
         try {
@@ -44,21 +50,13 @@ public class UsuarioController {
             String token = tokenService.gerarToken(authentication);
             return ResponseEntity.ok(new TokenDTO(token, "Bearer"));
         } catch (AuthenticationException e) {
-            // Retorne um TokenDTO com a mensagem de erro
-            return ResponseEntity.badRequest().body(new TokenDTO(null, e.getMessage()));
+            // Logar a tentativa de login malsucedida
+            log.error("Tentativa de login malsucedida para o email: {}", form.getEmail());
+
+            // Retornar uma mensagem de erro customizada
+            return ResponseEntity.badRequest().body(new TokenDTO(null, "Email ou senha inválidos."));
         }
     }
-
-    @PostMapping("/cadastro")
-    public ResponseEntity<String> cadastrarUsuario(@RequestBody UsuarioDTO usuarioDTO) {
-        try {
-            usuarioService.cadastrarUsuario(usuarioDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).body("Usuário cadastrado com sucesso!");
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
-    }
-
     @GetMapping
     public ResponseEntity<List<UsuarioDTO>> listarUsuarios() {
         List<Usuario> usuarios = usuarioService.listarUsuarios();
