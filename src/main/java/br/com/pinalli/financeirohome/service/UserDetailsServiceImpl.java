@@ -18,31 +18,15 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<Usuario> usuarioOptional = usuarioRepository.findByEmail(username);
-        if (usuarioOptional.isPresent()) {
-            Usuario usuario = usuarioOptional.get();
-            // Retornar o Usuario diretamente
-            return (UserDetails) usuario;
-        } else {
-            throw new UsernameNotFoundException("Usuário não encontrado");
-        }
-    }
-/**
-@Override
-public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    Optional<Usuario> usuarioOptional = usuarioRepository.findByEmail(username);
-    if (usuarioOptional.isPresent()) {
-        Usuario usuario = usuarioOptional.get();
-        // Mapeie os detalhes do usuário para um objeto UserDetails
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado com email: " + email));
         return User.builder()
                 .username(usuario.getEmail())
-                .password(usuario.getSenha()) // Certifique-se de que a senha esteja codificada corretamente (usando o PasswordEncoder)
-                .authorities("ROLE_USER") // Defina as autorizações (papéis) do usuário
+                .password(usuario.getSenha())
+                .roles("USER") // Defina as roles do usuário aqui
                 .build();
-    } else {
-        throw new UsernameNotFoundException("Usuário não encontrado");
     }
 }
-*/
-}
+
+

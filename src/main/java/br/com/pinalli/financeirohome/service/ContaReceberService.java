@@ -1,5 +1,7 @@
 package br.com.pinalli.financeirohome.service;
 
+import br.com.pinalli.financeirohome.dto.ContaReceberDTO;
+import br.com.pinalli.financeirohome.dto.UsuarioDTO;
 import br.com.pinalli.financeirohome.model.ContaReceber;
 import br.com.pinalli.financeirohome.model.TipoNotificacao;
 import br.com.pinalli.financeirohome.model.Usuario;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ContaReceberService {
@@ -21,33 +24,57 @@ public class ContaReceberService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    @Autowired // Injetar o NotificacaoService
+    @Autowired
     private NotificacaoService notificacaoService;
 
-    public ContaReceber criarContaReceber(ContaReceber contaReceber) {
-        if (contaReceber.getDescricao() == null || contaReceber.getDescricao().isEmpty()) {
+    public ContaReceberDTO criarContaReceber(ContaReceberDTO contaReceberDTO) {
+        if (contaReceberDTO.getDescricao() == null || contaReceberDTO.getDescricao().isEmpty()) {
             throw new IllegalArgumentException("A descrição da conta a receber é obrigatória.");
         }
+        // Converter DTO para entidade
+        ContaReceber novaConta = new ContaReceber();
+        novaConta.setDescricao(contaReceberDTO.getDescricao());
+        novaConta.setValor(contaReceberDTO.getValor());
+        novaConta.setDataRecebimento(contaReceberDTO.getDataRecebimento());
+        novaConta.setStatus(contaReceberDTO.getStatus());
+        novaConta.setCategoria(contaReceberDTO.getCategoria());
 
-        ContaReceber novaConta = contaReceberRepository.save(contaReceber);
-
-        // Buscar o usuário pelo ID
-        Usuario usuario = usuarioRepository.findById(contaReceber.getUsuario().getId())
+        // Obter o usuário do DTO (assumindo que o DTO contém o ID do usuário)
+        Usuario usuario = usuarioRepository.findById(contaReceberDTO.getUsuarioDTO().getId())
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
         // Definir o usuário na conta
         novaConta.setUsuario(usuario);
 
-        notificacaoService.criarNotificacao(novaConta.getUsuario(), novaConta, TipoNotificacao.EMAIL);
+        // Criar notificação
+        notificacaoService.criarNotificacao(novaConta.getUsuario(),
+                novaConta, TipoNotificacao.EMAIL);
 
-        return novaConta;
+        // Converter a entidade para DTO e retornar
+        return convertToDto(novaConta);
     }
 
+    private ContaReceberDTO convertToDto(ContaReceber novaConta) {
+        ContaReceberDTO novaContaDTO = new ContaReceberDTO();
+        novaContaDTO.setId(novaConta.getId());
+        novaContaDTO.setDescricao(novaConta.getDescricao());
+        novaContaDTO.setValor(novaConta.getValor());
 
+        novaContaDTO.setDataRecebimento(novaConta.getDataRecebimento());
+        novaContaDTO.setStatus(novaConta.getStatus());
+        novaContaDTO.setCategoria(novaConta.getCategoria());
+        novaContaDTO.setUsuarioDTO((UsuarioDTO.fromUsuario(novaConta.getUsuario())));
+        return novaContaDTO;
+    }
 
+    public List<ContaReceberDTO> listarContasReceber() {
+        // Busca todas as contas a receber do banco de dados através do repositório
+        List<ContaReceber> contasReceber = contaReceberRepository.findAll();
 
-    public List<ContaReceber> listarContasReceber() {
-        return contaReceberRepository.findAll();
+        // Converte a lista de ContaReceber para uma lista de ContaReceberDTO
+        return contasReceber.stream() // Inicia o fluxo de dados (stream) a partir da lista de contas a receber
+                .map(this::convertToDto) // Aplica o método 'convertToDto' para cada item da lista, transformando de ContaReceber para ContaReceberDTO
+                .collect(Collectors.toList()); // Coleta o resultado e converte de volta para uma lista de ContaReceberDTO
     }
 
     public Optional<ContaReceber> obterContaReceberPorId(Long id) {
