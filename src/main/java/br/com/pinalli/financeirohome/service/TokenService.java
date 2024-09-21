@@ -2,9 +2,10 @@ package br.com.pinalli.financeirohome.service;
 
 import br.com.pinalli.financeirohome.model.Usuario;
 import br.com.pinalli.financeirohome.repository.UsuarioRepository;
-import io.jsonwebtoken.Claims;
+
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -19,6 +20,7 @@ public class TokenService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    @Getter
     @Value("${jwt.secret}")
     private String secret;
 
@@ -26,9 +28,9 @@ public class TokenService {
     private Long expiration;
 
     public String gerarToken(Authentication authentication) {
-        String email = ((UserDetails) authentication.getPrincipal()).getUsername(); // Obter o email do principal
+        String email = ((UserDetails) authentication.getPrincipal()).getUsername();
         Usuario usuario = usuarioRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado")); // Buscar o usuário pelo email
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
         Date hoje = new Date();
         Date dataExpiracao = new Date(hoje.getTime() + expiration);
 
@@ -50,8 +52,4 @@ public class TokenService {
         }
     }
 
-    public String getEmailUsuario(String token) {
-        Claims claims = Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
-        return claims.getSubject();
-    }
 }

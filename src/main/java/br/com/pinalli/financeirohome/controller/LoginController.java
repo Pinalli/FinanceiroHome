@@ -3,6 +3,8 @@ package br.com.pinalli.financeirohome.controller;
 import br.com.pinalli.financeirohome.dto.LoginDTO;
 import br.com.pinalli.financeirohome.dto.TokenDTO;
 import jakarta.validation.Valid;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.validator.internal.util.stereotypes.Lazy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,13 +29,24 @@ public class LoginController {
     private static final Logger log = LoggerFactory.getLogger(LoginController.class);
 
     @Autowired
-    @Lazy
-    private AuthenticationManager authManager; // Declarar e injetar
-
-
+    private AuthenticationManager authenticationManager; // Declarar e injetar
     @Autowired
     private TokenService tokenService;
 
+
+    @PostMapping("/login")
+    public ResponseEntity<String> autenticar(@RequestBody LoginForm form) {
+        UsernamePasswordAuthenticationToken dadosLogin = form.converter();
+        try {
+            Authentication authentication = authenticationManager.authenticate(dadosLogin);
+            String token = tokenService.gerarToken(authentication);
+            return ResponseEntity.ok(token);
+        } catch (AuthenticationException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+}
+/**
     @PostMapping("/login")
     public ResponseEntity<?> autenticar(@Valid @RequestBody LoginDTO loginDTO, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
@@ -53,5 +66,4 @@ public class LoginController {
             // Retornar uma mensagem de erro customizada
             return ResponseEntity.badRequest().body(new TokenDTO(null, "Email ou senha inválidos."));
         }
-    }
-}
+    }*/

@@ -5,6 +5,7 @@ import br.com.pinalli.financeirohome.dto.TokenDTO;
 import br.com.pinalli.financeirohome.model.Usuario;
 import br.com.pinalli.financeirohome.dto.UsuarioDTO;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -17,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 
@@ -32,14 +34,14 @@ public class UsuarioController {
     @Autowired
     private UsuarioService usuarioService;
     @Autowired
-    private AuthenticationManager authManager; // Declarar e injetar
+    private AuthenticationManager authManager;
 
 
     @PostMapping("/login")
     public ResponseEntity<?> autenticar(@Valid @RequestBody LoginForm form, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().body(new TokenDTO(null,
-                    bindingResult.getFieldError().
+                    Objects.requireNonNull(bindingResult.getFieldError()).
                             getDefaultMessage()));
         }
 
@@ -50,14 +52,28 @@ public class UsuarioController {
             String token = tokenService.gerarToken(authentication);
             return ResponseEntity.ok(new TokenDTO(token, "Bearer"));
         } catch (AuthenticationException e) {
-            // Logar a tentativa de login malsucedida
             log.error("Tentativa de login malsucedida para o email: {}", form.getEmail());
-
-            // Retornar uma mensagem de erro customizada
             return ResponseEntity.badRequest().body(new TokenDTO(null, "Email ou senha inválidos."));
         }
     }
-    @GetMapping
+
+    @PostMapping("/cadastro")
+    public ResponseEntity<?> cadastrarUsuario(@Valid @RequestBody UsuarioDTO usuarioDTO,
+                                              @RequestParam String senha,
+                                              BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().body(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
+        }
+
+        try {
+            usuarioService.cadastrarUsuario(usuarioDTO, senha);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Usuário cadastrado com sucesso!");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping()
     public ResponseEntity<List<UsuarioDTO>> listarUsuarios() {
         List<Usuario> usuarios = usuarioService.listarUsuarios();
         List<UsuarioDTO> usuariosDTO = usuarios.stream()
@@ -66,4 +82,28 @@ public class UsuarioController {
         return ResponseEntity.ok(usuariosDTO);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable Long id, @Valid @RequestBody UsuarioDTO usuarioDTO,
+                                              BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().body(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
+        }
+
+        try {
+            Usuario usuarioAtualizado = usuarioService.updateUser(id, usuarioDTO);
+            return ResponseEntity.ok(UsuarioDTO.fromUsuario(usuarioAtualizado));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+        try {
+            usuarioService.deleteUser(id);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+}
 }

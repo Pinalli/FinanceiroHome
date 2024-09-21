@@ -1,6 +1,7 @@
 package br.com.pinalli.financeirohome.service;
 
 import br.com.pinalli.financeirohome.model.ContaPagar;
+import br.com.pinalli.financeirohome.model.Usuario;
 import br.com.pinalli.financeirohome.repository.ContaPagarRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,9 +14,22 @@ public class ContaPagarService {
 
     @Autowired
     private ContaPagarRepository contaPagarRepository;
+    @Autowired
+    private UsuarioService userService;
 
     public ContaPagar criarContaPagar(ContaPagar contaPagar) {
         // Adicione validações, lógica de negócio, etc. aqui
+        return contaPagarRepository.save(contaPagar);
+    }
+
+    public List<ContaPagar> listarContasPagarDoUsuarioAtual() {
+        Usuario usuarioAtual = userService.getUsuarioAutenticado();
+        return contaPagarRepository.findAllByUsuario(usuarioAtual);
+    }
+
+    public ContaPagar salvarContaPagar(ContaPagar contaPagar) {
+        Usuario usuarioAtual = userService.getUsuarioAutenticado();
+        contaPagar.setUsuario(usuarioAtual);
         return contaPagarRepository.save(contaPagar);
     }
 
