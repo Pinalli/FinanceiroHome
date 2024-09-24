@@ -55,6 +55,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/usuario/cadastro").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/usuario").authenticated() // Permitir acesso autenticado
                         .requestMatchers(HttpMethod.PUT, "/api/usuario/id").authenticated() // Permitir update autenticado
+                        .requestMatchers(HttpMethod.GET, "/api/contas-a-pagar/id").authenticated() // Permitir listar por id autenticado
                         .anyRequest().authenticated()
                 )
                 .sessionManagement((session) -> session

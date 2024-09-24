@@ -1,27 +1,19 @@
 package br.com.pinalli.financeirohome.service;
 
-
-import br.com.pinalli.financeirohome.repository.UsuarioRepository;
-
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-
 import lombok.Getter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.security.Key;
+
 import java.util.Date;
 
 @Service
 public class TokenService {
-
-    @Autowired
-    private UsuarioRepository usuarioRepository;
 
     @Getter
     @Value("${jwt.secret}")
