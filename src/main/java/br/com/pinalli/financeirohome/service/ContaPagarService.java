@@ -3,7 +3,11 @@ package br.com.pinalli.financeirohome.service;
 import br.com.pinalli.financeirohome.model.ContaPagar;
 import br.com.pinalli.financeirohome.model.Usuario;
 import br.com.pinalli.financeirohome.repository.ContaPagarRepository;
+import br.com.pinalli.financeirohome.repository.UsuarioRepository;
+import br.com.pinalli.financeirohome.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,16 +20,26 @@ public class ContaPagarService {
     private ContaPagarRepository contaPagarRepository;
     @Autowired
     private UsuarioService userService;
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
     public ContaPagar criarContaPagar(ContaPagar contaPagar) {
-        // Adicione validações, lógica de negócio, etc. aqui
+        // Obter o email do usuário autenticado
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+
+        // Buscar o usuário no banco de dados usando o email
+        Usuario usuario = usuarioRepository.findById(userService.getUsuarioAutenticado().getId())
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        // Definir o usuário na conta a pagar
+        contaPagar.setUsuario(usuario);
+
+        // Salvar a conta a pagar no banco de dados
         return contaPagarRepository.save(contaPagar);
+
     }
 
-    public List<ContaPagar> listarContasPagarDoUsuarioAtual() {
-        Usuario usuarioAtual = userService.getUsuarioAutenticado();
-        return contaPagarRepository.findAllByUsuario(usuarioAtual);
-    }
 
     public ContaPagar salvarContaPagar(ContaPagar contaPagar) {
         Usuario usuarioAtual = userService.getUsuarioAutenticado();
@@ -36,6 +50,7 @@ public class ContaPagarService {
     public List<ContaPagar> listarContasPagar() {
         return contaPagarRepository.findAll();
     }
+
 
     public Optional<ContaPagar> obterContaPagarPorId(Long id) {
         return contaPagarRepository.findById(id);

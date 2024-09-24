@@ -4,6 +4,7 @@ import br.com.pinalli.financeirohome.dto.LoginForm;
 import br.com.pinalli.financeirohome.dto.TokenDTO;
 import br.com.pinalli.financeirohome.model.Usuario;
 import br.com.pinalli.financeirohome.dto.UsuarioDTO;
+import br.com.pinalli.financeirohome.security.UserSecurity;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -90,7 +91,7 @@ public class UsuarioController {
         }
 
         try {
-            Usuario usuarioAtualizado = usuarioService.updateUser(id, usuarioDTO);
+            Usuario usuarioAtualizado = usuarioService.atualizarUsuario(id, usuarioDTO);
             return ResponseEntity.ok(UsuarioDTO.fromUsuario(usuarioAtualizado));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -98,9 +99,9 @@ public class UsuarioController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<?> excluirUsuario(@PathVariable Long id) {
         try {
-            usuarioService.deleteUser(id);
+            usuarioService.excluirUsuario(id);
             return ResponseEntity.noContent().build();
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

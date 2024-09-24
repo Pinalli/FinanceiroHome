@@ -41,7 +41,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         System.out.println("JwtAuthenticationFilter sendo executado para a URL: " + request.getRequestURI());
 
         // Ignorar a requisição de login
-        if (request.getRequestURI().equals("/api/login")) {
+        if (request.getRequestURI().equals("/api/login") ||
+                request.getRequestURI().equals("/api/usuario/cadastro")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -72,7 +73,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
 
-        // ... outros métodos ...
+
     }
 
 

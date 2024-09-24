@@ -5,6 +5,7 @@ import br.com.pinalli.financeirohome.repository.UsuarioRepository;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,6 +29,8 @@ public class TokenService {
     private Long expiration;
 
     public String gerarToken(Authentication authentication) {
+        System.out.println("Gerando token para o usuário: " + authentication.getPrincipal()); // Log do usuário
+
         String email = ((UserDetails) authentication.getPrincipal()).getUsername();
         Usuario usuario = usuarioRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
@@ -39,17 +42,19 @@ public class TokenService {
                 .setSubject(usuario.getEmail())
                 .setIssuedAt(hoje)
                 .setExpiration(dataExpiracao)
-                .signWith(SignatureAlgorithm.HS256, secret)
+                .signWith(Keys.hmacShaKeyFor(secret.getBytes()), SignatureAlgorithm.HS256)
                 .compact();
     }
 
     public boolean isTokenValido(String token) {
         try {
-            Jwts.parser().setSigningKey(secret).parseClaimsJws(token);
+            Jwts.parserBuilder()
+                    .setSigningKey(Keys.hmacShaKeyFor(secret.getBytes()))
+                    .build()
+                    .parseClaimsJws(token);
             return true;
         } catch (Exception e) {
             return false;
         }
     }
-
 }

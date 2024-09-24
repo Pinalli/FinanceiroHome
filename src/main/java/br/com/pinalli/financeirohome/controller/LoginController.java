@@ -36,12 +36,18 @@ public class LoginController {
 
     @PostMapping("/login")
     public ResponseEntity<String> autenticar(@RequestBody LoginForm form) {
+        System.out.println("Método autenticar chamado!");
+        System.out.println("Email: " + form.getEmail());
+        System.out.println("Senha: " + form.getSenha());
         UsernamePasswordAuthenticationToken dadosLogin = form.converter();
         try {
             Authentication authentication = authenticationManager.authenticate(dadosLogin);
+            System.out.println("Autenticação: " + authentication); // Log do objeto Authentication
             String token = tokenService.gerarToken(authentication);
+            System.out.println("Token gerado: " + token); // Log do token gerado
             return ResponseEntity.ok(token);
         } catch (AuthenticationException e) {
+            System.out.println("Erro na autenticação: " + e.getMessage());
             return ResponseEntity.badRequest().build();
         }
     }

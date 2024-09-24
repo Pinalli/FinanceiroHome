@@ -43,6 +43,28 @@ public class ContaPagarController {
                 .collect(Collectors.toList());// Coleta o resultado e converte de volta para uma lista de ContaPagarDTO
 
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ContaPagar> obterContaPagarPorId(@PathVariable Long id) {
+        return contaPagarService.obterContaPagarPorId(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+    @PutMapping("/{id}")
+    public ResponseEntity<ContaPagar> atualizarContaPagar(@PathVariable Long id,
+                                                          @RequestBody ContaPagar contaPagar) {
+        return contaPagarService.atualizarContaPagar(id, contaPagar)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> excluirContaPagar(@PathVariable Long id) {
+        if (contaPagarService.excluirContaPagar(id)) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
     private ContaPagarDTO convertToDto(ContaPagar contaPagar) {
         ContaPagarDTO dto = new ContaPagarDTO();
         dto.setId(contaPagar.getId());
@@ -66,25 +88,5 @@ public class ContaPagarController {
         // ... mapear outros atributos, se necessário ...
         return contaPagar;
     }
-    @GetMapping("/{id}")
-    public ResponseEntity<ContaPagar> obterContaPagarPorId(@PathVariable Long id) {
-        return contaPagarService.obterContaPagarPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-    @PutMapping("/{id}")
-    public ResponseEntity<ContaPagar> atualizarContaPagar(@PathVariable Long id,
-                                                          @RequestBody ContaPagar contaPagar) {
-        return contaPagarService.atualizarContaPagar(id, contaPagar)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> excluirContaPagar(@PathVariable Long id) {
-        if (contaPagarService.excluirContaPagar(id)) {
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
+
 }
