@@ -2,11 +2,12 @@ package br.com.pinalli.financeirohome.security;
 
 import br.com.pinalli.financeirohome.service.TokenService;
 import io.jsonwebtoken.Jwts;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.hibernate.validator.internal.util.stereotypes.Lazy;
+
 import org.springframework.context.annotation.DependsOn;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -53,20 +54,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (token != null && tokenService.isTokenValido(token)) {
             System.out.println("Token válido!");
 
-            // Extrair o email do token JWT
-            String email = Jwts.parser()
-                    .setSigningKey(tokenService.getSecret())
+            String email = Jwts.parserBuilder()
+                    .setSigningKey(tokenService.getSecret().getBytes())
+                    .build()
                     .parseClaimsJws(token)
                     .getBody()
                     .getSubject();
 
             UserDetails usuario = userDetailsService.loadUserByUsername(email);
 
-            // Criar o UsernamePasswordAuthenticationToken
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(usuario, null, usuario.getAuthorities());
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-            // Definir o Authentication no SecurityContextHolder
             SecurityContextHolder.getContext().setAuthentication(authentication);
             System.out.println("Usuário autenticado: " + authentication.getPrincipal());
         }
@@ -76,13 +75,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     }
 
-
-
     private String recuperarToken(HttpServletRequest request) {
-        String token = request.getHeader("Authorization");
-        if (token == null || !token.startsWith("Bearer ")) {
-            return null;
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            return authHeader.substring(7);
         }
-        return token.substring(7); // remove "Bearer "
+        return null;
     }
 }
