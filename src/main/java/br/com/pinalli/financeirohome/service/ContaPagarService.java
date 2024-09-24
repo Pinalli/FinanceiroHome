@@ -4,13 +4,11 @@ import br.com.pinalli.financeirohome.model.ContaPagar;
 import br.com.pinalli.financeirohome.model.Usuario;
 import br.com.pinalli.financeirohome.repository.ContaPagarRepository;
 import br.com.pinalli.financeirohome.repository.UsuarioRepository;
-import br.com.pinalli.financeirohome.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -39,18 +37,6 @@ public class ContaPagarService {
         return contaPagarRepository.save(contaPagar);
 
     }
-
-
-    public ContaPagar salvarContaPagar(ContaPagar contaPagar) {
-        Usuario usuarioAtual = userService.getUsuarioAutenticado();
-        contaPagar.setUsuario(usuarioAtual);
-        return contaPagarRepository.save(contaPagar);
-    }
-
-    public List<ContaPagar> listarContasPagar() {
-        return contaPagarRepository.findAll();
-    }
-
 
     public Optional<ContaPagar> obterContaPagarPorId(Long id) {
         return contaPagarRepository.findById(id);
