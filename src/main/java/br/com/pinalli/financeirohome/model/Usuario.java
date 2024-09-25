@@ -15,13 +15,10 @@ import java.util.List;
 @Setter
 @Entity
 @Table(name = "usuarios")
-@Data
-
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Usuario implements UserDetails {
-
-
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,19 +37,9 @@ public class Usuario implements UserDetails {
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ContaPagar> contasPagar;
 
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ContaReceber> contasReceber;
-
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CartaoCredito> cartoesCredito;
-
-    public Usuario(String usuarioTeste, String email, String senha123) {
-    }
-
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")); // Única role
     }
 
     @Override
@@ -84,4 +71,5 @@ public class Usuario implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
 }

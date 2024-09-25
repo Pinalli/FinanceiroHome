@@ -1,35 +1,97 @@
 package br.com.pinalli.financeirohome.controller;
 
 import br.com.pinalli.financeirohome.dto.ContaPagarDTO;
+import br.com.pinalli.financeirohome.dto.UsuarioDTO;
 import br.com.pinalli.financeirohome.model.ContaPagar;
 import br.com.pinalli.financeirohome.model.StatusConta;
+import br.com.pinalli.financeirohome.model.Usuario;
 import br.com.pinalli.financeirohome.repository.ContaPagarRepository;
 import br.com.pinalli.financeirohome.service.ContaPagarService;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/contas-a-pagar")
 public class ContaPagarController {
 
-    @Autowired
-    private ContaPagarService contaPagarService;
-    @Autowired
+    private static final Logger logger = LoggerFactory.getLogger(ContaPagarService.class);
+
+    private final ContaPagarService contaPagarService;
+
     private ContaPagarRepository contaPagarRepository;
+
+    public ContaPagarController(ContaPagarService contaPagarService) {
+        this.contaPagarService = contaPagarService;
+    }
 
     @PostMapping
     public ResponseEntity<ContaPagarDTO> criarContaPagar(@RequestBody ContaPagarDTO contaPagarDTO) {
-        ContaPagar contaPagar = convertToEntity(contaPagarDTO); // Converter DTO para entidade
-        ContaPagar novaConta = contaPagarService.criarContaPagar(contaPagar);
-        ContaPagarDTO novaContaDTO = convertToDto(novaConta); // Converter entidade para DTO
-        return ResponseEntity.status(HttpStatus.CREATED).body(novaContaDTO);
+
+            try {
+                ContaPagar conta = contaPagarService.converterDtoParaEntidade(contaPagarDTO);
+                ContaPagar novaConta = contaPagarService.criarContaPagar(conta);
+                ContaPagarDTO contaDTO = contaPagarService.converterParaDTO(novaConta);
+
+                return new ResponseEntity<>(contaDTO, HttpStatus.CREATED); // Retorna o DTO
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.badRequest().body(null);
+            } catch (SecurityException e){
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }catch(Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            }
+        }
+
+
+    private ContaPagar convertToEntity(ContaPagarDTO contaPagarDTO) {
+        if (contaPagarDTO == null) {
+            throw new IllegalArgumentException("ContaPagarDTO não pode ser nula.");
+        }
+//Validação dos atributos obrigatórios.  É crucial!
+        if (contaPagarDTO.getDescricao() == null || contaPagarDTO.getDescricao().isEmpty() ||
+                contaPagarDTO.getValor() == null || contaPagarDTO.getDataVencimento() == null ||
+                contaPagarDTO.getUsuario() == null || contaPagarDTO.getUsuario().getId() == null) {
+            throw new IllegalArgumentException("Dados da conta a pagar inválidos.");
+        }
+        try {
+            return new ContaPagar(
+                    contaPagarDTO.getDescricao(),
+                    contaPagarDTO.getValor(),
+                    contaPagarDTO.getDataVencimento(),
+                    StatusConta.valueOf(contaPagarDTO.getStatus()),
+                    contaPagarDTO.getCategoria(),
+                    contaPagarDTO.getUsuario()
+            );
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Valor inválido para o status da conta: " + contaPagarDTO.getStatus(), e);
+        }
     }
+
+    private ContaPagarDTO converterParaDTO(ContaPagar contaPagar) {
+        if (contaPagar == null) return null;
+
+        return ContaPagarDTO.builder()
+                .id(contaPagar.getId())
+                .descricao(contaPagar.getDescricao())
+                .valor(contaPagar.getValor())
+                .dataVencimento(contaPagar.getDataVencimento())
+                .status(contaPagar.getStatus().name())
+                .categoria(contaPagar.getCategoria())
+                .usuario(converterUsuarioParaDTO(contaPagar.getUsuario())) // Chamada ao método correto
+                .build();
+    }
+
 
     @GetMapping
     //Inicia o fluxo de dados (stream) a partir da lista de contas a pagar
@@ -44,49 +106,77 @@ public class ContaPagarController {
 
     }
 
+    private ContaPagarDTO convertToDto(ContaPagar contaPagar) {
+        if (contaPagar == null) return null;
+
+        return ContaPagarDTO.builder()
+                .id(contaPagar.getId())
+                .descricao(contaPagar.getDescricao())
+                .valor(contaPagar.getValor())
+                .dataVencimento(contaPagar.getDataVencimento())
+                .status(contaPagar.getStatus().name())
+                .categoria(contaPagar.getCategoria())
+                .usuario(UsuarioDTO.fromUsuario(contaPagar.getUsuario())) // Corrigido
+                .build();
+    }
+
+    private UsuarioDTO converterUsuarioParaDTO(Usuario usuario) {
+        return UsuarioDTO.fromUsuario(usuario);
+    }
+
+
+    @GetMapping("/usuario")
+    public ResponseEntity<List<ContaPagarDTO>> listarContasPagarDoUsuario(Authentication authentication){
+
+        try {
+            List<ContaPagarDTO> contasDTO = contaPagarService.listarContasPagarDoUsuario(authentication);
+            return ResponseEntity.ok(contasDTO);
+        }
+        catch (SecurityException | IllegalArgumentException ex){
+            // Retorna uma resposta de erro com uma mensagem mais específica
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+
+
     @GetMapping("/{id}")
     public ResponseEntity<ContaPagar> obterContaPagarPorId(@PathVariable Long id) {
         return contaPagarService.obterContaPagarPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+
     @PutMapping("/{id}")
     public ResponseEntity<ContaPagar> atualizarContaPagar(@PathVariable Long id,
                                                           @RequestBody ContaPagar contaPagar) {
-        return contaPagarService.atualizarContaPagar(id, contaPagar)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> excluirContaPagar(@PathVariable Long id) {
-        if (contaPagarService.excluirContaPagar(id)) {
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
+        try {
+            Optional<ContaPagar> updatedConta = contaPagarService.atualizarContaPagar(id, contaPagar);
+            return updatedConta.map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(null);
+        } catch (Exception e) { //Tratamento de exceções mais genéricas
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
-    private ContaPagarDTO convertToDto(ContaPagar contaPagar) {
-        ContaPagarDTO dto = new ContaPagarDTO();
-        dto.setId(contaPagar.getId());
-        dto.setDescricao(contaPagar.getDescricao());
-        dto.setValor(contaPagar.getValor().doubleValue());
-        dto.setDataVencimento(contaPagar.getDataVencimento());
-        dto.setStatus(contaPagar.getStatus().name()); // Converter enum para String
-        dto.setCategoria(contaPagar.getCategoria()); // Assumindo que Categoria tem um atributo nome
-        return dto;
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> excluirContaPagar(@PathVariable Long id) {
+        try {
+            if (contaPagarService.excluirContaPagar(id)) {
+                return ResponseEntity.noContent().build();
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            // Trate exceções (ex: banco de dados, etc)
+            System.err.println("Erro ao excluir a conta a pagar: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); // Retorno adequado
+        }
     }
 
-
-    private ContaPagar convertToEntity(ContaPagarDTO contaPagarDTO) {
-        ContaPagar contaPagar = new ContaPagar();
-        contaPagar.setId(contaPagarDTO.getId());
-        contaPagar.setDescricao(contaPagarDTO.getDescricao());
-        contaPagar.setValor(BigDecimal.valueOf(contaPagarDTO.getValor())); // Converter Double para BigDecimal
-        contaPagar.setDataVencimento(contaPagarDTO.getDataVencimento());
-        contaPagar.setStatus(StatusConta.valueOf(contaPagarDTO.getStatus())); // Converter String para enum
-        contaPagar.setCategoria(contaPagarDTO.getCategoria());
-        // ... mapear outros atributos, se necessário ...
-        return contaPagar;
-    }
 
 }

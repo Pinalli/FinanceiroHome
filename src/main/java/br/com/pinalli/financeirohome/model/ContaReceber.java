@@ -1,5 +1,5 @@
 package br.com.pinalli.financeirohome.model;
-import br.com.pinalli.financeirohome.model.StatusConta;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -34,7 +34,7 @@ public class ContaReceber {
 
     private String categoria;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
 

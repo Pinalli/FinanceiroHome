@@ -4,7 +4,7 @@ import br.com.pinalli.financeirohome.dto.LoginForm;
 import br.com.pinalli.financeirohome.dto.TokenDTO;
 import br.com.pinalli.financeirohome.model.Usuario;
 import br.com.pinalli.financeirohome.dto.UsuarioDTO;
-import br.com.pinalli.financeirohome.security.UserSecurity;
+
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,9 +18,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.List;
+
 import java.util.Objects;
-import java.util.stream.Collectors;
+
 
 
 @RestController
@@ -73,7 +73,7 @@ public class UsuarioController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-
+/**
     @GetMapping()
     public ResponseEntity<List<UsuarioDTO>> listarUsuarios() {
         List<Usuario> usuarios = usuarioService.listarUsuarios();
@@ -82,7 +82,7 @@ public class UsuarioController {
                 .collect(Collectors.toList());
         return ResponseEntity.ok(usuariosDTO);
     }
-
+*/
     @PutMapping("/{id}")
     public ResponseEntity<?> atualizarUsuario(@PathVariable Long id, @Valid @RequestBody UsuarioDTO usuarioDTO,
                                               BindingResult bindingResult) {

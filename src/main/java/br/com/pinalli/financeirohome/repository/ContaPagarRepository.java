@@ -9,6 +9,8 @@ import java.util.List;
 
 @Repository
 public interface ContaPagarRepository extends JpaRepository<ContaPagar, Long> {
-    // Defina o método aqui
-    List<ContaPagar> findAllByUsuario(Usuario usuario);
+
+
+    List<ContaPagar> findByUsuarioId(Long idUsuario);
+    List<ContaPagar> findByUsuario(Usuario usuario);
 }

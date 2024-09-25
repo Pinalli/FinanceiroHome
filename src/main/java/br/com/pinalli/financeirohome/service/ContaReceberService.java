@@ -3,98 +3,170 @@ package br.com.pinalli.financeirohome.service;
 import br.com.pinalli.financeirohome.dto.ContaReceberDTO;
 import br.com.pinalli.financeirohome.dto.UsuarioDTO;
 import br.com.pinalli.financeirohome.model.ContaReceber;
-import br.com.pinalli.financeirohome.model.TipoNotificacao;
+import br.com.pinalli.financeirohome.model.StatusConta;
 import br.com.pinalli.financeirohome.model.Usuario;
 import br.com.pinalli.financeirohome.repository.ContaReceberRepository;
 import br.com.pinalli.financeirohome.repository.UsuarioRepository;
-import lombok.Setter;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
+
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+
 @Service
+@AllArgsConstructor
 public class ContaReceberService {
 
-    @Setter
-    @Autowired
     private ContaReceberRepository contaReceberRepository;
-    @Autowired
     private UsuarioRepository usuarioRepository;
 
-    @Autowired
-    private NotificacaoService notificacaoService;
 
     public ContaReceberDTO criarContaReceber(ContaReceberDTO contaReceberDTO) {
-        if (contaReceberDTO.getDescricao() == null || contaReceberDTO.getDescricao().isEmpty()) {
-            throw new IllegalArgumentException("A descrição da conta a receber é obrigatória.");
+        if (contaReceberDTO == null || contaReceberDTO.getDescricao() == null || contaReceberDTO.getDescricao().isEmpty()) {
+            throw new IllegalArgumentException("Dados inválidos para a conta a receber.");
         }
-        // Converter DTO para entidade
-        ContaReceber novaConta = new ContaReceber();
-        novaConta.setDescricao(contaReceberDTO.getDescricao());
-        novaConta.setValor(contaReceberDTO.getValor());
-        novaConta.setDataRecebimento(contaReceberDTO.getDataRecebimento());
-        novaConta.setStatus(contaReceberDTO.getStatus());
-        novaConta.setCategoria(contaReceberDTO.getCategoria());
 
-        // Obter o usuário do DTO (assumindo que o DTO contém o ID do usuário)
-        Usuario usuario = usuarioRepository.findById(contaReceberDTO.getUsuarioDTO().getId())
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        Usuario usuario = null;
+        if (contaReceberDTO.getUsuarioId() != null) {
+            usuario = usuarioRepository.findById(contaReceberDTO.getUsuarioId())
+                    .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
+        } else if (contaReceberDTO.getUsuarioDTO() != null && contaReceberDTO.getUsuarioDTO().getId() != null) {
+            usuario = usuarioRepository.findById(contaReceberDTO.getUsuarioDTO().getId())
+                    .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
+        } else {
+            throw new IllegalArgumentException("Informações do usuário não fornecidas.");
+        }
 
-        // Definir o usuário na conta
+        ContaReceber novaConta = converterDtoParaEntidade(contaReceberDTO);
         novaConta.setUsuario(usuario);
 
-        // Criar notificação
-        notificacaoService.criarNotificacao(novaConta.getUsuario(),
-                novaConta, TipoNotificacao.EMAIL);
-
-        // Converter a entidade para DTO e retornar
-        return convertToDto(novaConta);
+        ContaReceber contaSalva = contaReceberRepository.save(novaConta);
+        return converterEntidadeParaDto(contaSalva);
     }
 
-    private ContaReceberDTO convertToDto(ContaReceber novaConta) {
-        ContaReceberDTO novaContaDTO = new ContaReceberDTO();
-        novaContaDTO.setId(novaConta.getId());
-        novaContaDTO.setDescricao(novaConta.getDescricao());
-        novaContaDTO.setValor(novaConta.getValor());
+    private ContaReceber converterDtoParaEntidade(ContaReceberDTO contaReceberDTO) {
+        if (contaReceberDTO == null) return null;
 
-        novaContaDTO.setDataRecebimento(novaConta.getDataRecebimento());
-        novaContaDTO.setStatus(novaConta.getStatus());
-        novaContaDTO.setCategoria(novaConta.getCategoria());
-        novaContaDTO.setUsuarioDTO((UsuarioDTO.fromUsuario(novaConta.getUsuario())));
-        return novaContaDTO;
+        ContaReceber contaReceber = new ContaReceber();
+        contaReceber.setDescricao(contaReceberDTO.getDescricao());
+        contaReceber.setValor(contaReceberDTO.getValor());
+        contaReceber.setDataRecebimento(contaReceberDTO.getDataRecebimento());
+        contaReceber.setStatus(contaReceberDTO.getStatus());
+        contaReceber.setCategoria(contaReceberDTO.getCategoria());
+
+        return contaReceber;
     }
 
-    public List<ContaReceberDTO> listarContasReceber() {
-        // Busca todas as contas a receber do banco de dados através do repositório
-        List<ContaReceber> contasReceber = contaReceberRepository.findAll();
+    private ContaReceberDTO converterEntidadeParaDto(ContaReceber contaReceber) {
+        if (contaReceber == null) return null;
 
-        // Converte a lista de ContaReceber para uma lista de ContaReceberDTO
-        return contasReceber.stream() // Inicia o fluxo de dados (stream) a partir da lista de contas a receber
-                .map(this::convertToDto) // Aplica o método 'convertToDto' para cada item da lista, transformando de ContaReceber para ContaReceberDTO
-                .collect(Collectors.toList()); // Coleta o resultado e converte de volta para uma lista de ContaReceberDTO
-    }
+        ContaReceberDTO dto = ContaReceberDTO.builder()
+                .id(contaReceber.getId())
+                .descricao(contaReceber.getDescricao())
+                .valor(contaReceber.getValor())
+                .dataRecebimento(contaReceber.getDataRecebimento())
+                .status(contaReceber.getStatus())
+                .categoria(contaReceber.getCategoria())
+                .build();
 
-    public Optional<ContaReceber> obterContaReceberPorId(Long id) {
-        return contaReceberRepository.findById(id);
-    }
-
-    public Optional<ContaReceber> atualizarContaReceber(Long id, ContaReceber contaReceberAtualizada) {
-        return contaReceberRepository.findById(id)
-                .map(contaExistente -> {
-                    contaExistente.setDescricao(contaReceberAtualizada.getDescricao());
-                    // Atualize outros campos conforme necessário
-                    return contaReceberRepository.save(contaExistente);
-                });
-    }
-
-    public boolean excluirContaReceber(Long id) {
-        if (contaReceberRepository.existsById(id)) {
-            contaReceberRepository.deleteById(id);
-            return true;
+        if (contaReceber.getUsuario() != null) {
+            dto.setUsuarioId(contaReceber.getUsuario().getId());
+            dto.setUsuarioDTO(UsuarioDTO.fromUsuario(contaReceber.getUsuario()));
         }
-        return false;
+
+        return dto;
     }
-}
+
+
+    private UsuarioDTO converterUsuarioParaDTO(Usuario usuario) {
+        return UsuarioDTO.builder()
+                .id(Objects.requireNonNullElse(usuario.getId(),0L))
+                .nome(usuario.getNome())
+                .email(usuario.getEmail())
+                .build();
+    }
+
+        private ContaReceberDTO convertToDto (ContaReceber novaConta){
+            return getContaReceberDTO(novaConta);
+        }
+
+        public static ContaReceberDTO getContaReceberDTO (ContaReceber novaConta){
+            ContaReceberDTO novaContaDTO = new ContaReceberDTO();
+            novaContaDTO.setId(novaConta.getId());
+            novaContaDTO.setDescricao(novaConta.getDescricao());
+            novaContaDTO.setValor(novaConta.getValor());
+            novaContaDTO.setDataRecebimento(novaConta.getDataRecebimento());
+            novaContaDTO.setStatus(novaConta.getStatus());
+            novaContaDTO.setCategoria(novaConta.getCategoria());
+            novaContaDTO.setUsuarioDTO(UsuarioDTO.fromUsuario(novaConta.getUsuario()));
+            return novaContaDTO;
+        }
+
+        public List<ContaReceberDTO> listarContasReceber () {
+            // Busca todas as contas a receber do banco de dados através do repositório
+            List<ContaReceber> contasReceber = contaReceberRepository.findAll();
+
+            // Converte a lista de ContaReceber para uma lista de ContaReceberDTO
+            return contasReceber.stream()
+                    .map(this::convertToDto)
+                    .collect(Collectors.toList());
+        }
+/**
+    public List<ContaReceberDTO> listarContasReceber() {
+        return contaReceberRepository.findAll().stream()
+                .map(this::converterEntidadeParaDto)
+                .collect(Collectors.toList());
+    }*/
+
+        public ContaReceberDTO buscarContaReceber (Long id){
+            Optional<ContaReceber> contaReceberOptional = obterContaReceberPorId(id);
+            return contaReceberOptional.map(this::convertToDto).orElseThrow(() -> new ServiceException("Conta a receber não encontrada"));
+        }
+
+        public Optional<ContaReceber> obterContaReceberPorId (Long id){
+            return contaReceberRepository.findById(id);
+        }
+
+
+        public ContaReceberDTO atualizarContaReceber (Long id, ContaReceberDTO contaReceberDTO){
+            Optional<ContaReceber> contaReceberOptional = obterContaReceberPorId(id);
+            if (contaReceberOptional.isPresent()) {
+                ContaReceber contaReceber = contaReceberOptional.get();
+                contaReceber.setDescricao(contaReceberDTO.getDescricao());
+                contaReceber.setValor(contaReceberDTO.getValor());
+                contaReceber.setDataRecebimento(contaReceberDTO.getDataRecebimento());
+                contaReceber.setStatus(contaReceberDTO.getStatus());
+                contaReceber.setCategoria(contaReceberDTO.getCategoria());
+                contaReceber.setUsuario(usuarioRepository.findById(contaReceberDTO.getUsuarioDTO().getId())
+                        .orElseThrow(() -> new UserServiceException("Usuário não encontrado")));
+                ContaReceber updatedContaReceber = contaReceberRepository.save(contaReceber);
+                return convertToDto(updatedContaReceber);
+            } else {
+                throw new ServiceException("Conta a receber não encontrada");
+            }
+        }
+
+        public void deletarContaReceber (Long id){
+            if (contaReceberRepository.existsById(id)) {
+                contaReceberRepository.deleteById(id);
+            }
+        }
+    }
+
+    // Custom exception classes
+    class UserServiceException extends RuntimeException {
+        public UserServiceException(String message) {
+            super(message);
+        }
+    }
+
+    class ServiceException extends RuntimeException {
+        public ServiceException(String message) {
+            super(message);
+        }
+    }
