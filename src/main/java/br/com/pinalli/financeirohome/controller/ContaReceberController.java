@@ -2,12 +2,15 @@ package br.com.pinalli.financeirohome.controller;
 
 import br.com.pinalli.financeirohome.dto.ContaReceberDTO;
 
+import br.com.pinalli.financeirohome.exception.ContaReceberException;
 import br.com.pinalli.financeirohome.service.ContaReceberService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -43,16 +46,33 @@ public class ContaReceberController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ContaReceberDTO> atualizarContaReceber(
-            @PathVariable Long id,
-            @Valid @RequestBody ContaReceberDTO contaReceberDTO) {
-        ContaReceberDTO updatedContaReceberDTO = contaReceberService.atualizarContaReceber(id, contaReceberDTO);
-        return ResponseEntity.ok(updatedContaReceberDTO);
+    public ResponseEntity<?> atualizarContaReceber(@PathVariable Long id, @Valid @RequestBody ContaReceberDTO contaReceberDTO) {
+        try {
+            ContaReceberDTO contaAtualizada = contaReceberService.atualizarContaReceber(id, contaReceberDTO);
+            return ResponseEntity.ok(contaAtualizada);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao atualizar conta a receber: " + e.getMessage());
+        }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletarContaReceber(@PathVariable Long id) {
-        contaReceberService.deletarContaReceber(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<Void> excluirContaReceber(@PathVariable Long id, Authentication authentication) {
+        try {
+            if (contaReceberService.excluirContaReceber(id, authentication)) {
+                return ResponseEntity.noContent().build();
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (SecurityException ex) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().build();
+        } catch (ContaReceberException ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
+
+
 }

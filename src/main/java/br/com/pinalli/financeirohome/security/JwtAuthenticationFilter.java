@@ -1,8 +1,11 @@
 package br.com.pinalli.financeirohome.security;
 
 import br.com.pinalli.financeirohome.service.TokenService;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -54,25 +57,36 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (token != null && tokenService.isTokenValido(token)) {
             System.out.println("Token válido!");
 
-            String email = Jwts.parserBuilder()
-                    .setSigningKey(tokenService.getSecret().getBytes())
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody()
-                    .getSubject();
+            try {
+                String email = Jwts.parserBuilder()
+                        .setSigningKey(tokenService.getSecret().getBytes())
+                        .build()
+                        .parseClaimsJws(token)
+                        .getBody()
+                        .getSubject();
 
-            UserDetails usuario = userDetailsService.loadUserByUsername(email);
+                UserDetails usuario = userDetailsService.loadUserByUsername(email);
 
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(usuario, null, usuario.getAuthorities());
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(usuario, null, usuario.getAuthorities());
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            System.out.println("Usuário autenticado: " + authentication.getPrincipal());
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+                System.out.println("Usuário autenticado: " + authentication.getPrincipal());
+
+            } catch (ExpiredJwtException e) {
+                System.out.println("Token expirado: " + e.getMessage());
+            } catch (MalformedJwtException e) {
+                System.out.println("Token malformado: " + e.getMessage());
+            } catch (SignatureException e) {
+                System.out.println("Assinatura do token inválida: " + e.getMessage());
+            } catch (IllegalArgumentException e) {
+                System.out.println("Token JWT está vazio ou inválido: " + e.getMessage());
+            } catch (Exception e) {
+                System.out.println("Erro ao processar o token JWT: " + e.getMessage());
+            }
+            filterChain.doFilter(request, response);
         }
-
-        filterChain.doFilter(request, response);
-
-
     }
 
     private String recuperarToken(HttpServletRequest request) {

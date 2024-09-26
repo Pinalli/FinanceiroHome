@@ -2,29 +2,36 @@ package br.com.pinalli.financeirohome.service;
 
 import br.com.pinalli.financeirohome.dto.ContaReceberDTO;
 import br.com.pinalli.financeirohome.dto.UsuarioDTO;
+import br.com.pinalli.financeirohome.exception.ContaReceberException;
 import br.com.pinalli.financeirohome.model.ContaReceber;
-import br.com.pinalli.financeirohome.model.StatusConta;
-import br.com.pinalli.financeirohome.model.Usuario;
+import br.com.pinalli.financeirohome.model.Usuario; // Ajuste o caminho conforme necessário
 import br.com.pinalli.financeirohome.repository.ContaReceberRepository;
 import br.com.pinalli.financeirohome.repository.UsuarioRepository;
-import lombok.AllArgsConstructor;
-
-
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-
+import org.slf4j.Logger;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-
 @Service
-@AllArgsConstructor
 public class ContaReceberService {
 
-    private ContaReceberRepository contaReceberRepository;
-    private UsuarioRepository usuarioRepository;
+    private final Logger logger;
+    private final ContaReceberRepository contaReceberRepository;
+    @Autowired
+    private final UsuarioRepository usuarioRepository;
 
+
+    public ContaReceberService(ContaReceberRepository contaReceberRepository, UsuarioRepository usuarioRepository) {
+        this.contaReceberRepository = contaReceberRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.logger = LoggerFactory.getLogger(ContaReceberService.class);
+    }
 
     public ContaReceberDTO criarContaReceber(ContaReceberDTO contaReceberDTO) {
         if (contaReceberDTO == null || contaReceberDTO.getDescricao() == null || contaReceberDTO.getDescricao().isEmpty()) {
@@ -48,6 +55,54 @@ public class ContaReceberService {
         ContaReceber contaSalva = contaReceberRepository.save(novaConta);
         return converterEntidadeParaDto(contaSalva);
     }
+
+    public List<ContaReceberDTO> listarContasReceber () {
+        logger.info("Iniciando a lista das contas recebidas.");
+        // Busca todas as contas a receber do banco de dados através do repositório
+        List<ContaReceber> contasReceber = contaReceberRepository.findAll();
+
+        // Converte a lista de ContaReceber para uma lista de ContaReceberDTO
+        return contasReceber.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    public ContaReceberDTO buscarContaReceber (Long id){
+        Optional<ContaReceber> contaReceberOptional = obterContaReceberPorId(id);
+        return contaReceberOptional.map(this::convertToDto).orElseThrow(() -> new ServiceException("Conta a receber não encontrada"));
+    }
+
+    public Optional<ContaReceber> obterContaReceberPorId (Long id){
+        return contaReceberRepository.findById(id);
+    }
+
+    public ContaReceberDTO atualizarContaReceber(Long id, ContaReceberDTO contaReceberDTO) {
+        ContaReceber contaExistente = contaReceberRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Conta a receber não encontrada."));
+
+        // Atualizar campos
+        contaExistente.setDescricao(contaReceberDTO.getDescricao());
+        contaExistente.setValor(contaReceberDTO.getValor());
+        contaExistente.setDataRecebimento(contaReceberDTO.getDataRecebimento());
+        contaExistente.setStatus(contaReceberDTO.getStatus());
+        contaExistente.setCategoria(contaReceberDTO.getCategoria());
+
+        // Atualizar usuário se fornecido
+        if (contaReceberDTO.getUsuarioId() != null) {
+            Usuario usuario = usuarioRepository.findById(contaReceberDTO.getUsuarioId())
+                    .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
+            contaExistente.setUsuario(usuario);
+        } else if (contaReceberDTO.getUsuarioDTO() != null && contaReceberDTO.getUsuarioDTO().getId() != null) {
+            Usuario usuario = usuarioRepository.findById(contaReceberDTO.getUsuarioDTO().getId())
+                    .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
+            contaExistente.setUsuario(usuario);
+        }
+        // Se nem usuarioId nem usuarioDTO forem fornecidos, mantenha o usuário existente
+
+        ContaReceber contaAtualizada = contaReceberRepository.save(contaExistente);
+        return converterEntidadeParaDto(contaAtualizada);
+    }
+
 
     private ContaReceber converterDtoParaEntidade(ContaReceberDTO contaReceberDTO) {
         if (contaReceberDTO == null) return null;
@@ -82,15 +137,6 @@ public class ContaReceberService {
         return dto;
     }
 
-
-    private UsuarioDTO converterUsuarioParaDTO(Usuario usuario) {
-        return UsuarioDTO.builder()
-                .id(Objects.requireNonNullElse(usuario.getId(),0L))
-                .nome(usuario.getNome())
-                .email(usuario.getEmail())
-                .build();
-    }
-
         private ContaReceberDTO convertToDto (ContaReceber novaConta){
             return getContaReceberDTO(novaConta);
         }
@@ -107,33 +153,49 @@ public class ContaReceberService {
             return novaContaDTO;
         }
 
-        public List<ContaReceberDTO> listarContasReceber () {
-            // Busca todas as contas a receber do banco de dados através do repositório
-            List<ContaReceber> contasReceber = contaReceberRepository.findAll();
 
-            // Converte a lista de ContaReceber para uma lista de ContaReceberDTO
-            return contasReceber.stream()
-                    .map(this::convertToDto)
-                    .collect(Collectors.toList());
-        }
-/**
-    public List<ContaReceberDTO> listarContasReceber() {
-        return contaReceberRepository.findAll().stream()
-                .map(this::converterEntidadeParaDto)
-                .collect(Collectors.toList());
-    }*/
 
-        public ContaReceberDTO buscarContaReceber (Long id){
-            Optional<ContaReceber> contaReceberOptional = obterContaReceberPorId(id);
-            return contaReceberOptional.map(this::convertToDto).orElseThrow(() -> new ServiceException("Conta a receber não encontrada"));
+    public boolean excluirContaReceber(Long id, Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new SecurityException("Usuário não autenticado.");
         }
 
-        public Optional<ContaReceber> obterContaReceberPorId (Long id){
-            return contaReceberRepository.findById(id);
+        Long idUsuario = obterIdUsuario(authentication);
+        if (idUsuario == null) {
+            throw new SecurityException("Falha ao obter o ID do usuário.");
         }
 
+        ContaReceber conta = contaReceberRepository.findByIdAndUsuarioId(id, idUsuario)
+                .orElseThrow(() -> new IllegalArgumentException("Conta não encontrada ou não pertence ao usuário."));
 
-        public ContaReceberDTO atualizarContaReceber (Long id, ContaReceberDTO contaReceberDTO){
+        try {
+            contaReceberRepository.delete(conta);
+            logger.debug("Conta excluída com sucesso.");
+            return true;
+        } catch (DataAccessException ex) {
+            logger.error("Erro ao excluir conta: Erro de acesso a dados", ex);
+            throw new ContaReceberException("Erro ao excluir conta: Problema de acesso ao banco de dados", ex);
+        }
+    }
+
+    private Long obterIdUsuario(Authentication authentication) {
+        logger.debug("Tipo de authentication.getPrincipal(): {}", authentication.getPrincipal().getClass().getName());
+        logger.debug("Conteúdo de authentication.getPrincipal(): {}", authentication.getPrincipal().toString());
+
+        if (authentication.getPrincipal() instanceof UserDetails userDetails) {
+            return usuarioRepository.findByEmail(userDetails.getUsername())
+                    .map(Usuario::getId) // Substitua 'User' por 'Usuario' ou o nome correto da sua classe
+                    .orElseThrow(() -> new IllegalStateException("Usuário não encontrado."));
+        } else if (authentication.getPrincipal() instanceof String username) {
+            return usuarioRepository.findByEmail(username)
+                    .map(Usuario::getId) // Substitua 'User' por 'Usuario' ou o nome correto da sua classe
+                    .orElseThrow(() -> new IllegalStateException("Usuário não encontrado."));
+        }
+
+        throw new IllegalStateException("Tipo de usuário não suportado.");
+    }
+
+    /**   public ContaReceberDTO atualizarContaReceber (Long id, ContaReceberDTO contaReceberDTO){
             Optional<ContaReceber> contaReceberOptional = obterContaReceberPorId(id);
             if (contaReceberOptional.isPresent()) {
                 ContaReceber contaReceber = contaReceberOptional.get();
@@ -150,23 +212,18 @@ public class ContaReceberService {
                 throw new ServiceException("Conta a receber não encontrada");
             }
         }
-
-        public void deletarContaReceber (Long id){
+  public void deletarContaReceber (Long id){
             if (contaReceberRepository.existsById(id)) {
                 contaReceberRepository.deleteById(id);
             }
         }
     }
+      */
 
-    // Custom exception classes
-    class UserServiceException extends RuntimeException {
-        public UserServiceException(String message) {
-            super(message);
-        }
-    }
 
-    class ServiceException extends RuntimeException {
+     class ServiceException extends RuntimeException {
         public ServiceException(String message) {
             super(message);
         }
     }
+}

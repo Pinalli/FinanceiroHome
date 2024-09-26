@@ -1,8 +1,11 @@
 package br.com.pinalli.financeirohome.service;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -32,6 +35,7 @@ public class TokenService {
         return Jwts.builder()
                 .setIssuer("FinanceiroHome")
                 .setSubject(usuario.getUsername())
+                .claim("roles", usuario.getAuthorities()) // Adiciona as roles como claim
                 .setIssuedAt(hoje)
                 .setExpiration(dataExpiracao)
                 .signWith(Keys.hmacShaKeyFor(secret.getBytes()), SignatureAlgorithm.HS256)
@@ -45,8 +49,16 @@ public class TokenService {
                     .build()
                     .parseClaimsJws(token);
             return true;
+        } catch (ExpiredJwtException e) {
+            System.out.println("Token expirado: " + e.getMessage());
+        } catch (MalformedJwtException e) {
+            System.out.println("Token malformado: " + e.getMessage());
+        } catch (SignatureException e) {
+            System.out.println("Assinatura inválida: " + e.getMessage());
         } catch (Exception e) {
-            return false;
+            System.out.println("Erro ao validar token: " + e.getMessage());
         }
+        return false;
     }
+
 }

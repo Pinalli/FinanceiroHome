@@ -60,16 +60,16 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable) // Desabilita CSRF para APIs REST
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers(HttpMethod.POST, "/api/login").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/usuario/cadastro").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/usuario").authenticated()
-                        .requestMatchers(HttpMethod.PUT, "/api/usuario/id").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/contas-a-pagar/id").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/contas-a-pagar/usuario").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/api/contas-a-receber").hasRole("USER")
-                        .anyRequest().authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/login").permitAll() // Permite login sem autenticação
+                        .requestMatchers(HttpMethod.POST, "/api/usuario/cadastro").permitAll() // Permite cadastro sem autenticação
+                        .requestMatchers(HttpMethod.GET, "/api/contas-a-pagar/id").authenticated() // Requer autenticação
+                        .requestMatchers(HttpMethod.GET, "/api/contas-a-pagar/usuario").authenticated() // Requer autenticação
+                        .requestMatchers(HttpMethod.POST, "/api/contas-a-receber").hasRole("USER") // Apenas usuários com role "USER"
+                        .requestMatchers(HttpMethod.GET, "/api/contas-a-receber/usuario").hasRole("USER") // Apenas usuários com role "USER"
+                        .requestMatchers(HttpMethod.DELETE, "/api/contas-a-receber/{id}").hasRole("USER") // Apenas usuários com role "USER"
+                        .anyRequest().authenticated() // Todos os outros endpoints exigem autenticação
                 )
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
