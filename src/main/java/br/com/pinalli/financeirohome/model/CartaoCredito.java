@@ -18,16 +18,16 @@ public class CartaoCredito {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100)
     private String descricao;
 
-    @Column(nullable = false)
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal limite;
 
-    @Column(nullable = false)
-    private BigDecimal valor; // Saldo atual
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal valor;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
 
