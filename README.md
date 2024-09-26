@@ -37,9 +37,12 @@ O sistema de gestão de contas domésticas tem como objetivo auxiliar usuários 
 - Para garantir a segurança dos dados, o sistema contará com um processo de autenticação de usuário com login e senha. A senha será armazenada de forma segura utilizando algoritmos de criptografia.
 
 ## Tecnologias Envolvidas
-- **Back-end:** Desenvolvido na linguagem que se sentir mais familiarizado desde que seja orientada a objetos, com banco de dados relacional PostgreSQL.
-- **Front-end:** Interface desenvolvida na linguagem que estiver mais familiarizado, desde que seja uma aplicação web, para fornecer uma experiência interativa e moderna.
-- A criação da estrutura de banco de dados deve estar em migrations.
+- **Back-end:** - **Java**: Linguagem de programação orientada a objetos.
+- **Spring Boot**: Framework para desenvolvimento de aplicações Java.
+- **Flyway**: Ferramenta para migrações de banco de dados.
+- **PostgreSQL**: Banco de dados relacional.
+- **Front-end:** Interface desenvolvida na linguagem (a definir), desde que seja uma aplicação web, para fornecer uma experiência interativa e moderna.
+
 
 ## Benefícios do Sistema
 - Centralização de todas as informações financeiras domésticas em um único local.
