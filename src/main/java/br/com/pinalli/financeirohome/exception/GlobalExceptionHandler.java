@@ -25,5 +25,18 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 
-    // Adicione outros manipuladores de exceção conforme necessário
+    @ExceptionHandler(CartaoNaoEncontradoException.class)
+    public ResponseEntity<String> handleCartaoNaoEncontrado(CartaoNaoEncontradoException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(LimiteInsuficienteException.class)
+    public ResponseEntity<String> handleLimiteInsuficiente(LimiteInsuficienteException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(CompraNaoEncontradaException.class)
+    public ResponseEntity<String> handleCompraNaoEncontrada(CompraNaoEncontradaException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
 }

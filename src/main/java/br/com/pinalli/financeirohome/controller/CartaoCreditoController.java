@@ -4,6 +4,7 @@ import br.com.pinalli.financeirohome.model.CartaoCredito;
 import br.com.pinalli.financeirohome.model.Compra;
 import br.com.pinalli.financeirohome.service.CartaoCreditoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,15 +14,17 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/cartoes-credito")
 public class CartaoCreditoController {
-
     @Autowired
     private CartaoCreditoService cartaoCreditoService;
 
+    public CartaoCreditoController(CartaoCreditoService cartaoCreditoService) {
+        this.cartaoCreditoService = cartaoCreditoService;
+    }
 
     @PostMapping
     public ResponseEntity<CartaoCredito> criarCartaoCredito(@RequestBody CartaoCredito cartaoCredito) {
         CartaoCredito novoCartao = cartaoCreditoService.criarCartaoCredito(cartaoCredito);
-        return ResponseEntity.ok(novoCartao);
+        return ResponseEntity.status(HttpStatus.CREATED).body(novoCartao);
     }
 
     @GetMapping("/usuario/{usuarioId}")
