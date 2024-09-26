@@ -71,6 +71,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/contas-a-receber/{id}").hasRole("USER") // Apenas usuários com role "USER"
                         .requestMatchers(HttpMethod.GET, "/api/cartoes-credito/usuario/{usuarioId}").hasRole("USER") // Apenas usuários com role "USER"
                         .requestMatchers(HttpMethod.PUT, "/api/cartoes-credito/{id}").hasRole("USER") // Apenas usuários com role "USER"
+                        .requestMatchers(HttpMethod.GET, "/api/cartoes-credito/{id}/limite-disponivel").hasRole("USER") // Apenas usuários com role "USER"
+                        .requestMatchers(HttpMethod.POST, "/api/cartoes-credito//{cartaoId}/compras").hasRole("USER") // Apenas usuários com role "USER"
                         .anyRequest().authenticated() // Todos os outros endpoints exigem autenticação
                 )
                 .sessionManagement((session) -> session

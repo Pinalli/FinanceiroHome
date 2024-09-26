@@ -39,6 +39,9 @@ public class Usuario implements UserDetails {
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ContaPagar> contasPagar;
 
+    public Usuario(String usuarioTeste, String email, String senha123) {
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")); // Única role
