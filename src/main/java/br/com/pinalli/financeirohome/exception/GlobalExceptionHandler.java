@@ -39,4 +39,23 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleCompraNaoEncontrada(CompraNaoEncontradaException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
+    @ExceptionHandler(CartaoCreditoNotFoundException.class)
+    public ResponseEntity<String> handleCartaoCreditoNotFoundException(CartaoCreditoNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(CompraNotFoundException.class)
+    public ResponseEntity<String> handleCompraNotFoundException(CompraNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(CompraValidationException.class)
+    public ResponseEntity<String> handleCompraValidationException(CompraValidationException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleGeneralException(Exception ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ocorreu um erro no servidor. Tente novamente mais tarde.");
+    }
 }

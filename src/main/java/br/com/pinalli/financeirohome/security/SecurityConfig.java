@@ -60,20 +60,25 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable) // Desabilita CSRF para APIs REST
+                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers(HttpMethod.POST, "/api/login").permitAll() // Permite login sem autenticação
-                        .requestMatchers(HttpMethod.POST, "/api/usuario/cadastro").permitAll() // Permite cadastro sem autenticação
-                        .requestMatchers(HttpMethod.GET, "/api/contas-a-pagar/id").authenticated() // Requer autenticação
-                        .requestMatchers(HttpMethod.GET, "/api/contas-a-pagar/usuario").authenticated() // Requer autenticação
-                        .requestMatchers(HttpMethod.POST, "/api/contas-a-receber").hasRole("USER") // Apenas usuários com role "USER"
-                        .requestMatchers(HttpMethod.GET, "/api/contas-a-receber/usuario").hasRole("USER") // Apenas usuários com role "USER"
-                        .requestMatchers(HttpMethod.DELETE, "/api/contas-a-receber/{id}").hasRole("USER") // Apenas usuários com role "USER"
-                        .requestMatchers(HttpMethod.GET, "/api/cartoes-credito/usuario/{usuarioId}").hasRole("USER") // Apenas usuários com role "USER"
-                        .requestMatchers(HttpMethod.PUT, "/api/cartoes-credito/{id}").hasRole("USER") // Apenas usuários com role "USER"
-                        .requestMatchers(HttpMethod.GET, "/api/cartoes-credito/{id}/limite-disponivel").hasRole("USER") // Apenas usuários com role "USER"
-                        .requestMatchers(HttpMethod.POST, "/api/cartoes-credito//{cartaoId}/compras").hasRole("USER") // Apenas usuários com role "USER"
-                        .anyRequest().authenticated() // Todos os outros endpoints exigem autenticação
+                        .requestMatchers(HttpMethod.POST, "/api/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/usuario/cadastro").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/contas-a-pagar/id").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/contas-a-pagar/usuario").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/contas-a-receber").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/api/contas-a-receber/usuario").hasRole("USER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/contas-a-receber/{id}").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/api/cartoes-credito/usuario/{usuarioId}").hasRole("USER")
+                        .requestMatchers(HttpMethod.PUT, "/api/cartoes-credito/{id}").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/api/cartoes-credito/{id}/limite-disponivel").hasRole("USER")
+                        .requestMatchers(HttpMethod.POST, "/api/cartoes-credito/{cartaoId}/compras").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/api/cartoes-credito/{cartaoId}/compras").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/api/compras/{compraId}").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/api/compras").hasRole("USER")
+                        .requestMatchers(HttpMethod.PUT, "/api/compras/{compraId}").hasRole("USER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/compras/{compraId}").hasRole("USER")
+                        .anyRequest().authenticated()
                 )
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

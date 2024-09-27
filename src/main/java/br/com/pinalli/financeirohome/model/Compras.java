@@ -16,7 +16,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Entity
 @Table(name = "compras")
-public class Compra {
+public class Compras {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -33,7 +33,7 @@ public class Compra {
     @Column(nullable = false)
     private String categoria;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "cartao_credito_id", nullable = false)
     private CartaoCredito cartaoCredito;
 
@@ -43,5 +43,4 @@ public class Compra {
     @Column(nullable = false)
     private int parcelasPagas;
 
-    // Getters e setters
 }
