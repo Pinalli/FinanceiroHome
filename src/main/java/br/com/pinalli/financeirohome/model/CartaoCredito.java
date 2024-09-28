@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 
 @Entity
 @Table(name = "cartoes_credito")
+@Builder
 @Data
 @Getter
 @Setter
@@ -32,6 +33,7 @@ public class CartaoCredito {
     @ManyToOne
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
+
 
 
 }

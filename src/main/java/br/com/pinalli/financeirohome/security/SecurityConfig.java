@@ -65,9 +65,10 @@ public class SecurityConfig {
                             .requestMatchers(HttpMethod.POST, "/api/usuario/cadastro").permitAll()
 
                             //Usuário
-                            .requestMatchers(HttpMethod.GET, "/api/usuario").hasRole("ADMIN") // acesso restrito apenas para admin
-                            .requestMatchers(HttpMethod.GET, "/api/usuario/{id}").hasRole("ADMIN")
-                            .requestMatchers(HttpMethod.DELETE, "/api/usuario/{id}").hasRole("ADMIN")
+                            .requestMatchers(HttpMethod.GET, "/api/usuario").hasRole("USER") // acesso restrito apenas para admin
+                            .requestMatchers(HttpMethod.POST, "/api/usuario").hasRole("USER") // acesso restrito apenas para admin
+                            .requestMatchers(HttpMethod.GET, "/api/usuario/{id}").hasRole("USER")
+                            .requestMatchers(HttpMethod.DELETE, "/api/usuario/{id}").hasRole("USER")
 
                             //contas-a-pagar
                             .requestMatchers(HttpMethod.GET, "/api/contas-a-pagar/**").hasRole("USER")  // Correção: use **/
@@ -81,8 +82,13 @@ public class SecurityConfig {
                             .requestMatchers(HttpMethod.PUT, "/api/contas-a-receber").hasRole("USER")
                             .requestMatchers(HttpMethod.DELETE, "/api/contas-a-receber/**").hasRole("USER")
 
-
-
+                            //cartao-credito
+                            .requestMatchers(HttpMethod.GET, "api/cartoes-credito/**").hasRole("USER")
+                            .requestMatchers(HttpMethod.POST, "api/cartoes-credito").hasRole("USER")
+                            .requestMatchers(HttpMethod.PUT,"api/cartoes-credito/{id}").hasRole("USER")
+                            .requestMatchers(HttpMethod.PUT, "api/cartoes-credito").hasRole("USER")
+                            .requestMatchers(HttpMethod.DELETE, "api/cartoes-credito/**").hasRole("USER")
+                            .requestMatchers(HttpMethod.GET, "/api/cartoes-credito/usuario/**").hasRole("USER")
                             .anyRequest().authenticated()
                     )
                     .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -96,56 +102,6 @@ public class SecurityConfig {
         }
 
     }
-/**
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests((authorize) -> authorize
 
-                        //usuario
-                        .requestMatchers(HttpMethod.POST, "/api/login").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/usuario/{id}").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/usuario").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/api/usuario/cadastro").permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/api/usuario/{id}").hasRole("USER")
-
-                        //contas-a-pagar
-                        .requestMatchers(HttpMethod.GET, "/api/contas-a-pagar/id").hasRole("USER")
-                        .requestMatchers(HttpMethod.POST, "/api/contas-a-pagar").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/contas-a-pagar/usuario").hasRole("USER")
-
-                        //contas-a-receber
-                        .requestMatchers(HttpMethod.POST, "/api/contas-a-receber").hasRole("USER")
-                        .requestMatchers(HttpMethod.GET, "/api/contas-a-receber/usuario").hasRole("USER")
-                        .requestMatchers(HttpMethod.DELETE, "/api/contas-a-receber/{id}").hasRole("USER")
-
-                        //cartoes_credito
-                        .requestMatchers(HttpMethod.GET, "/api/cartoes-credito/usuario/{usuarioId}").hasRole("USER")
-                        .requestMatchers(HttpMethod.PUT, "/api/cartoes-credito/{id}").hasRole("USER")
-                        .requestMatchers(HttpMethod.GET, "/api/cartoes-credito/{id}/limite-disponivel").hasRole("USER")
-                        .requestMatchers(HttpMethod.POST, "/api/cartoes-credito/{cartaoId}/compras").hasRole("USER")
-                        .requestMatchers(HttpMethod.GET, "/api/cartoes-credito/{cartaoId}/compras").hasRole("USER")
-
-                        //compras
-                        .requestMatchers(HttpMethod.GET, "/api/compras/{compraId}").hasRole("USER")
-                        .requestMatchers(HttpMethod.PUT, "/api/compras/{compraId}").hasRole("USER")
-                        .requestMatchers(HttpMethod.DELETE, "/api/compras/{compraId}").hasRole("USER")
-                        .anyRequest().authenticated()
-                )
-                .sessionManagement((session) -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(e -> e
-                        .authenticationEntryPoint((request, response, authException) -> {
-                            logger.error("Erro de autenticação: ", authException);
-                            authException.printStackTrace(); // Adicione esta linha
-                            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Erro de autenticação");
-                        })
-                );
-
-        return http.build();
-    } */
 
 
