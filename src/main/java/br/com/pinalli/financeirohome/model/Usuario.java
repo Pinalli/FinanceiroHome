@@ -35,7 +35,7 @@ public class Usuario implements UserDetails {
     @Column(nullable = false)
     private String senha;
 
-    //@JsonIgnore
+    @JsonIgnore
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ContaPagar> contasPagar;
 

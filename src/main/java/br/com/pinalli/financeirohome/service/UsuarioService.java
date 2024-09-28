@@ -4,6 +4,7 @@ import br.com.pinalli.financeirohome.dto.UsuarioDTO;
 import br.com.pinalli.financeirohome.model.Usuario;
 import br.com.pinalli.financeirohome.repository.UsuarioRepository;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UsuarioService {
@@ -26,6 +28,14 @@ public class UsuarioService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    public UsuarioService(UsuarioRepository usuarioRepository) {
+        this.usuarioRepository = usuarioRepository;
+    }
+
+    // Converte a entidade Usuario para UsuarioDTO
+    public UsuarioDTO converterParaDTO(Usuario usuario) {
+        return new UsuarioDTO(usuario.getId(), usuario.getNome(), usuario.getEmail());
+    }
 
     public void cadastrarUsuario(UsuarioDTO usuarioDTO, String senha) {
         if (usuarioRepository.findByEmail(usuarioDTO.getEmail()).isPresent()) {
@@ -41,9 +51,21 @@ public class UsuarioService {
         logger.info("Novo usuário cadastrado: {}", novoUsuario.getEmail());
     }
 
+
+    public UsuarioDTO buscarUsuarioPorId(Long id) {
+        Optional<Usuario> usuarioOptional = usuarioRepository.findById(id);
+        if (usuarioOptional.isPresent()) {
+            Usuario usuario = usuarioOptional.get();
+            return converterParaDTO(usuario); // Retorna o DTO
+        }
+        throw new EntityNotFoundException("Usuário não encontrado.");
+    }
+
+
     public List<Usuario> listarUsuarios() {
         return usuarioRepository.findAll();
     }
+
 
     public Usuario  getUsuarioAutenticado() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

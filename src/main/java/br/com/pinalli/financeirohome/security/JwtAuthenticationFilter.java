@@ -92,8 +92,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private String recuperarToken(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            return authHeader.substring(7);
+            return authHeader.substring(7); //Extrai o token JWT sem o prefixo "Bearer "
         }
-        return null;
+        return null;// Retorna null se o token não for encontrado ou não estiver no formato correto
     }
 }

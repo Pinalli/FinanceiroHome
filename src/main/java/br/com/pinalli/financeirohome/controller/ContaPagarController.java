@@ -8,10 +8,12 @@ import br.com.pinalli.financeirohome.model.Usuario;
 import br.com.pinalli.financeirohome.repository.ContaPagarRepository;
 import br.com.pinalli.financeirohome.service.ContaPagarService;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import org.slf4j.Logger;
@@ -35,14 +37,22 @@ public class ContaPagarController {
         this.contaPagarService = contaPagarService;
     }
 
-    @PostMapping
-    public ResponseEntity<ContaPagarDTO> criarContaPagar(@RequestBody ContaPagarDTO contaPagarDTO) {
+    private void verificarAutenticacao() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new SecurityException("Usuário não autenticado.");
+        }
+    }
 
+    @PostMapping
+    public ResponseEntity<ContaPagarDTO> criarContaPagar(@Valid @RequestBody ContaPagarDTO contaPagarDTO) {
+        verificarAutenticacao();
+        logger.info("Iniciando criação da conta a pagar");
             try {
                 ContaPagar conta = contaPagarService.converterDtoParaEntidade(contaPagarDTO);
                 ContaPagar novaConta = contaPagarService.criarContaPagar(conta);
                 ContaPagarDTO contaDTO = contaPagarService.converterParaDTO(novaConta);
-
+                logger.info("Conta a pagar criada com sucesso");
                 return new ResponseEntity<>(contaDTO, HttpStatus.CREATED); // Retorna o DTO
             } catch (IllegalArgumentException e) {
                 return ResponseEntity.badRequest().body(null);
@@ -51,6 +61,7 @@ public class ContaPagarController {
             }catch(Exception e) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
             }
+
         }
 
 
@@ -144,9 +155,15 @@ public class ContaPagarController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ContaPagar> obterContaPagarPorId(@PathVariable Long id) {
-        return contaPagarService.obterContaPagarPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        try {
+            Optional<ContaPagar> conta = contaPagarService.obterContaPagarPorId(id);
+
+            return conta.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();  //Retorne um 400 para dados inválidos
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); // Retorne 500 para erro interno
+        }
     }
 
     @PutMapping("/{id}")
@@ -177,6 +194,14 @@ public class ContaPagarController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); // Retorno adequado
         }
     }
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException e) {
+        return ResponseEntity.badRequest().body(e.getMessage());
+    }
 
+    @ExceptionHandler(SecurityException.class)
+    public ResponseEntity<String> handleSecurityException(SecurityException e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+    }
 
 }

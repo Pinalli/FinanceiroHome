@@ -29,33 +29,41 @@ public class ContaPagarService {
     private static final Logger logger = LoggerFactory.getLogger(ContaPagarService.class);
 
     private final ContaPagarRepository contaPagarRepository;
-    @Autowired
-    private UsuarioRepository usuarioRepository;
+    private final UsuarioRepository usuarioRepository;
 
+    @Autowired
     public ContaPagarService(ContaPagarRepository contaPagarRepository, UsuarioRepository usuarioRepository) {
         this.contaPagarRepository = contaPagarRepository;
         this.usuarioRepository = usuarioRepository;
     }
 
     public ContaPagar criarContaPagar(ContaPagar contaPagar) {
-        // Verifica se a autenticação está válida
+        if (contaPagar == null) {
+            throw new IllegalArgumentException("Conta a pagar não pode ser nula");
+        }
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
             throw new SecurityException("Usuário não autenticado.");
         }
 
-        String emailUsuario = authentication.getName(); // Obter o email do usuário logado
-
+        String emailUsuario = authentication.getName();
         Usuario usuarioLogado = usuarioRepository.findByEmail(emailUsuario)
                 .orElseThrow(() -> new UsuarioNaoEncontradoException("Usuário não encontrado."));
-
-        if (contaPagar == null) throw new IllegalArgumentException("Conta a pagar não pode ser nula");
-        if (usuarioLogado == null) throw new IllegalArgumentException("Usuário não pode ser nulo.");
 
         contaPagar.setUsuario(usuarioLogado);
         return contaPagarRepository.save(contaPagar);
     }
+    @PreAuthorize("hasRole('USER')")
+    public List<ContaPagarDTO> listarContasPagarDoUsuario(Authentication authentication) {
+        Long idUsuario = obterIdUsuario(authentication);
+        List<ContaPagar> contas = contaPagarRepository.findByUsuarioId(idUsuario);
+        if(contas == null) throw new IllegalArgumentException("Nenhuma conta encontrada para o usuário.");
 
+
+        return converterContasParaDTOs(contas);
+    }
+/**
     @PreAuthorize("hasRole('USER')") //IMPORTANTE: validação de permissão para acesso.
     public List<ContaPagarDTO> listarContasPagarDoUsuario(Authentication authentication) {
         logger.info("Iniciando listagem de contas a pagar para o usuário");
@@ -84,7 +92,10 @@ public class ContaPagarService {
             throw new SecurityException("Erro inesperado ao listar as contas: " + e.getMessage(), e); // Detalhes do erro
         }
     }
+*/
 
+
+    //Crucial: obter o idUsuario do usuário autenticado
     private Long obterIdUsuario(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
             throw new SecurityException("Usuário não autenticado.");
@@ -93,21 +104,23 @@ public class ContaPagarService {
         Object principal = authentication.getPrincipal();
 
         if (principal instanceof CustomUserDetails) {
-            return ((CustomUserDetails) principal).getId();  // Se o CustomUserDetails estiver correto
-        }
-        else if(principal instanceof String email){ // Corrigido: tratamento para String
-
+            return ((CustomUserDetails) principal).getId();
+        } else if (principal instanceof String) {
+            String email = (String) principal;
             Usuario usuario = usuarioRepository.findByEmail(email)
                     .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
             return usuario.getId();
-        }else {
-            throw new IllegalStateException("Tipo de usuário não suportado.");
         }
+        throw new IllegalStateException("Tipo de usuário não suportado: " + principal.getClass().getName());
     }
 
     private UsuarioDTO converterUsuarioParaDTO(Usuario usuario) {
-        return UsuarioDTO.fromUsuario(usuario);
+        if (usuario == null) return null;
+        return new UsuarioDTO(usuario.getId(), usuario.getNome(), usuario.getEmail());
     }
+    //private UsuarioDTO converterUsuarioParaDTO(Usuario usuario) {
+        //return UsuarioDTO.fromUsuario(usuario);
+   // }
 
     private List<ContaPagarDTO> converterContasParaDTOs(List<ContaPagar> contas) {
         if (contas == null) {
@@ -144,21 +157,21 @@ public class ContaPagarService {
     }
 
     public ContaPagarDTO converterParaDTO(ContaPagar contaPagar) {
-        if (contaPagar == null) {
-            return null;
-        }
+        if (contaPagar == null) return null;
+
         return ContaPagarDTO.builder()
                 .id(contaPagar.getId())
                 .descricao(contaPagar.getDescricao())
                 .valor(contaPagar.getValor())
-                .status(contaPagar.getStatus() != null ? contaPagar.getStatus().name() : null)
+                .status(contaPagar.getStatus().name())
                 .categoria(contaPagar.getCategoria())
                 .usuario(converterUsuarioParaDTO(contaPagar.getUsuario()))
-                .dataVencimento(contaPagar.getDataVencimento())
                 .build();
     }
 
+
     public Optional<ContaPagar> obterContaPagarPorId(Long id) {
+        if(id == null || id <= 0) throw new IllegalArgumentException("ID inválido para a conta a pagar.");
         return contaPagarRepository.findById(id);
     }
 

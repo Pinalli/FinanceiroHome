@@ -5,6 +5,7 @@ import br.com.pinalli.financeirohome.dto.TokenDTO;
 import br.com.pinalli.financeirohome.model.Usuario;
 import br.com.pinalli.financeirohome.dto.UsuarioDTO;
 
+import br.com.pinalli.financeirohome.repository.UsuarioRepository;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,8 +20,9 @@ import org.springframework.http.ResponseEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Objects;
-
+import java.util.Optional;
 
 
 @RestController
@@ -36,6 +38,9 @@ public class UsuarioController {
     private UsuarioService usuarioService;
     @Autowired
     private AuthenticationManager authManager;
+    @Autowired
+    private  UsuarioRepository usuarioRepository;
+
 
 
     @PostMapping("/login")
@@ -73,16 +78,39 @@ public class UsuarioController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-/**
-    @GetMapping()
-    public ResponseEntity<List<UsuarioDTO>> listarUsuarios() {
-        List<Usuario> usuarios = usuarioService.listarUsuarios();
-        List<UsuarioDTO> usuariosDTO = usuarios.stream()
-                .map(UsuarioDTO::fromUsuario)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(usuariosDTO);
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Usuario> buscarUsuarioPorId(@PathVariable Long id, Authentication authentication) {
+        // Recupera o email do usuário autenticado
+        String emailAutenticado = authentication.getName();
+
+        // Busca o usuário pelo ID na base de dados
+        Optional<Usuario> usuarioOptional = usuarioRepository.findById(id);
+
+        if (usuarioOptional.isPresent()) {
+            Usuario usuario = usuarioOptional.get();
+
+            // Verifica se o email do usuário autenticado é o mesmo do usuário encontrado
+            if (usuario.getEmail().equals(emailAutenticado)) {
+                return ResponseEntity.ok(usuario);
+            } else {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // Retorna 403 Forbidden se o usuário tentar acessar dados de outro usuário
+            }
+        } else {
+            return ResponseEntity.notFound().build(); // Retorna 404 Not Found se o usuário não for encontrado
+        }
     }
-*/
+
+    @GetMapping
+    public ResponseEntity<List<Usuario>> listarUsuarios() {
+        try {
+            List<Usuario> usuarios = usuarioRepository.findAll();
+            return ResponseEntity.ok(usuarios); // Retorna a lista de usuários com status 200 OK
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<?> atualizarUsuario(@PathVariable Long id, @Valid @RequestBody UsuarioDTO usuarioDTO,
                                               BindingResult bindingResult) {
