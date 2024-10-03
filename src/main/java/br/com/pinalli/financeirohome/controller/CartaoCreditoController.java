@@ -1,17 +1,20 @@
 package br.com.pinalli.financeirohome.controller;
 
 import br.com.pinalli.financeirohome.dto.CartaoCreditoDTO;
-import br.com.pinalli.financeirohome.exception.UsuarioNaoAutenticadoException;
-import br.com.pinalli.financeirohome.model.CartaoCredito;
+import br.com.pinalli.financeirohome.exception.CartaoCreditoException;
 import br.com.pinalli.financeirohome.service.CartaoCreditoService;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.validation.BindingResult;
 import jakarta.validation.Valid;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/cartoes-credito")
@@ -24,26 +27,35 @@ public class CartaoCreditoController {
     }
 
     @PostMapping
-    public ResponseEntity<CartaoCreditoDTO> criarCartaoCredito(@Valid @RequestBody CartaoCreditoDTO cartaoCreditoDTO, Authentication authentication) {
+    public ResponseEntity<?> criarCartaoCredito(@Valid @RequestBody CartaoCreditoDTO cartaoCreditoDTO, BindingResult result) {
+        if (result.hasErrors()) {
+            List<String> errors = result.getAllErrors()
+                    .stream()
+                    .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                    .collect(Collectors.toList());
+            return ResponseEntity.badRequest().body(errors);
+        }
+
         try {
-            verificarAutenticacao(authentication);
-
-            Long idUsuario = cartaoCreditoService.obterIdUsuario(authentication);
-            if (idUsuario == null) {
-                throw new UsuarioNaoAutenticadoException("Falha na obtenção do ID do usuário");
-            }
-
-            CartaoCredito cartao = cartaoCreditoService.converterDtoParaEntidade(cartaoCreditoDTO);
-            cartao.setUsuario(cartaoCreditoService.obterUsuarioPorId(idUsuario));
-
-            CartaoCredito novoCartao = cartaoCreditoService.criarCartaoCredito(cartao);
-            return new ResponseEntity<>(cartaoCreditoService.converterParaDTO(novoCartao), HttpStatus.CREATED);
+            CartaoCreditoDTO novoCartao = cartaoCreditoService.criarCartaoCredito(cartaoCreditoDTO);
+            return new ResponseEntity<>(novoCartao, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Dados inválidos fornecidos: " + e.getMessage());
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao criar o cartão de crédito");
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao criar cartão de crédito: " + e.getMessage());
         }
     }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<List<String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        List<String> errors = ex.getBindingResult()
+                .getAllErrors()
+                .stream()
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .collect(Collectors.toList());
+        return ResponseEntity.badRequest().body(errors);
+    }
+
 
     private void verificarAutenticacao(Authentication authentication) {
         Objects.requireNonNull(authentication, "Authentication não pode ser nula.");
@@ -68,25 +80,18 @@ public class CartaoCreditoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CartaoCreditoDTO> atualizarCartaoCredito(@PathVariable Long id, @Valid @RequestBody CartaoCreditoDTO cartaoCreditoDTO, Authentication authentication) {
+    public ResponseEntity<CartaoCreditoDTO> atualizarCartaoCredito(@PathVariable Long id, @Valid @RequestBody CartaoCreditoDTO cartaoCreditoDTO) {
         try {
-            verificarAutenticacao(authentication);
-
-            Long idUsuario = cartaoCreditoService.obterIdUsuario(authentication);
-            if (idUsuario == null) {
-                throw new SecurityException("Falha na obtenção do ID do usuário");
-            }
-
+            //Importantíssimo: seta o id do DTO para a requisição
             cartaoCreditoDTO.setId(id);
-            CartaoCreditoDTO cartaoAtualizado = cartaoCreditoService.atualizarCartaoCredito(cartaoCreditoDTO, idUsuario);
-            if (cartaoAtualizado == null) {
-                return ResponseEntity.notFound().build();
-            }
-            return ResponseEntity.ok(cartaoAtualizado);
-        } catch (SecurityException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            CartaoCreditoDTO atualizado = cartaoCreditoService.atualizarCartaoCredito(cartaoCreditoDTO);
+            return ResponseEntity.ok(atualizado);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(null);
+        } catch (CartaoCreditoException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // Correção
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); // Retorno correto para exceções mais gerais
         }
     }
 

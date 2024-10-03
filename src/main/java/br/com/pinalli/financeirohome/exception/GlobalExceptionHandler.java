@@ -25,10 +25,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 
-    @ExceptionHandler(CartaoNaoEncontradoException.class)
-    public ResponseEntity<String> handleCartaoNaoEncontrado(CartaoNaoEncontradoException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
-    }
+
 
     @ExceptionHandler(LimiteInsuficienteException.class)
     public ResponseEntity<String> handleLimiteInsuficiente(LimiteInsuficienteException ex) {
@@ -39,11 +36,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleCompraNaoEncontrada(CompraNaoEncontradaException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
-    @ExceptionHandler(CartaoCreditoNotFoundException.class)
-    public ResponseEntity<String> handleCartaoCreditoNotFoundException(CartaoCreditoNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
-    }
-
+  
     @ExceptionHandler(CompraNotFoundException.class)
     public ResponseEntity<String> handleCompraNotFoundException(CompraNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());

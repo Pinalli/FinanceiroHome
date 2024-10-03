@@ -1,7 +1,8 @@
 package br.com.pinalli.financeirohome.controller;
 
 import br.com.pinalli.financeirohome.dto.ComprasDTO;
-import br.com.pinalli.financeirohome.exception.CartaoCreditoNotFoundException;
+
+import br.com.pinalli.financeirohome.exception.CartaoCreditoException;
 import br.com.pinalli.financeirohome.exception.CompraNotFoundException;
 import br.com.pinalli.financeirohome.exception.CompraValidationException;
 
@@ -39,7 +40,7 @@ public class ComprasController {
         }
         List<ComprasDTO> compras = comprasService.listarComprasPorCartao(cartaoId);
         if (compras.isEmpty()) {
-            throw new CartaoCreditoNotFoundException(cartaoId);
+            throw new CartaoCreditoException(cartaoId);
         }
         return ResponseEntity.ok(compras);
     }

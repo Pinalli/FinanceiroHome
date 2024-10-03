@@ -2,14 +2,15 @@ package br.com.pinalli.financeirohome.service;
 
 import br.com.pinalli.financeirohome.dto.ContaReceberDTO;
 import br.com.pinalli.financeirohome.dto.UsuarioDTO;
-import br.com.pinalli.financeirohome.exception.ContaReceberException;
+import br.com.pinalli.financeirohome.exception.CartaoCreditoException;
 import br.com.pinalli.financeirohome.model.ContaReceber;
 import br.com.pinalli.financeirohome.model.Usuario; // Ajuste o caminho conforme necessário
 import br.com.pinalli.financeirohome.repository.ContaReceberRepository;
 import br.com.pinalli.financeirohome.repository.UsuarioRepository;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
+
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -38,7 +39,7 @@ public class ContaReceberService {
             throw new IllegalArgumentException("Dados inválidos para a conta a receber.");
         }
 
-        Usuario usuario = null;
+        Usuario usuario;
         if (contaReceberDTO.getUsuarioId() != null) {
             usuario = usuarioRepository.findById(contaReceberDTO.getUsuarioId())
                     .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
@@ -156,25 +157,27 @@ public class ContaReceberService {
 
 
     public boolean excluirContaReceber(Long id, Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new SecurityException("Usuário não autenticado.");
-        }
-
-        Long idUsuario = obterIdUsuario(authentication);
-        if (idUsuario == null) {
-            throw new SecurityException("Falha ao obter o ID do usuário.");
-        }
-
-        ContaReceber conta = contaReceberRepository.findByIdAndUsuarioId(id, idUsuario)
-                .orElseThrow(() -> new IllegalArgumentException("Conta não encontrada ou não pertence ao usuário."));
-
         try {
-            contaReceberRepository.delete(conta);
-            logger.debug("Conta excluída com sucesso.");
-            return true;
-        } catch (DataAccessException ex) {
-            logger.error("Erro ao excluir conta: Erro de acesso a dados", ex);
-            throw new ContaReceberException("Erro ao excluir conta: Problema de acesso ao banco de dados", ex);
+            Long idUsuario = obterIdUsuario(authentication);
+
+            Optional<ContaReceber> contaReceber = contaReceberRepository.findByIdAndUsuarioId(id, idUsuario);
+            if (contaReceber.isEmpty()) {
+                throw new CartaoCreditoException("Conta não encontrada para exclusão.");
+            }
+
+            try {
+                contaReceberRepository.deleteById(id);
+                return true;
+            } catch (DataIntegrityViolationException e) {
+                throw new CartaoCreditoException("Erro ao excluir conta: Problema de integridade de dados.", e);
+            }
+
+        } catch (SecurityException ex) {
+            throw new CartaoCreditoException("Erro de segurança ao excluir a conta: " + ex.getMessage(), ex);
+        } catch (IllegalArgumentException e) {
+            throw new CartaoCreditoException("Dados inválidos para a exclusão da conta: " + e.getMessage(), e);
+        } catch (Exception e) {
+            throw new RuntimeException("Erro inesperado ao excluir a conta: " + e.getMessage(), e);
         }
     }
 
@@ -195,33 +198,7 @@ public class ContaReceberService {
         throw new IllegalStateException("Tipo de usuário não suportado.");
     }
 
-    /**   public ContaReceberDTO atualizarContaReceber (Long id, ContaReceberDTO contaReceberDTO){
-            Optional<ContaReceber> contaReceberOptional = obterContaReceberPorId(id);
-            if (contaReceberOptional.isPresent()) {
-                ContaReceber contaReceber = contaReceberOptional.get();
-                contaReceber.setDescricao(contaReceberDTO.getDescricao());
-                contaReceber.setValor(contaReceberDTO.getValor());
-                contaReceber.setDataRecebimento(contaReceberDTO.getDataRecebimento());
-                contaReceber.setStatus(contaReceberDTO.getStatus());
-                contaReceber.setCategoria(contaReceberDTO.getCategoria());
-                contaReceber.setUsuario(usuarioRepository.findById(contaReceberDTO.getUsuarioDTO().getId())
-                        .orElseThrow(() -> new UserServiceException("Usuário não encontrado")));
-                ContaReceber updatedContaReceber = contaReceberRepository.save(contaReceber);
-                return convertToDto(updatedContaReceber);
-            } else {
-                throw new ServiceException("Conta a receber não encontrada");
-            }
-        }
-  public void deletarContaReceber (Long id){
-            if (contaReceberRepository.existsById(id)) {
-                contaReceberRepository.deleteById(id);
-            }
-        }
-    }
-      */
-
-
-     class ServiceException extends RuntimeException {
+    static class ServiceException extends RuntimeException {
         public ServiceException(String message) {
             super(message);
         }

@@ -30,7 +30,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableMethodSecurity(securedEnabled = true)
 public class SecurityConfig {
 
-    private static final Logger logger = LoggerFactory.getLogger(ContaPagarService.class);
+    public static final Logger logger = LoggerFactory.getLogger(ContaPagarService.class);
 
     @Autowired
     private UserDetailsService userDetailsService;
@@ -68,12 +68,13 @@ public class SecurityConfig {
                             .requestMatchers(HttpMethod.GET, "/api/usuario").hasRole("USER") // acesso restrito apenas para admin
                             .requestMatchers(HttpMethod.POST, "/api/usuario").hasRole("USER") // acesso restrito apenas para admin
                             .requestMatchers(HttpMethod.GET, "/api/usuario/{id}").hasRole("USER")
+                            .requestMatchers(HttpMethod.PUT, "/api/usuario/{id}").hasRole("USER")
                             .requestMatchers(HttpMethod.DELETE, "/api/usuario/{id}").hasRole("USER")
 
                             //contas-a-pagar
-                            .requestMatchers(HttpMethod.GET, "/api/contas-a-pagar/**").hasRole("USER")  // Correção: use **/
+                            .requestMatchers(HttpMethod.GET, "/api/contas-a-pagar/{id}").hasRole("USER")  // Correção: use **/
                             .requestMatchers(HttpMethod.POST, "/api/contas-a-pagar").hasRole("USER")  // Necessário
-                            .requestMatchers(HttpMethod.PUT, "/api/contas-a-pagar/**").hasRole("USER")  // Necessário
+                            .requestMatchers(HttpMethod.PUT, "/api/contas-a-pagar/{id}").hasRole("USER")  // Necessário
                             .requestMatchers(HttpMethod.DELETE, "/api/contas-a-pagar/**").hasRole("USER")  // Necessário
 
                             //contas-a-receber

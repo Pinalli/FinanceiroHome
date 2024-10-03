@@ -34,6 +34,8 @@ public class CartaoCreditoDTO {
     @PositiveOrZero(message = "O valor deve ser zero ou positivo")
     private BigDecimal valor;
 
+    // Adicionamos um getter para o usuarioId
+    @Getter
     @NotNull(message = "O ID do usuário não pode ser nulo")
     private Long usuarioId;
 
@@ -53,6 +55,15 @@ public class CartaoCreditoDTO {
         cartaoCredito.setDescricao(this.descricao);
         cartaoCredito.setLimite(this.limite);
         cartaoCredito.setValor(this.valor);
+        // Não setamos o usuário aqui, apenas mantemos o ID do usuário
+        return cartaoCredito;
+    }
+    /* public CartaoCredito toEntity() {
+        CartaoCredito cartaoCredito = new CartaoCredito();
+        cartaoCredito.setId(this.id);
+        cartaoCredito.setDescricao(this.descricao);
+        cartaoCredito.setLimite(this.limite);
+        cartaoCredito.setValor(this.valor);
 
         // Criamos um objeto Usuario com o ID fornecido
         Usuario usuario = new Usuario();
@@ -61,6 +72,6 @@ public class CartaoCreditoDTO {
 
         return cartaoCredito;
     }
-
+*/
 
 }

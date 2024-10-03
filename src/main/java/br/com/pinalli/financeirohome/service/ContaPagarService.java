@@ -54,6 +54,7 @@ public class ContaPagarService {
         contaPagar.setUsuario(usuarioLogado);
         return contaPagarRepository.save(contaPagar);
     }
+
     @PreAuthorize("hasRole('USER')")
     public List<ContaPagarDTO> listarContasPagarDoUsuario(Authentication authentication) {
         Long idUsuario = obterIdUsuario(authentication);
