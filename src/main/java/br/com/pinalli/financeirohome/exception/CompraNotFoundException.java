@@ -5,4 +5,11 @@ public class CompraNotFoundException extends RuntimeException {
     public CompraNotFoundException(Long compraId) {
         super("Compra com ID " + compraId + " não foi encontrada.");
     }
+
+    public CompraNotFoundException() {
+
+    }
+
+    public CompraNotFoundException(String s) {
+    }
 }

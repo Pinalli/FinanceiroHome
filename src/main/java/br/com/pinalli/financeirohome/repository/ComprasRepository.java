@@ -6,13 +6,10 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ComprasRepository extends JpaRepository<Compras, Long> {
     List<Compras> findByCartaoCreditoIdAndUsuarioId(Long cartaoCreditoId, Long usuarioId);
-    List<Compras> findByCartaoCreditoId(Long cartaoId);
-
-    // Métodos adicionais que podem ser úteis:
-    List<Compras> findByCartaoCreditoIdAndDataBetween(Long cartaoId, LocalDate inicio, LocalDate fim);
-    List<Compras> findByCartaoCreditoIdAndCategoriaIgnoreCase(Long cartaoId, String categoria);
+    Optional<Compras> findByIdAndUsuarioId(Long compraId, Long idUsuario);
 }

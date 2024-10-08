@@ -99,7 +99,7 @@ public class ComprasDTO {
                 .categoria(this.categoria)
                 .parcelas(this.parcelas)
                 .parcelasPagas(this.parcelasPagas)
-                .cartaoCredito(cartaoCredito.toEntity())
+                .cartaoCredito(this.cartaoCredito.toEntity())
                 .usuario(usuario)  // Passando o objeto Usuario
                 .build();
     }

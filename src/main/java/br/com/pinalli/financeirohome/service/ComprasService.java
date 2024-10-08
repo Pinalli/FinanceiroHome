@@ -3,20 +3,21 @@ package br.com.pinalli.financeirohome.service;
 import br.com.pinalli.financeirohome.dto.ComprasDTO;
 import br.com.pinalli.financeirohome.dto.CartaoCreditoDTO;
 import br.com.pinalli.financeirohome.exception.CartaoCreditoException;
+import br.com.pinalli.financeirohome.exception.CompraNotFoundException;
 import br.com.pinalli.financeirohome.model.Compras;
 import br.com.pinalli.financeirohome.model.CartaoCredito;
-import br.com.pinalli.financeirohome.model.Usuario;
 import br.com.pinalli.financeirohome.repository.ComprasRepository;
 import br.com.pinalli.financeirohome.repository.CartaoCreditoRepository;
 import br.com.pinalli.financeirohome.repository.UsuarioRepository;
-import br.com.pinalli.financeirohome.security.CustomUserDetails;
 import jakarta.transaction.Transactional;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -31,11 +32,13 @@ public class ComprasService {
     @Autowired
     private ComprasRepository comprasRepository;
     @Autowired
-    private  CartaoCreditoRepository cartaoCreditoRepository;
+    private CartaoCreditoRepository cartaoCreditoRepository;
     @Autowired
-    private  UsuarioRepository usuarioRepository;
+    private UsuarioRepository usuarioRepository;
     @Autowired
     private UsuarioService usuarioService;
+    @Autowired
+    private CartaoCreditoService cartaoCreditoService;
 
     @Autowired
     public ComprasService(ComprasRepository comprasRepository, CartaoCreditoRepository cartaoCreditoRepository, UsuarioRepository usuarioRepository) {
@@ -50,12 +53,12 @@ public class ComprasService {
         log.info("Registrando compra para o cartão: {}", cartaoId);
         log.info("ComprasDTO recebido: {}", comprasDTO);
 
-        if(comprasDTO == null || comprasDTO.getCartaoCredito() == null || comprasDTO.getCartaoCredito().getId() == null) {
+        if (comprasDTO == null || comprasDTO.getCartaoCredito() == null || comprasDTO.getCartaoCredito().getId() == null) {
             throw new IllegalArgumentException("Dados inválidos para criar a compra.");
         }
 
         Long idUsuario = obterIdUsuario(authentication);
-        if(idUsuario == null) {
+        if (idUsuario == null) {
             throw new SecurityException("Erro ao obter ID do usuário.");
         }
         log.debug("ID do usuário autenticado: {}", idUsuario);
@@ -155,6 +158,9 @@ public class ComprasService {
     }
 
     private Long obterIdUsuario(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new SecurityException("Usuário não autenticado.");
+        }
         Object principal = authentication.getPrincipal();
 
         if (principal instanceof org.springframework.security.core.userdetails.User) {
@@ -170,15 +176,12 @@ public class ComprasService {
     }
 
 
-
-
-
-
-
     public ComprasDTO buscarCompraPorId(Long compraId) {
-        return comprasRepository.findById(compraId)
-                .map(ComprasDTO::fromEntity)
-                .orElse(null);
+        Optional<Compras> compra = comprasRepository.findById(compraId);
+        if (compra.isEmpty()) {
+            throw new CompraNotFoundException();
+        }
+        return converterParaDTO(compra.get()); //Correção: Convertendo para DTO
     }
 
 
@@ -191,8 +194,30 @@ public class ComprasService {
         return null;
     }
 
-    @Transactional
-    public void deletarCompra(Long compraId) {
-        comprasRepository.deleteById(compraId);
+    public boolean deletarCompra(Long compraId, Authentication authentication) {
+        try {
+            //Obtém o ID do usuário logado.
+            Long idUsuario = obterIdUsuario(authentication);
+
+            if (idUsuario == null) throw new SecurityException("Erro ao obter o ID do usuário.");
+
+            // Busca a compra
+            Optional<Compras> compra = comprasRepository.findByIdAndUsuarioId(compraId, idUsuario);
+
+            if (compra.isEmpty()) {
+                throw new CompraNotFoundException("Compra não encontrada para o usuário."); // Erro mais específico
+            }
+
+            comprasRepository.deleteById(compraId);
+            return true;
+
+        } catch (DataIntegrityViolationException e) {
+            throw new RuntimeException("Erro ao excluir compra: Problema de integridade de dados.", e);
+        } catch (SecurityException | UsernameNotFoundException |
+                 IllegalArgumentException e) { //Tratamento mais abrangente de exceções.
+            throw new RuntimeException("Erro ao excluir a compra: " + e.getMessage(), e);
+        } catch (Exception e) {
+            throw new RuntimeException("Erro inesperado ao excluir a compra: " + e.getMessage(), e);
+        }
     }
 }
