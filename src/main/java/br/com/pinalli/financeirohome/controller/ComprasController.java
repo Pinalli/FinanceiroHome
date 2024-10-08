@@ -1,13 +1,10 @@
 package br.com.pinalli.financeirohome.controller;
 
-import br.com.pinalli.financeirohome.dto.CompraCreateDTO;
 import br.com.pinalli.financeirohome.dto.ComprasDTO;
-import br.com.pinalli.financeirohome.exception.CartaoCreditoException;
 import br.com.pinalli.financeirohome.exception.CompraNotFoundException;
 import br.com.pinalli.financeirohome.exception.CompraValidationException;
 import br.com.pinalli.financeirohome.service.CartaoCreditoService;
 import br.com.pinalli.financeirohome.service.ComprasService;
-import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -63,7 +59,7 @@ public class ComprasController {
         }
     }
 
-    @GetMapping("/{cartaoId}")
+    @GetMapping("/{cartaoId}/compras")
     public ResponseEntity<List<ComprasDTO>> listarComprasPorCartao(@PathVariable Long cartaoId, Authentication authentication) {
         try {
             log.debug("Iniciando listarComprasPorCartao para cartaoId: {}", cartaoId);
@@ -83,7 +79,7 @@ public class ComprasController {
         }
     }
 
-    @GetMapping("/{compraId}")
+    @GetMapping("/{cartaoId}/compra/{compraId}")
     public ResponseEntity<ComprasDTO> buscarCompra(@PathVariable Long cartaoId, @PathVariable Long compraId) {
         if (cartaoId == null || cartaoId <= 0 || compraId == null || compraId <= 0) {
             throw new CompraValidationException("ID do cartão ou da compra inválido.");
@@ -96,17 +92,26 @@ public class ComprasController {
     }
 
     @PutMapping("/{compraId}")
-    public ResponseEntity<ComprasDTO> atualizarCompra(@PathVariable Long cartaoId,
-                                                      @PathVariable Long compraId, @RequestBody ComprasDTO compraAtualizada) {
-        if (cartaoId == null || cartaoId <= 0 || compraId == null || compraId <= 0) {
-            throw new CompraValidationException("ID do cartão ou da compra inválido.");
+    public ResponseEntity<ComprasDTO> atualizarCompra(
+            @PathVariable Long compraId,
+            @Valid @RequestBody ComprasDTO compraAtualizada,
+            Authentication authentication) {
+
+        try {
+            verificarAutenticacao(authentication);
+            compraAtualizada.setId(compraId);
+            ComprasDTO compraDTO = comprasService.atualizarCompra(compraAtualizada, authentication);
+            if(compraDTO == null) return ResponseEntity.notFound().build();
+            return ResponseEntity.ok(compraDTO);
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            // Log the exception
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
-        compraAtualizada.setId(compraId);
-        ComprasDTO compra = comprasService.atualizarCompra(compraAtualizada);
-        if (compra == null || !compra.getCartaoCredito().getId().equals(cartaoId)) {
-            throw new CompraNotFoundException(compraId);
-        }
-        return ResponseEntity.ok(compra);
     }
 
 

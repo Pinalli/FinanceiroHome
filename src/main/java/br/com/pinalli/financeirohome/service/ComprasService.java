@@ -185,14 +185,68 @@ public class ComprasService {
     }
 
 
-    public ComprasDTO atualizarCompra(ComprasDTO compraAtualizada) {
-        if (comprasRepository.existsById(compraAtualizada.getId())) {
-            Compras compra = compraAtualizada.toEntity();
-            Compras compraSalva = comprasRepository.save(compra);
-            return ComprasDTO.fromEntity(compraSalva);
+    @Transactional
+    public ComprasDTO atualizarCompra(ComprasDTO compraAtualizada, Authentication authentication) {
+        log.debug("Iniciando atualização da compra: {}", compraAtualizada);
+
+        if (compraAtualizada == null || compraAtualizada.getId() == null || compraAtualizada.getCartaoCredito()
+                == null || compraAtualizada.getCartaoCredito().getId() == null) {
+            throw new IllegalArgumentException("Dados inválidos para atualizar a compra.");
         }
-        return null;
+
+        Long idUsuario = obterIdUsuario(authentication);
+        if (idUsuario == null) {
+            throw new SecurityException("Erro ao obter o ID do usuário.");
+        }
+
+        // Verificar se a compra existe no banco de dados
+        Optional<Compras> compraExistenteOpt = comprasRepository.findById(compraAtualizada.getId());
+        if (compraExistenteOpt.isEmpty()) {
+            throw new CompraNotFoundException("Compra não encontrada para o ID fornecido.");
+        }
+
+        Compras compraExistente = compraExistenteOpt.get();
+
+        // Verificar se o cartão de crédito associado existe
+        Optional<CartaoCredito> cartao = cartaoCreditoRepository.findById(compraAtualizada.getCartaoCredito().getId());
+        if (cartao.isEmpty()) {
+            throw new CartaoCreditoException("Cartão de crédito não encontrado.");
+        }
+
+        // Verificar se o usuário autenticado é o dono do cartão de crédito
+        if (!Objects.equals(cartao.get().getUsuario().getId(), idUsuario)) {
+            throw new SecurityException("Usuário não autorizado a atualizar esta compra.");
+        }
+
+        // Verificar se o usuário autenticado é o dono da compra existente
+        if (!Objects.equals(compraExistente.getUsuario().getId(), idUsuario)) {
+            throw new SecurityException("Usuário não autorizado a atualizar esta compra.");
+        }
+
+        try {
+            // Atualizar apenas os campos necessários na compra existente
+            compraExistente.setData(compraAtualizada.getDataCompra());
+            compraExistente.setValor(compraAtualizada.getValor());
+            compraExistente.setDescricao(compraAtualizada.getDescricao());
+            compraExistente.setCategoria(compraAtualizada.getCategoria());
+            compraExistente.setParcelas(compraAtualizada.getParcelas());
+            compraExistente.setParcelasPagas(compraAtualizada.getParcelasPagas());
+            compraExistente.setCartaoCredito(cartao.get()); // Associa o cartão de crédito validado
+
+            // Salvar a compra atualizada no banco de dados
+            Compras compraSalva = comprasRepository.save(compraExistente);
+            log.debug("Compra atualizada com sucesso: {}", compraSalva);
+
+            return ComprasDTO.fromEntity(compraSalva);
+        } catch (DataIntegrityViolationException e) {
+            log.error("Erro de integridade de dados ao atualizar compra", e);
+            throw new RuntimeException("Erro ao atualizar compra: Problema de integridade de dados.", e);
+        } catch (Exception e) {
+            log.error("Erro inesperado ao atualizar compra", e);
+            throw new RuntimeException("Erro inesperado ao atualizar compra: " + e.getMessage(), e);
+        }
     }
+
 
     public boolean deletarCompra(Long compraId, Authentication authentication) {
         try {

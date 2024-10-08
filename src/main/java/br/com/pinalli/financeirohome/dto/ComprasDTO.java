@@ -48,7 +48,7 @@ public class ComprasDTO {
     @Min(value = 0, message = "Número de parcelas pagas não pode ser negativo")
     private int parcelasPagas;
 
-    @NotNull(message = "Usuário não pode ser nulo")
+
     private Long usuarioId; // Adicionar o campo para referenciar o usuário
 
     public static ComprasDTO fromEntity(Compras compra) {
@@ -63,6 +63,7 @@ public class ComprasDTO {
                 .parcelas(compra.getParcelas())
                 .parcelasPagas(compra.getParcelasPagas())
                 .cartaoCredito(CartaoCreditoDTO.converterParaDTO(compra.getCartaoCredito()))
+                .usuarioId(compra.getUsuario().getId())
                 .build();
     }
 
@@ -78,7 +79,12 @@ public class ComprasDTO {
         log.debug("parcelas: {}", this.parcelas);
         log.debug("usuario_id: {}", this.usuarioId);
 
-        if (this.cartaoCredito == null) throw new IllegalArgumentException("CartaoCredito não pode ser nulo");
+        if (this.cartaoCredito == null || this.usuarioId == null) {
+            throw new IllegalArgumentException("Dados inválidos para criar a compra.");
+        }
+
+
+      //  if (this.cartaoCredito == null) throw new IllegalArgumentException("CartaoCredito não pode ser nulo");
         if (this.cartaoCredito.getId() == null) throw new IllegalArgumentException("ID do CartaoCredito não pode ser nulo");
         if (this.cartaoCredito.getUsuarioId() == null) throw new IllegalArgumentException("UsuarioId do CartaoCredito não pode ser nulo");
         if (this.valor == null) throw new IllegalArgumentException("Valor não pode ser nulo");
