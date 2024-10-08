@@ -63,35 +63,20 @@ public class ComprasController {
         }
     }
 
-  /*  @GetMapping
-    public ResponseEntity<List<ComprasDTO>> listarCompras(@PathVariable Long cartaoId) {
-        if (cartaoId == null || cartaoId <= 0) {
-            throw new CompraValidationException("ID do cartão de crédito inválido.");
-        }
-        List<ComprasDTO> compras = comprasService.listarComprasPorCartao(cartaoId);
-        if (compras.isEmpty()) {
-            throw new CartaoCreditoException(cartaoId);
-        }
-        return ResponseEntity.ok(compras);
-    }
-*/
     @GetMapping("/cartao/{cartaoId}")
     public ResponseEntity<List<ComprasDTO>> listarComprasPorCartao(@PathVariable Long cartaoId, Authentication authentication) {
+        log.debug("Iniciando listarComprasPorCartao para cartaoId: {}", cartaoId);
         try {
-            verificarAutenticacao(authentication); //Verifica autenticação.
             List<ComprasDTO> compras = comprasService.listarComprasPorCartao(cartaoId, authentication);
-            if (compras == null || compras.isEmpty()) {
-                return ResponseEntity.noContent().build();
-            }
+            log.debug("Compras recuperadas: {}", compras);
             return ResponseEntity.ok(compras);
-        } catch (SecurityException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            log.error("Erro ao listar compras para o cartão {}: ", cartaoId, e);
+            throw new RuntimeException("Erro ao listar compras: " + e.getMessage(), e);
         }
     }
+
+
 
 
     private void verificarAutenticacao(Authentication authentication) {
@@ -100,7 +85,7 @@ public class ComprasController {
         }
     }
 
-    @GetMapping("/{compraId}")
+    @GetMapping("/{cartaoId}/{compraId}")
     public ResponseEntity<ComprasDTO> buscarCompra(@PathVariable Long cartaoId, @PathVariable Long compraId) {
         if (cartaoId == null || cartaoId <= 0 || compraId == null || compraId <= 0) {
             throw new CompraValidationException("ID do cartão ou da compra inválido.");
@@ -125,6 +110,7 @@ public class ComprasController {
         }
         return ResponseEntity.ok(compra);
     }
+
 
     @DeleteMapping("/{compraId}")
     public ResponseEntity<Void> deletarCompra(@PathVariable Long cartaoId, @PathVariable Long compraId) {

@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +28,7 @@ public class UsuarioService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
 
     public UsuarioService(UsuarioRepository usuarioRepository) {
         this.usuarioRepository = usuarioRepository;
@@ -49,6 +51,13 @@ public class UsuarioService {
 
         usuarioRepository.save(novoUsuario);
         logger.info("Novo usuário cadastrado: {}", novoUsuario.getEmail());
+    }
+
+
+    public Long obterIdPorEmail(String email) {
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado com o email: " + email));
+        return usuario.getId();
     }
 
 

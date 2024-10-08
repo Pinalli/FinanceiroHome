@@ -28,13 +28,14 @@ public class ComprasService {
 
     private static final Logger log = LoggerFactory.getLogger(ComprasService.class); // For SLF4j
 
-    private final ComprasRepository comprasRepository;
-    private final CartaoCreditoRepository cartaoCreditoRepository;
+    @Autowired
+    private ComprasRepository comprasRepository;
+    @Autowired
+    private  CartaoCreditoRepository cartaoCreditoRepository;
     @Autowired
     private  UsuarioRepository usuarioRepository;
-    //Injeção correta
     @Autowired
-    private CartaoCreditoService cartaoCreditoService;
+    private UsuarioService usuarioService;
 
     @Autowired
     public ComprasService(ComprasRepository comprasRepository, CartaoCreditoRepository cartaoCreditoRepository, UsuarioRepository usuarioRepository) {
@@ -105,63 +106,73 @@ public class ComprasService {
                 .build();
     }
 
-
     public List<ComprasDTO> listarComprasPorCartao(Long cartaoId, Authentication authentication) {
+        log.debug("Iniciando listarComprasPorCartao no serviço para cartaoId: {}", cartaoId);
 
         if (cartaoId == null) {
-            throw new IllegalArgumentException("ID do cartão inválido.");
+            log.error("ID do cartão é nulo");
+            throw new IllegalArgumentException("ID do cartão não pode ser nulo");
         }
 
-        Long idUsuario = cartaoCreditoService.obterIdUsuario(authentication);
-        if (idUsuario == null) {
-            throw new SecurityException("Erro ao obter o ID do usuário.");
+        Long idUsuario;
+        try {
+            idUsuario = obterIdUsuario(authentication);
+            log.debug("ID do usuário obtido: {}", idUsuario);
+        } catch (Exception e) {
+            log.error("Erro ao obter ID do usuário: ", e);
+            throw new RuntimeException("Erro ao obter ID do usuário", e);
         }
 
-        Optional<CartaoCredito> cartao = cartaoCreditoRepository.findById(cartaoId);
-
+        Optional<CartaoCredito> cartao;
+        try {
+            cartao = cartaoCreditoRepository.findById(cartaoId);
+            log.debug("Cartão encontrado: {}", cartao.isPresent());
+        } catch (Exception e) {
+            log.error("Erro ao buscar cartão de crédito: ", e);
+            throw new RuntimeException("Erro ao buscar cartão de crédito", e);
+        }
 
         if (cartao.isEmpty()) {
+            log.error("Cartão de crédito não encontrado para id: {}", cartaoId);
             throw new CartaoCreditoException("Cartão de crédito não encontrado.");
         }
 
         if (!Objects.equals(cartao.get().getUsuario().getId(), idUsuario)) {
+            log.error("Usuário {} não autorizado a acessar o cartão {}", idUsuario, cartaoId);
             throw new SecurityException("Usuário não autorizado a acessar esta lista.");
         }
 
-
-        List<Compras> compras = comprasRepository.findByCartaoCreditoIdAndUsuarioId(cartaoId, idUsuario);
-        if (compras == null || compras.isEmpty()) {
-            return List.of(); // Retorna uma lista vazia.
+        List<Compras> compras;
+        try {
+            compras = comprasRepository.findByCartaoCreditoIdAndUsuarioId(cartaoId, idUsuario);
+            log.debug("Compras encontradas: {}", compras.size());
+        } catch (Exception e) {
+            log.error("Erro ao buscar compras: ", e);
+            throw new RuntimeException("Erro ao buscar compras", e);
         }
-
 
         return compras.stream().map(this::converterParaDTO).collect(Collectors.toList());
     }
 
-
-    private ComprasDTO converterComprasParaDTOs(Compras compra) {
-        return ComprasDTO.fromEntity(compra);
-    }
-
-
     private Long obterIdUsuario(Authentication authentication) {
         Object principal = authentication.getPrincipal();
 
-        if (principal instanceof CustomUserDetails) {
-            return ((CustomUserDetails) principal).getId();
-        } else if (principal instanceof String email) {
-            Usuario usuario = usuarioRepository.findByEmail(email)
-                    .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
-            return usuario.getId();
-        } else if (principal instanceof org.springframework.security.core.userdetails.User springUser) {
-            Usuario usuario = usuarioRepository.findByEmail(springUser.getUsername())
-                    .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
-            return usuario.getId();
+        if (principal instanceof org.springframework.security.core.userdetails.User) {
+            org.springframework.security.core.userdetails.User userDetails =
+                    (org.springframework.security.core.userdetails.User) principal;
+            String email = userDetails.getUsername();  // Aqui o "username" na autenticação será o email
+
+            // Agora busca o usuário pelo email
+            return usuarioService.obterIdPorEmail(email);
         } else {
-            log.error("Tipo de usuário não suportado: {}", principal.getClass().getName());
-            throw new IllegalStateException("Tipo de usuário não suportado: " + principal.getClass().getName());
+            throw new SecurityException("Tipo de usuário não suportado: " + principal.getClass().getName());
         }
     }
+
+
+
+
+
 
 
     public ComprasDTO buscarCompraPorId(Long compraId) {

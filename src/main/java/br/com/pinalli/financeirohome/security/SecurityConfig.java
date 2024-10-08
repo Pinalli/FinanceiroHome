@@ -94,10 +94,10 @@ public class SecurityConfig {
 
                             // Compra Cartão de Crédito
                             .requestMatchers(HttpMethod.POST, "/api/compras/{cartaoId}/compras").hasRole("USER")
-                            .requestMatchers(HttpMethod.GET, "/api/cartoes-credito/{id}/compras").hasRole("USER")
-                            .requestMatchers(HttpMethod.GET, "/api/cartoes-credito/{id}/compras/{compraId}").hasRole("USER")
-                            .requestMatchers(HttpMethod.PUT, "/api/cartoes-credito/{id}/compras/{compraId}").hasRole("USER")
-                            .requestMatchers(HttpMethod.DELETE, "/api/cartoes-credito/{id}/compras/{compraId}").hasRole("USER")
+                            .requestMatchers(HttpMethod.GET, "/api/compras/cartao/**").hasRole("USER")
+                            .requestMatchers(HttpMethod.GET, "/api/compras/**").hasRole("USER")
+                            .requestMatchers(HttpMethod.PUT, "/api/compras/{compraId}").hasRole("USER")
+                            .requestMatchers(HttpMethod.DELETE, "/api/compras/{compraId}").hasRole("USER")
                             .anyRequest().authenticated()
                     )
                     .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

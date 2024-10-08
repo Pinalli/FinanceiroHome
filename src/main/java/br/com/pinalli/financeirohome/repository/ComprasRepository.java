@@ -9,9 +9,7 @@ import java.util.List;
 
 @Repository
 public interface ComprasRepository extends JpaRepository<Compras, Long> {
-    List<Compras> findByCartaoCreditoIdAndUsuarioId(Long cartaoCreditoId, Long idUsuario);
-
-
+    List<Compras> findByCartaoCreditoIdAndUsuarioId(Long cartaoCreditoId, Long usuarioId);
     List<Compras> findByCartaoCreditoId(Long cartaoId);
 
     // Métodos adicionais que podem ser úteis:

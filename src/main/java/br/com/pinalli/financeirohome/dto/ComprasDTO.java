@@ -69,6 +69,7 @@ public class ComprasDTO {
     public Compras toEntity() {
 
         log.debug("Convertendo ComprasDTO para Compras entity");
+        log.debug("compraId: {}", this.id);
         log.debug("cartaoCredito: {}", this.cartaoCredito);
         log.debug("valor: {}", this.valor);
         log.debug("dataCompra: {}", this.dataCompra);
