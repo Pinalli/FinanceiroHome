@@ -1,0 +1,1 @@
+ALTER TABLE compras ADD COLUMN usuario_id BIGINT;

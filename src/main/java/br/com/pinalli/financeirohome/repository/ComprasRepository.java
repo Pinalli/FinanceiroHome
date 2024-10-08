@@ -9,6 +9,8 @@ import java.util.List;
 
 @Repository
 public interface ComprasRepository extends JpaRepository<Compras, Long> {
+    List<Compras> findByCartaoCreditoIdAndUsuarioId(Long cartaoCreditoId, Long idUsuario);
+
 
     List<Compras> findByCartaoCreditoId(Long cartaoId);
 

@@ -2,10 +2,7 @@ package br.com.pinalli.financeirohome.dto;
 
 import br.com.pinalli.financeirohome.model.CartaoCredito;import br.com.pinalli.financeirohome.model.Usuario;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -18,6 +15,7 @@ import java.math.BigDecimal;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class CartaoCreditoDTO {
 
     private Long id;
@@ -49,16 +47,18 @@ public class CartaoCreditoDTO {
                 cartaoCredito.getUsuario().getId());
     }
 
-    public CartaoCredito toEntity() {
-        CartaoCredito cartaoCredito = new CartaoCredito();
-        cartaoCredito.setId(this.id);
-        cartaoCredito.setDescricao(this.descricao);
-        cartaoCredito.setLimite(this.limite);
-        cartaoCredito.setValor(this.valor);
-        // Não setamos o usuário aqui, apenas mantemos o ID do usuário
-        return cartaoCredito;
+    public static CartaoCreditoDTO converterParaDTO(CartaoCredito cartaoCredito) {
+        if (cartaoCredito == null) return null; // Tratamento para cartaoCredito nulo
+
+        return CartaoCreditoDTO.builder()
+                .id(cartaoCredito.getId())
+                .descricao(cartaoCredito.getDescricao())
+                .limite(cartaoCredito.getLimite())
+                .valor(cartaoCredito.getValor())
+                .usuarioId(cartaoCredito.getUsuario().getId())
+                .build();
     }
-    /* public CartaoCredito toEntity() {
+    public CartaoCredito toEntity() {
         CartaoCredito cartaoCredito = new CartaoCredito();
         cartaoCredito.setId(this.id);
         cartaoCredito.setDescricao(this.descricao);
@@ -72,6 +72,6 @@ public class CartaoCreditoDTO {
 
         return cartaoCredito;
     }
-*/
+
 
 }

@@ -2,6 +2,7 @@ package br.com.pinalli.financeirohome.controller;
 
 import br.com.pinalli.financeirohome.dto.CartaoCreditoDTO;
 import br.com.pinalli.financeirohome.exception.CartaoCreditoException;
+import br.com.pinalli.financeirohome.model.CartaoCredito;
 import br.com.pinalli.financeirohome.service.CartaoCreditoService;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
@@ -70,6 +71,7 @@ public class CartaoCreditoController {
         return ResponseEntity.ok(cartoes);
     }
 
+
     @GetMapping("/{id}")
     public ResponseEntity<CartaoCreditoDTO> buscarCartaoCredito(@PathVariable Long id) {
         CartaoCreditoDTO cartao = cartaoCreditoService.buscarCartaoCreditoPorId(id);
@@ -95,9 +97,26 @@ public class CartaoCreditoController {
         }
     }
 
+    @GetMapping("/{idCartaoCredito}/limite")
+    public ResponseEntity<CartaoCredito> getLimiteCartaoCredito(@PathVariable Long idCartaoCredito) {
+        try {
+            CartaoCredito cartaoCredito = cartaoCreditoService.getLimiteCartaoCredito(idCartaoCredito);
+            return ResponseEntity.ok(cartaoCredito);
+        } catch (CartaoCreditoException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletarCartaoCredito(@PathVariable Long id) {
         cartaoCreditoService.deletarCartaoCredito(id);
         return ResponseEntity.noContent().build();
     }
+
+
 }

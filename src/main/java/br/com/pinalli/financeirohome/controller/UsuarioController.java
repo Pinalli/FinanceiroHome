@@ -6,7 +6,9 @@ import br.com.pinalli.financeirohome.model.Usuario;
 import br.com.pinalli.financeirohome.dto.UsuarioDTO;
 
 import br.com.pinalli.financeirohome.repository.UsuarioRepository;
+import br.com.pinalli.financeirohome.service.ComprasService;
 import jakarta.validation.Valid;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,7 +20,6 @@ import br.com.pinalli.financeirohome.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
@@ -29,7 +30,7 @@ import java.util.Optional;
 @RequestMapping("/api/usuario")
 public class UsuarioController {
 
-    private static final Logger log = LoggerFactory.getLogger(UsuarioController .class);
+    private static final Logger log = LoggerFactory.getLogger(ComprasService.class); // For SLF4j
 
     @Autowired
     private br.com.pinalli.financeirohome.service.TokenService tokenService;

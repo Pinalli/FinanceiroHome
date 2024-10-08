@@ -35,5 +35,4 @@ public class CartaoCredito {
     private Usuario usuario;
 
 
-
 }

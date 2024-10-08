@@ -1,15 +1,12 @@
 package br.com.pinalli.financeirohome.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-
+@Builder
 @Setter
 @Getter
 @NoArgsConstructor
@@ -42,5 +39,10 @@ public class Compras {
 
     @Column(nullable = false)
     private int parcelasPagas;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id", nullable = false)
+    private Usuario usuario;
+
 
 }

@@ -90,6 +90,14 @@ public class SecurityConfig {
                             .requestMatchers(HttpMethod.PUT, "api/cartoes-credito").hasRole("USER")
                             .requestMatchers(HttpMethod.DELETE, "api/cartoes-credito/**").hasRole("USER")
                             .requestMatchers(HttpMethod.GET, "/api/cartoes-credito/usuario/**").hasRole("USER")
+                            .requestMatchers(HttpMethod.GET,"/api/cartoes-credito/{id}/limite").hasRole("USER")
+
+                            // Compra Cartão de Crédito
+                            .requestMatchers(HttpMethod.POST, "/api/compras/{cartaoId}/compras").hasRole("USER")
+                            .requestMatchers(HttpMethod.GET, "/api/cartoes-credito/{id}/compras").hasRole("USER")
+                            .requestMatchers(HttpMethod.GET, "/api/cartoes-credito/{id}/compras/{compraId}").hasRole("USER")
+                            .requestMatchers(HttpMethod.PUT, "/api/cartoes-credito/{id}/compras/{compraId}").hasRole("USER")
+                            .requestMatchers(HttpMethod.DELETE, "/api/cartoes-credito/{id}/compras/{compraId}").hasRole("USER")
                             .anyRequest().authenticated()
                     )
                     .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
