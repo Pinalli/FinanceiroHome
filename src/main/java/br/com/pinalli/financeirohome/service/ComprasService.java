@@ -18,6 +18,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -29,22 +30,20 @@ public class ComprasService {
 
     private static final Logger log = LoggerFactory.getLogger(ComprasService.class); // For SLF4j
 
-    @Autowired
-    private ComprasRepository comprasRepository;
-    @Autowired
-    private CartaoCreditoRepository cartaoCreditoRepository;
-    @Autowired
-    private UsuarioRepository usuarioRepository;
-    @Autowired
-    private UsuarioService usuarioService;
-    @Autowired
-    private CartaoCreditoService cartaoCreditoService;
+
+    private final ComprasRepository comprasRepository;
+    private final CartaoCreditoRepository cartaoCreditoRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final UsuarioService usuarioService;
+    private final CartaoCreditoService cartaoCreditoService;
 
     @Autowired
-    public ComprasService(ComprasRepository comprasRepository, CartaoCreditoRepository cartaoCreditoRepository, UsuarioRepository usuarioRepository) {
+    public ComprasService(ComprasRepository comprasRepository, CartaoCreditoRepository cartaoCreditoRepository, UsuarioRepository usuarioRepository, UsuarioService usuarioService, CartaoCreditoService cartaoCreditoService) {
         this.comprasRepository = comprasRepository;
         this.cartaoCreditoRepository = cartaoCreditoRepository;
         this.usuarioRepository = usuarioRepository;
+        this.usuarioService = usuarioService;
+        this.cartaoCreditoService = cartaoCreditoService;
     }
 
 
@@ -84,6 +83,10 @@ public class ComprasService {
             Compras compraSalva = comprasRepository.save(compra);
             log.info("Compra salva com sucesso: {}", compraSalva);
 
+            // Atualizar o limite disponível e total de compras abertas do cartão
+            cartaoCreditoService.registrarCompra(cartaoId, compra.getValor());
+
+
             return ComprasDTO.fromEntity(compraSalva);
         } catch (Exception e) {
             log.error("Erro ao criar compra: ", e);
@@ -108,7 +111,7 @@ public class ComprasService {
                 .cartaoCredito(CartaoCreditoDTO.converterParaDTO(compra.getCartaoCredito()))
                 .build();
     }
-
+    @Transactional
     public List<ComprasDTO> listarComprasPorCartao(Long cartaoId, Authentication authentication) {
         log.debug("Iniciando listarComprasPorCartao no serviço para cartaoId: {}", cartaoId);
 
@@ -163,9 +166,7 @@ public class ComprasService {
         }
         Object principal = authentication.getPrincipal();
 
-        if (principal instanceof org.springframework.security.core.userdetails.User) {
-            org.springframework.security.core.userdetails.User userDetails =
-                    (org.springframework.security.core.userdetails.User) principal;
+        if (principal instanceof org.springframework.security.core.userdetails.User userDetails) {
             String email = userDetails.getUsername();  // Aqui o "username" na autenticação será o email
 
             // Agora busca o usuário pelo email
@@ -175,7 +176,7 @@ public class ComprasService {
         }
     }
 
-
+    @Transactional
     public ComprasDTO buscarCompraPorId(Long compraId) {
         Optional<Compras> compra = comprasRepository.findById(compraId);
         if (compra.isEmpty()) {
@@ -224,6 +225,10 @@ public class ComprasService {
         }
 
         try {
+
+            // Obter o valor original da compra
+            BigDecimal valorOriginal = compraExistente.getValor();
+
             // Atualizar apenas os campos necessários na compra existente
             compraExistente.setData(compraAtualizada.getDataCompra());
             compraExistente.setValor(compraAtualizada.getValor());
@@ -237,6 +242,10 @@ public class ComprasService {
             Compras compraSalva = comprasRepository.save(compraExistente);
             log.debug("Compra atualizada com sucesso: {}", compraSalva);
 
+            // Atualizar o limite disponível e total de compras abertas do cartão
+            BigDecimal diferenca = compraAtualizada.getValor().subtract(valorOriginal);
+            cartaoCreditoService.atualizarCompra(cartao.get().getId(), diferenca);
+
             return ComprasDTO.fromEntity(compraSalva);
         } catch (DataIntegrityViolationException e) {
             log.error("Erro de integridade de dados ao atualizar compra", e);
@@ -247,7 +256,7 @@ public class ComprasService {
         }
     }
 
-
+    @Transactional
     public boolean deletarCompra(Long compraId, Authentication authentication) {
         try {
             //Obtém o ID do usuário logado.
@@ -262,7 +271,15 @@ public class ComprasService {
                 throw new CompraNotFoundException("Compra não encontrada para o usuário."); // Erro mais específico
             }
 
+            Long cartaoId = compra.get().getCartaoCredito().getId();  // Obtendo o cartaoId
+            BigDecimal valorCompra = compra.get().getValor();          // Obtendo o valor da compra
+
+            // Exclui a compra
             comprasRepository.deleteById(compraId);
+
+            // Atualizar o limite disponível e total de compras abertas do cartão
+            cartaoCreditoService.cancelarCompra(cartaoId, valorCompra);
+
             return true;
 
         } catch (DataIntegrityViolationException e) {

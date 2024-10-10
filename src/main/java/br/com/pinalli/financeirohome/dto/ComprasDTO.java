@@ -83,8 +83,7 @@ public class ComprasDTO {
             throw new IllegalArgumentException("Dados inválidos para criar a compra.");
         }
 
-
-      //  if (this.cartaoCredito == null) throw new IllegalArgumentException("CartaoCredito não pode ser nulo");
+      // if (this.cartaoCredito == null) throw new IllegalArgumentException("CartaoCredito não pode ser nulo");
         if (this.cartaoCredito.getId() == null) throw new IllegalArgumentException("ID do CartaoCredito não pode ser nulo");
         if (this.cartaoCredito.getUsuarioId() == null) throw new IllegalArgumentException("UsuarioId do CartaoCredito não pode ser nulo");
         if (this.valor == null) throw new IllegalArgumentException("Valor não pode ser nulo");
@@ -95,7 +94,6 @@ public class ComprasDTO {
         // Supondo que você tenha o ID do usuário no DTO, você precisa criar um objeto Usuario
         Usuario usuario = new Usuario();
         usuario.setId(this.usuarioId);  // Certifique-se de que o DTO tenha o campo usuarioId
-
 
         return Compras.builder()
                 .id(this.id)

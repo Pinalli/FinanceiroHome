@@ -40,6 +40,8 @@ public class Compras {
     @Column(nullable = false)
     private int parcelasPagas;
 
+
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;

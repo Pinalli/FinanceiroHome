@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.BindingResult;
 import jakarta.validation.Valid;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -97,26 +98,13 @@ public class CartaoCreditoController {
         }
     }
 
-    @GetMapping("/{idCartaoCredito}/limite")
-    public ResponseEntity<CartaoCredito> getLimiteCartaoCredito(@PathVariable Long idCartaoCredito) {
-        try {
-            CartaoCredito cartaoCredito = cartaoCreditoService.getLimiteCartaoCredito(idCartaoCredito);
-            return ResponseEntity.ok(cartaoCredito);
-        } catch (CartaoCreditoException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletarCartaoCredito(@PathVariable Long id) {
         cartaoCreditoService.deletarCartaoCredito(id);
         return ResponseEntity.noContent().build();
     }
+
 
 
 }
