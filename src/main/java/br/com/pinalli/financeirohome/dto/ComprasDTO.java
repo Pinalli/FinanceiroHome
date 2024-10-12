@@ -51,6 +51,9 @@ public class ComprasDTO {
 
     private Long usuarioId; // Adicionar o campo para referenciar o usuário
 
+    @NotNull(message = "Status da compra não pode ser nulo")
+    private Compras.StatusCompra status;
+
     public static ComprasDTO fromEntity(Compras compra) {
         if (compra == null) return null;
 
@@ -64,10 +67,13 @@ public class ComprasDTO {
                 .parcelasPagas(compra.getParcelasPagas())
                 .cartaoCredito(CartaoCreditoDTO.converterParaDTO(compra.getCartaoCredito()))
                 .usuarioId(compra.getUsuario().getId())
+
                 .build();
     }
 
     public Compras toEntity() {
+        // Supondo que você tenha o ID do usuário no DTO, você precisa criar um objeto Usuario
+        Usuario usuario = new Usuario();
 
         log.debug("Convertendo ComprasDTO para Compras entity");
         log.debug("compraId: {}", this.id);
@@ -77,6 +83,7 @@ public class ComprasDTO {
         log.debug("descricao: {}", this.descricao);
         log.debug("categoria: {}", this.categoria);
         log.debug("parcelas: {}", this.parcelas);
+        log.debug("status: {}", this.status);
         log.debug("usuario_id: {}", this.usuarioId);
 
         if (this.cartaoCredito == null || this.usuarioId == null) {
@@ -91,8 +98,7 @@ public class ComprasDTO {
         if (this.descricao == null) throw new IllegalArgumentException("Descrição não pode ser nula");
         if (this.categoria == null) throw new IllegalArgumentException("Categoria não pode ser nula");
         if (this.parcelas == null) throw new IllegalArgumentException("Parcelas não pode ser nulo");
-        // Supondo que você tenha o ID do usuário no DTO, você precisa criar um objeto Usuario
-        Usuario usuario = new Usuario();
+        if (this.status == null) throw new IllegalArgumentException("O Status não pode ser nulo");
         usuario.setId(this.usuarioId);  // Certifique-se de que o DTO tenha o campo usuarioId
 
         return Compras.builder()
@@ -105,6 +111,7 @@ public class ComprasDTO {
                 .parcelasPagas(this.parcelasPagas)
                 .cartaoCredito(this.cartaoCredito.toEntity())
                 .usuario(usuario)  // Passando o objeto Usuario
+                .status(this.status)
                 .build();
     }
 }

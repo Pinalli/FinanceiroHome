@@ -1,6 +1,7 @@
 package br.com.pinalli.financeirohome.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -50,15 +51,15 @@ public class Compras {
     @Column(name = "valor_parcela", precision = 10, scale = 2)
     private BigDecimal valorParcela;
 
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
+    @NotNull
     private StatusCompra status;
 
     @Column(name = "limite_disponivel_momento_compra", precision = 10, scale = 2)
     private BigDecimal limiteDisponivelMomentoCompra;
 
     public enum StatusCompra {
-        ABERTO, PAGO
+        PENDENTE, PAGO
     }
 
 }

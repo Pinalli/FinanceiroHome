@@ -12,8 +12,6 @@ import java.util.Optional;
 public interface ComprasRepository extends JpaRepository<Compras, Long> {
     List<Compras> findByCartaoCreditoIdAndUsuarioId(Long cartaoCreditoId, Long usuarioId);
 
-    List<Compras> findByCartaoCreditoId(Long cartaoCreditoId);
-
     Optional<Compras> findByIdAndUsuarioId(Long compraId, Long idUsuario);
 
   //  @Query("SELECT c FROM Compras c WHERE c.cartaoCredito.id = :cartaoCreditoId AND c.status = :status")

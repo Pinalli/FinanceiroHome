@@ -47,22 +47,24 @@ public class ComprasService {
         this.cartaoCreditoService = cartaoCreditoService;
     }
 
-
     @Transactional
     public ComprasDTO registrarCompra(ComprasDTO comprasDTO, Long cartaoId, Authentication authentication) {
         log.info("Registrando compra para o cartão: {}", cartaoId);
         log.info("ComprasDTO recebido: {}", comprasDTO);
 
+        // Validação de DTO e Cartão de Crédito
         if (comprasDTO == null || comprasDTO.getCartaoCredito() == null || comprasDTO.getCartaoCredito().getId() == null) {
             throw new IllegalArgumentException("Dados inválidos para criar a compra.");
         }
 
+        // Obtém o ID do usuário autenticado
         Long idUsuario = obterIdUsuario(authentication);
         if (idUsuario == null) {
             throw new SecurityException("Erro ao obter ID do usuário.");
         }
         log.debug("ID do usuário autenticado: {}", idUsuario);
 
+        // Verifica se o cartão de crédito existe e se pertence ao usuário autenticado
         Optional<CartaoCredito> cartaoCredito = cartaoCreditoRepository.findById(cartaoId);
         if (cartaoCredito.isEmpty()) {
             throw new CartaoCreditoException("Cartão de crédito não encontrado.");
@@ -71,27 +73,32 @@ public class ComprasService {
             throw new SecurityException("Usuário não autorizado a criar compras para este cartão.");
         }
 
-        comprasDTO.getCartaoCredito().setUsuarioId(idUsuario);
+        // Define o usuarioId no DTO
+        comprasDTO.setUsuarioId(idUsuario);  // Atribui o usuarioId ao ComprasDTO
+        comprasDTO.getCartaoCredito().setUsuarioId(idUsuario);  // Atribui o usuarioId ao CartaoCreditoDTO
 
         try {
+            // Converte o DTO para entidade e define o Cartão de Crédito e Usuário
             Compras compra = comprasDTO.toEntity();
             log.info("Compra criada: {}", compra);
+
             compra.setCartaoCredito(cartaoCredito.get());
-            compra.setUsuario(cartaoCredito.get().getUsuario());
+            compra.setUsuario(cartaoCredito.get().getUsuario());  // Seta o usuário autenticado
 
             log.info("Salvando compra: {}", compra);
-            Compras compraSalva = comprasRepository.save(compra);
+            Compras compraSalva = comprasRepository.save(compra);  // Salva a compra no banco de dados
             log.info("Compra salva com sucesso: {}", compraSalva);
 
-            // Atualizar o limite disponível e total de compras abertas do cartão
+            // Atualiza o limite do cartão e o total de compras abertas
             cartaoCreditoService.atualizarLimiteEComprasAbertas(cartaoId, compra.getValor(), true);
 
-            return ComprasDTO.fromEntity(compraSalva);
+            return ComprasDTO.fromEntity(compraSalva);  // Retorna o DTO da compra salva
         } catch (Exception e) {
             log.error("Erro ao criar compra: ", e);
-            throw e;
+            throw e;  // Relança a exceção para ser tratada no nível superior
         }
     }
+
 
 
     private ComprasDTO converterParaDTO(Compras compra) {
