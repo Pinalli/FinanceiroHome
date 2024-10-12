@@ -51,6 +51,10 @@ public class CartaoCreditoDTO {
         this.totalComprasAbertas = totalComprasAbertas;
     }
 
+    public CartaoCreditoDTO(Long id, String descricao, BigDecimal limite, BigDecimal limiteDisponivel, BigDecimal totalComprasAbertas) {
+    }
+
+
     public static CartaoCreditoDTO fromEntity(CartaoCredito cartaoCredito) {
         return new CartaoCreditoDTO(
                 cartaoCredito.getId(),

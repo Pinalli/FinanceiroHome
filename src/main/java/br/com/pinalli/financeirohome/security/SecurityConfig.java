@@ -94,6 +94,8 @@ public class SecurityConfig {
 
                             .requestMatchers(HttpMethod.GET, "/api/cartoes-credito/{usuarioId}/limite-compras-abertas").hasRole("USER")
 
+                            .requestMatchers(HttpMethod.GET,"api/cartoes-credito/{id}/limite-e-compras").hasRole("USER")
+
                             // Compra Cartão de Crédito
                             .requestMatchers(HttpMethod.POST, "/api/compras/{cartaoId}/compras").hasRole("USER")
                             .requestMatchers(HttpMethod.GET, "/api/compras/{cartaoId}/compras").hasRole("USER") // listarComprasPorCartao

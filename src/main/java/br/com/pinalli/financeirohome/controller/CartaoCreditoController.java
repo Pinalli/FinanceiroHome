@@ -105,6 +105,14 @@ public class CartaoCreditoController {
         return ResponseEntity.noContent().build();
     }
 
-
+    @GetMapping("/{id}/limite-e-compras")
+    public ResponseEntity<CartaoCreditoDTO> obterLimiteEComprasAbertas(@PathVariable Long id) {
+        try {
+            CartaoCreditoDTO info = cartaoCreditoService.obterLimiteEComprasAbertas(id);
+            return ResponseEntity.ok(info);
+        } catch (CartaoCreditoException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
 }

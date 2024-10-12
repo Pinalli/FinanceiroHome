@@ -56,7 +56,7 @@ public class ComprasDTO {
 
         return ComprasDTO.builder()
                 .id(compra.getId())
-                .dataCompra(compra.getData())
+                .dataCompra(LocalDate.from(compra.getDataCompra()))
                 .valor(compra.getValor())
                 .descricao(compra.getDescricao())
                 .categoria(compra.getCategoria())
@@ -97,7 +97,7 @@ public class ComprasDTO {
 
         return Compras.builder()
                 .id(this.id)
-                .data(this.dataCompra)
+                .dataCompra(this.dataCompra.atStartOfDay())
                 .valor(this.valor)
                 .descricao(this.descricao)
                 .categoria(this.categoria)

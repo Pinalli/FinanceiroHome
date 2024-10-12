@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -70,7 +71,6 @@ public class ComprasService {
             throw new SecurityException("Usuário não autorizado a criar compras para este cartão.");
         }
 
-        // Definir o usuarioId no DTO do cartão de crédito
         comprasDTO.getCartaoCredito().setUsuarioId(idUsuario);
 
         try {
@@ -84,8 +84,7 @@ public class ComprasService {
             log.info("Compra salva com sucesso: {}", compraSalva);
 
             // Atualizar o limite disponível e total de compras abertas do cartão
-            cartaoCreditoService.registrarCompra(cartaoId, compra.getValor());
-
+            cartaoCreditoService.atualizarLimiteEComprasAbertas(cartaoId, compra.getValor(), true);
 
             return ComprasDTO.fromEntity(compraSalva);
         } catch (Exception e) {
@@ -102,7 +101,7 @@ public class ComprasService {
 
         return ComprasDTO.builder()
                 .id(compra.getId())
-                .dataCompra(compra.getData())
+                .dataCompra(LocalDate.from(compra.getDataCompra()))
                 .valor(compra.getValor())
                 .descricao(compra.getDescricao())
                 .categoria(compra.getCategoria())
@@ -190,8 +189,7 @@ public class ComprasService {
     public ComprasDTO atualizarCompra(ComprasDTO compraAtualizada, Authentication authentication) {
         log.debug("Iniciando atualização da compra: {}", compraAtualizada);
 
-        if (compraAtualizada == null || compraAtualizada.getId() == null || compraAtualizada.getCartaoCredito()
-                == null || compraAtualizada.getCartaoCredito().getId() == null) {
+        if (compraAtualizada == null || compraAtualizada.getId() == null || compraAtualizada.getCartaoCredito() == null || compraAtualizada.getCartaoCredito().getId() == null) {
             throw new IllegalArgumentException("Dados inválidos para atualizar a compra.");
         }
 
@@ -200,7 +198,6 @@ public class ComprasService {
             throw new SecurityException("Erro ao obter o ID do usuário.");
         }
 
-        // Verificar se a compra existe no banco de dados
         Optional<Compras> compraExistenteOpt = comprasRepository.findById(compraAtualizada.getId());
         if (compraExistenteOpt.isEmpty()) {
             throw new CompraNotFoundException("Compra não encontrada para o ID fornecido.");
@@ -208,43 +205,31 @@ public class ComprasService {
 
         Compras compraExistente = compraExistenteOpt.get();
 
-        // Verificar se o cartão de crédito associado existe
         Optional<CartaoCredito> cartao = cartaoCreditoRepository.findById(compraAtualizada.getCartaoCredito().getId());
         if (cartao.isEmpty()) {
             throw new CartaoCreditoException("Cartão de crédito não encontrado.");
         }
 
-        // Verificar se o usuário autenticado é o dono do cartão de crédito
-        if (!Objects.equals(cartao.get().getUsuario().getId(), idUsuario)) {
-            throw new SecurityException("Usuário não autorizado a atualizar esta compra.");
-        }
-
-        // Verificar se o usuário autenticado é o dono da compra existente
-        if (!Objects.equals(compraExistente.getUsuario().getId(), idUsuario)) {
+        if (!Objects.equals(cartao.get().getUsuario().getId(), idUsuario) || !Objects.equals(compraExistente.getUsuario().getId(), idUsuario)) {
             throw new SecurityException("Usuário não autorizado a atualizar esta compra.");
         }
 
         try {
-
-            // Obter o valor original da compra
             BigDecimal valorOriginal = compraExistente.getValor();
 
-            // Atualizar apenas os campos necessários na compra existente
-            compraExistente.setData(compraAtualizada.getDataCompra());
+            compraExistente.setDataCompra(compraAtualizada.getDataCompra().atStartOfDay());
             compraExistente.setValor(compraAtualizada.getValor());
             compraExistente.setDescricao(compraAtualizada.getDescricao());
             compraExistente.setCategoria(compraAtualizada.getCategoria());
             compraExistente.setParcelas(compraAtualizada.getParcelas());
             compraExistente.setParcelasPagas(compraAtualizada.getParcelasPagas());
-            compraExistente.setCartaoCredito(cartao.get()); // Associa o cartão de crédito validado
+            compraExistente.setCartaoCredito(cartao.get());
 
-            // Salvar a compra atualizada no banco de dados
             Compras compraSalva = comprasRepository.save(compraExistente);
             log.debug("Compra atualizada com sucesso: {}", compraSalva);
 
-            // Atualizar o limite disponível e total de compras abertas do cartão
-            BigDecimal diferenca = compraAtualizada.getValor().subtract(valorOriginal);
-            cartaoCreditoService.atualizarCompra(cartao.get().getId(), diferenca);
+            BigDecimal diferencaValor = compraAtualizada.getValor().subtract(valorOriginal);
+            cartaoCreditoService.atualizarLimiteEComprasAbertas(cartao.get().getId(), diferencaValor, false);
 
             return ComprasDTO.fromEntity(compraSalva);
         } catch (DataIntegrityViolationException e) {
@@ -255,7 +240,6 @@ public class ComprasService {
             throw new RuntimeException("Erro inesperado ao atualizar compra: " + e.getMessage(), e);
         }
     }
-
     @Transactional
     public boolean deletarCompra(Long compraId, Authentication authentication) {
         try {

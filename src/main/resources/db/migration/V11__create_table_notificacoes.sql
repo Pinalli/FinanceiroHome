@@ -1,3 +1,6 @@
+
+CREATE TYPE notification_type AS ENUM ('EMAIL', 'MENSAGEM_TEXTO');
+
 CREATE TABLE notificacoes (
                               id SERIAL PRIMARY KEY,
                               usuario_id INTEGER NOT NULL,
