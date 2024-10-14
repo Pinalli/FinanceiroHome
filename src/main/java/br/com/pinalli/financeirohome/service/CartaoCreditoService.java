@@ -63,59 +63,13 @@ public class CartaoCreditoService {
             throw new RuntimeException("Erro ao criar cartão de crédito: " + e.getMessage(), e);
         }
     }
-/*
+
     @Transactional
-    public CartaoCreditoDTO criarCartaoCredito(CartaoCreditoDTO cartaoCreditoDTO) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (cartaoCreditoDTO == null) {
-            throw new IllegalArgumentException("DTO não pode ser nulo");
-        }
-
-        Long usuarioId = obterIdUsuario(authentication);
-        Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado com ID: " + usuarioId));
-
-        CartaoCredito cartaoCredito = cartaoCreditoDTO.toEntity();
-        cartaoCredito.setUsuario(usuario);
-
-        CartaoCredito savedCartaoCredito = cartaoCreditoRepository.save(cartaoCredito);
-        return CartaoCreditoDTO.fromEntity(savedCartaoCredito);
+    public CartaoCredito findById(Long id) {
+        return cartaoCreditoRepository.findById(id).orElseThrow(() -> new CartaoCreditoException("Cartão de crédito não encontrado."));
     }
 
-
-    public CartaoCreditoDTO findById(Long id) {
-        CartaoCredito cartaoCredito = cartaoCreditoRepository.findById(id).orElseThrow();
-        return CartaoCreditoDTO.fromEntity(cartaoCredito);
-    }
-*/
-@Transactional
-Long obterIdUsuario(Authentication authentication) {
-    if (authentication == null || !authentication.isAuthenticated()) {
-        throw new SecurityException("Usuário não autenticado.");
-    }
-
-    Object principal = authentication.getPrincipal();
-
-    if (principal instanceof CustomUserDetails) {
-        return ((CustomUserDetails) principal).getId();
-    } else if (principal instanceof Usuario) {
-        return ((Usuario) principal).getId();
-    } else if (principal instanceof org.springframework.security.core.userdetails.User) {
-        org.springframework.security.core.userdetails.User springUser = (org.springframework.security.core.userdetails.User) principal;
-        String username = springUser.getUsername();
-        return usuarioRepository.findByEmail(username)
-                .map(Usuario::getId)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado com o username: " + username));
-    } else if (principal instanceof String) {
-        String email = (String) principal;
-        return usuarioRepository.findByEmail(email)
-                .map(Usuario::getId)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado com o email: " + email));
-    } else {
-        throw new IllegalStateException("Tipo de usuário não suportado: " + principal.getClass().getName());
-    }
-}
-   /* @Transactional
+    @Transactional
     Long obterIdUsuario(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
             throw new SecurityException("Usuário não autenticado.");
@@ -123,20 +77,25 @@ Long obterIdUsuario(Authentication authentication) {
 
         Object principal = authentication.getPrincipal();
 
-        // Verificando o tipo de objeto, importante para segurança.
         if (principal instanceof CustomUserDetails) {
             return ((CustomUserDetails) principal).getId();
+        } else if (principal instanceof Usuario) {
+            return ((Usuario) principal).getId();
+        } else if (principal instanceof org.springframework.security.core.userdetails.User) {
+            org.springframework.security.core.userdetails.User springUser = (org.springframework.security.core.userdetails.User) principal;
+            String username = springUser.getUsername();
+            return usuarioRepository.findByEmail(username)
+                    .map(Usuario::getId)
+                    .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado com o username: " + username));
         } else if (principal instanceof String) {
             String email = (String) principal;
-            Usuario usuario = usuarioRepository.findByEmail(email)
-                    .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado."));
-            return usuario.getId();
+            return usuarioRepository.findByEmail(email)
+                    .map(Usuario::getId)
+                    .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado com o email: " + email));
         } else {
-            throw new IllegalStateException("Tipo de usuário não suportado.");
+            throw new IllegalStateException("Tipo de usuário não suportado: " + principal.getClass().getName());
         }
     }
-*/
-
 
     @Transactional
     public List<CartaoCreditoDTO> buscarCartoesPorUsuario(Long usuarioId) {
@@ -179,25 +138,6 @@ Long obterIdUsuario(Authentication authentication) {
                 .build();
     }
 
-    @Transactional
-    public CartaoCredito converterDtoParaEntidade(CartaoCreditoDTO cartaoCreditoDTO) {
-        if (cartaoCreditoDTO == null) throw new IllegalArgumentException("DTO não pode ser nulo");
-
-        Usuario usuario;
-        try {
-            usuario = usuarioRepository.findById(cartaoCreditoDTO.getUsuarioId())
-                    .orElseThrow(() -> new RuntimeException("Usuário não encontrado com ID: " + cartaoCreditoDTO.getUsuarioId()));
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao buscar usuário: " + e.getMessage());
-        }
-
-        return CartaoCredito.builder()
-                .descricao(cartaoCreditoDTO.getDescricao())
-                .limite(cartaoCreditoDTO.getLimite())
-                .valor(cartaoCreditoDTO.getValor())
-                .usuario(usuario)
-                .build();
-    }
 
     @Transactional
     public CartaoCreditoDTO buscarCartaoCreditoPorId(Long id) {
@@ -220,7 +160,6 @@ Long obterIdUsuario(Authentication authentication) {
     public void atualizarCompra(Long cartaoId, BigDecimal diferencaValor) {
         atualizarLimiteEComprasAbertas(cartaoId, diferencaValor, false);
     }
-
 
 
     @Transactional
@@ -270,22 +209,15 @@ Long obterIdUsuario(Authentication authentication) {
         cartaoCreditoRepository.save(cartao);
     }
 
-  /*  public CartaoCreditoDTO obterLimiteEComprasAbertas(Long cartaoId) {
-        CartaoCredito cartao = cartaoCreditoRepository.findById(cartaoId)
+    public CartaoCreditoDTO obterLimiteEComprasAbertas(Long cartaoId) {
+        return cartaoCreditoRepository.findById(cartaoId)
+                .map(cartao -> new CartaoCreditoDTO(
+                        cartao.getId(),
+                        cartao.getDescricao(),
+                        cartao.getLimite(),
+                        cartao.getLimiteDisponivel(),
+                        cartao.getTotalComprasAbertas()
+                ))
                 .orElseThrow(() -> new CartaoCreditoException("Cartão de crédito não encontrado"));
-
-        return new CartaoCreditoDTO(cartao.getLimiteDisponivel(), cartao.getTotalComprasAbertas());
     }
-*/
-  public CartaoCreditoDTO obterLimiteEComprasAbertas(Long cartaoId) {
-      return cartaoCreditoRepository.findById(cartaoId)
-              .map(cartao -> new CartaoCreditoDTO(
-                      cartao.getId(),
-                      cartao.getDescricao(),
-                      cartao.getLimite(),
-                      cartao.getLimiteDisponivel(),
-                      cartao.getTotalComprasAbertas()
-              ))
-              .orElseThrow(() -> new CartaoCreditoException("Cartão de crédito não encontrado"));
-  }
 }

@@ -64,37 +64,6 @@ public class ContaPagarService {
 
         return converterContasParaDTOs(contas);
     }
-/**
-    @PreAuthorize("hasRole('USER')") //IMPORTANTE: validação de permissão para acesso.
-    public List<ContaPagarDTO> listarContasPagarDoUsuario(Authentication authentication) {
-        logger.info("Iniciando listagem de contas a pagar para o usuário");
-        if (authentication == null || !authentication.isAuthenticated()) {
-            logger.warn("Tentativa de acesso não autenticado");
-            throw new SecurityException("Usuário não autenticado.");
-        }
-
-        Long idUsuario;
-        try {
-            idUsuario = obterIdUsuario(authentication);
-
-            if (idUsuario == null) {
-                throw new SecurityException("Erro ao obter o ID do usuário.");
-            }
-
-            List<ContaPagar> contasPagar = contaPagarRepository.findByUsuarioId(idUsuario);
-            return converterContasParaDTOs(contasPagar);
-
-
-        } catch (UsernameNotFoundException e) {
-            throw new SecurityException("Usuário não encontrado: " + e.getMessage(), e);
-        } catch (IllegalArgumentException ex) {
-            throw new SecurityException("Erro ao processar a requisição: " + ex.getMessage(), ex);
-        } catch (Exception e) {
-            throw new SecurityException("Erro inesperado ao listar as contas: " + e.getMessage(), e); // Detalhes do erro
-        }
-    }
-*/
-
 
     //Crucial: obter o idUsuario do usuário autenticado
     private Long obterIdUsuario(Authentication authentication) {

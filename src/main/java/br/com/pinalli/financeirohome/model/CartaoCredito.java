@@ -17,7 +17,16 @@ import java.math.BigDecimal;
 @Table(name = "cartoes_credito")
 public class CartaoCredito {
 
+  //  @Setter
+  //  @Getter
+  //  private Integer numeroParcelas;
+ //  @Setter
+ //  @Getter
+ //   private BigDecimal limiteCredito;
+
     @Id
+    @Setter
+    @Getter
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -30,6 +39,8 @@ public class CartaoCredito {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal valor;
 
+    @Setter
+    @Getter
     @Column(name="limite_disponivel", nullable = false, precision = 10, scale = 2)
     private BigDecimal limiteDisponivel;
 

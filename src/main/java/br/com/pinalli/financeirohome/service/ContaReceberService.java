@@ -154,8 +154,6 @@ public class ContaReceberService {
             return novaContaDTO;
         }
 
-
-
     public boolean excluirContaReceber(Long id, Authentication authentication) {
         try {
             Long idUsuario = obterIdUsuario(authentication);

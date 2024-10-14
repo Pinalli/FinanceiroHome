@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
@@ -39,7 +40,11 @@ public class ComprasService {
     private final CartaoCreditoService cartaoCreditoService;
 
     @Autowired
-    public ComprasService(ComprasRepository comprasRepository, CartaoCreditoRepository cartaoCreditoRepository, UsuarioRepository usuarioRepository, UsuarioService usuarioService, CartaoCreditoService cartaoCreditoService) {
+    public ComprasService(ComprasRepository comprasRepository,
+                          CartaoCreditoRepository cartaoCreditoRepository,
+                          UsuarioRepository usuarioRepository,
+                          UsuarioService usuarioService
+            , CartaoCreditoService cartaoCreditoService) {
         this.comprasRepository = comprasRepository;
         this.cartaoCreditoRepository = cartaoCreditoRepository;
         this.usuarioRepository = usuarioRepository;
@@ -82,6 +87,16 @@ public class ComprasService {
             Compras compra = comprasDTO.toEntity();
             log.info("Compra criada: {}", compra);
 
+            // Calcula e define o valor da parcela
+            if (compra.getParcelas() > 1) {
+                BigDecimal valorParcela = compra.getValor().divide(new BigDecimal(compra.getParcelas()), 2, RoundingMode.HALF_UP);
+                compra.setValorParcela(valorParcela);
+            } else {
+                compra.setValorParcela(compra.getValor());
+            }
+            // Captura e define o limite disponível no momento da compra
+            BigDecimal limiteDisponivel = cartaoCreditoService.getLimiteDisponivel(cartaoId);
+            compra.setLimiteDisponivelMomentoCompra(limiteDisponivel);
             compra.setCartaoCredito(cartaoCredito.get());
             compra.setUsuario(cartaoCredito.get().getUsuario());  // Seta o usuário autenticado
 
@@ -100,7 +115,6 @@ public class ComprasService {
     }
 
 
-
     private ComprasDTO converterParaDTO(Compras compra) {
         if (compra == null) {
             return null; //Importante: Retorna null caso a compra seja nula
@@ -117,6 +131,7 @@ public class ComprasService {
                 .cartaoCredito(CartaoCreditoDTO.converterParaDTO(compra.getCartaoCredito()))
                 .build();
     }
+
     @Transactional
     public List<ComprasDTO> listarComprasPorCartao(Long cartaoId, Authentication authentication) {
         log.debug("Iniciando listarComprasPorCartao no serviço para cartaoId: {}", cartaoId);
@@ -247,6 +262,7 @@ public class ComprasService {
             throw new RuntimeException("Erro inesperado ao atualizar compra: " + e.getMessage(), e);
         }
     }
+
     @Transactional
     public boolean deletarCompra(Long compraId, Authentication authentication) {
         try {

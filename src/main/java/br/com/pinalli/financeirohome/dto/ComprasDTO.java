@@ -21,7 +21,8 @@ public class ComprasDTO {
 
     private static final Logger log = LoggerFactory.getLogger(ComprasService.class); // For SLF4j
 
-
+    private BigDecimal valorParcela;
+    private BigDecimal limiteDisponivelMomentoCompra;
     private Long id;
 
     @Getter
@@ -50,6 +51,8 @@ public class ComprasDTO {
 
 
     private Long usuarioId; // Adicionar o campo para referenciar o usuário
+
+
 
     @NotNull(message = "Status da compra não pode ser nulo")
     private Compras.StatusCompra status;
@@ -114,4 +117,6 @@ public class ComprasDTO {
                 .status(this.status)
                 .build();
     }
+
+
 }

@@ -48,6 +48,8 @@ public class Compras {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal valor;
 
+    @Setter
+    @Getter
     @Column(name = "valor_parcela", precision = 10, scale = 2)
     private BigDecimal valorParcela;
 
@@ -55,11 +57,16 @@ public class Compras {
     @NotNull
     private StatusCompra status;
 
+    @Setter
+    @Getter
     @Column(name = "limite_disponivel_momento_compra", precision = 10, scale = 2)
     private BigDecimal limiteDisponivelMomentoCompra;
 
+
+
     public enum StatusCompra {
         PENDENTE, PAGO
+
     }
 
 }
