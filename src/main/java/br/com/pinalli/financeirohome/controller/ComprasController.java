@@ -97,6 +97,12 @@ public class ComprasController {
         }
     }
 
+    @PostMapping("/{compraId}/pagar-parcela/{numeroParcela}")
+    public ResponseEntity<Void> pagarParcela(@PathVariable Long compraId, @PathVariable Integer numeroParcela) {
+        comprasService.pagarParcela(compraId, numeroParcela);
+        return ResponseEntity.ok().build();
+    }
+
     // Método para calcular o valor da parcela
     private BigDecimal calcularValorParcela(BigDecimal valorTotal, Integer numeroParcelas) {
         return valorTotal.divide(new BigDecimal(numeroParcelas), RoundingMode.HALF_EVEN);

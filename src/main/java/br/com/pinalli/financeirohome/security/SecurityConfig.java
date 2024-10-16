@@ -72,10 +72,10 @@ public class SecurityConfig {
                             .requestMatchers(HttpMethod.DELETE, "/api/usuario/{id}").hasRole("USER")
 
                             //contas-a-pagar
-                            .requestMatchers(HttpMethod.GET, "/api/contas-a-pagar/{id}").hasRole("USER")  // Correção: use **/
-                            .requestMatchers(HttpMethod.POST, "/api/contas-a-pagar").hasRole("USER")  // Necessário
-                            .requestMatchers(HttpMethod.PUT, "/api/contas-a-pagar/{id}").hasRole("USER")  // Necessário
-                            .requestMatchers(HttpMethod.DELETE, "/api/contas-a-pagar/**").hasRole("USER")  // Necessário
+                            .requestMatchers(HttpMethod.GET, "/api/contas-a-pagar/{id}").hasRole("USER")
+                            .requestMatchers(HttpMethod.POST, "/api/contas-a-pagar").hasRole("USER")
+                            .requestMatchers(HttpMethod.PUT, "/api/contas-a-pagar/{id}").hasRole("USER")
+                            .requestMatchers(HttpMethod.DELETE, "/api/contas-a-pagar/**").hasRole("USER")
 
                             //contas-a-receber
                             .requestMatchers(HttpMethod.GET, "/api/contas-a-receber/**").hasRole("USER")

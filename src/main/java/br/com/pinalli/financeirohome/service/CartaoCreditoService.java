@@ -122,6 +122,9 @@ public class CartaoCreditoService {
         return CartaoCreditoDTO.fromEntity(cartaoAtualizado);
     }
 
+
+
+
     public Usuario obterUsuarioPorId(Long id) {
         return usuarioRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
     }
@@ -194,16 +197,17 @@ public class CartaoCreditoService {
     }
 
     @Transactional
-    public void atualizarLimiteEComprasAbertas(Long cartaoId, BigDecimal valorCompra, boolean isNovaCompra) {
+    public void atualizarLimiteEComprasAbertas(Long cartaoId, BigDecimal valor, boolean isNovaCompra) {
         CartaoCredito cartao = cartaoCreditoRepository.findById(cartaoId)
                 .orElseThrow(() -> new CartaoCreditoException("Cartão de crédito não encontrado"));
 
         if (isNovaCompra) {
-            cartao.setLimiteDisponivel(cartao.getLimiteDisponivel().subtract(valorCompra));
-            cartao.setTotalComprasAbertas(cartao.getTotalComprasAbertas().add(valorCompra));
+            cartao.setLimiteDisponivel(cartao.getLimiteDisponivel().subtract(valor));
+            cartao.setTotalComprasAbertas(cartao.getTotalComprasAbertas().add(valor));
         } else {
-            // Lógica para atualização de compra existente
-            // Você precisará passar o valor antigo da compra para fazer o ajuste correto
+            // Pagamento de parcela
+            cartao.setLimiteDisponivel(cartao.getLimiteDisponivel().add(valor));
+            cartao.setTotalComprasAbertas(cartao.getTotalComprasAbertas().subtract(valor));
         }
 
         cartaoCreditoRepository.save(cartao);

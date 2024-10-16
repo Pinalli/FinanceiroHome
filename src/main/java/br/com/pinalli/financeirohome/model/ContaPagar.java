@@ -43,8 +43,6 @@ public class ContaPagar {
     public ContaPagar() {}
 
 
-
-
     public ContaPagar(String descricao, BigDecimal valor, LocalDate dataVencimento, StatusConta status, String categoria, UsuarioDTO usuario) {
     }
 }

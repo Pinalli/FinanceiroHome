@@ -1,12 +1,15 @@
 package br.com.pinalli.financeirohome.dto;
 
 import br.com.pinalli.financeirohome.model.Compras;
+import br.com.pinalli.financeirohome.model.Parcela;
 import br.com.pinalli.financeirohome.model.Usuario;
 import br.com.pinalli.financeirohome.service.ComprasService;
 import lombok.*;
 import lombok.Builder;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
+
 import jakarta.validation.constraints.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,16 +49,16 @@ public class ComprasDTO {
     @Min(value = 1, message = "Número de parcelas deve ser pelo menos 1")
     private Integer parcelas;
 
-    @Min(value = 0, message = "Número de parcelas pagas não pode ser negativo")
-    private int parcelasPagas;
-
+    private List<Parcela> listaParcelas;
 
     private Long usuarioId; // Adicionar o campo para referenciar o usuário
 
 
 
+
     @NotNull(message = "Status da compra não pode ser nulo")
     private Compras.StatusCompra status;
+
 
     public static ComprasDTO fromEntity(Compras compra) {
         if (compra == null) return null;
@@ -66,8 +69,8 @@ public class ComprasDTO {
                 .valor(compra.getValor())
                 .descricao(compra.getDescricao())
                 .categoria(compra.getCategoria())
-                .parcelas(compra.getParcelas())
-                .parcelasPagas(compra.getParcelasPagas())
+                .listaParcelas(compra.getParcelas())// Atribui a lista de parcelas
+             //   .parcelas(compra.getParcelas()) // Atribui a lista de parcelas
                 .cartaoCredito(CartaoCreditoDTO.converterParaDTO(compra.getCartaoCredito()))
                 .usuarioId(compra.getUsuario().getId())
 
@@ -103,15 +106,18 @@ public class ComprasDTO {
         if (this.parcelas == null) throw new IllegalArgumentException("Parcelas não pode ser nulo");
         if (this.status == null) throw new IllegalArgumentException("O Status não pode ser nulo");
         usuario.setId(this.usuarioId);  // Certifique-se de que o DTO tenha o campo usuarioId
-
+        // Calculando o número de parcelas pagas
+     //   int parcelasPagas = parcelas.stream()
+        //        .filter(Parcela::isPaga)
+        //        .count();
         return Compras.builder()
                 .id(this.id)
                 .dataCompra(this.dataCompra.atStartOfDay())
                 .valor(this.valor)
                 .descricao(this.descricao)
                 .categoria(this.categoria)
-                .parcelas(this.parcelas)
-                .parcelasPagas(this.parcelasPagas)
+           //     .parcelas(this.parcelas)
+          //      .parcelasPagas(parcelasPagas)
                 .cartaoCredito(this.cartaoCredito.toEntity())
                 .usuario(usuario)  // Passando o objeto Usuario
                 .status(this.status)
