@@ -11,9 +11,9 @@ public class ParcelaService {
     @Autowired
     private ParcelaRepository parcelaRepository;
 
-    public ParcelaDTO salvarParcela(ParcelaDTO parcelaDTO) {
-        Parcela parcela = modelMapper.map(parcelaDTO, Parcela.class);
-        parcela = parcelaRepository.save(parcela);
-        return modelMapper.map(parcela, ParcelaDTO.class);
-    }
+  //  public ParcelaDTO salvarParcela(ParcelaDTO parcelaDTO) {
+       // Parcela parcela = modelMapper.map(parcelaDTO, Parcela.class);
+     //   parcela = parcelaRepository.save(parcela);
+    //    return modelMapper.map(parcela, ParcelaDTO.class);
+ //   }
 }

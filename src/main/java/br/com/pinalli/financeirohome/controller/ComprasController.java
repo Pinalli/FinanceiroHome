@@ -99,7 +99,7 @@ public class ComprasController {
 
     @PostMapping("/{compraId}/pagar-parcela/{numeroParcela}")
     public ResponseEntity<Void> pagarParcela(@PathVariable Long compraId, @PathVariable Integer numeroParcela) {
-        comprasService.pagarParcela(compraId, numeroParcela);
+      //  comprasService.pagarParcela(compraId, numeroParcela);
         return ResponseEntity.ok().build();
     }
 

@@ -16,11 +16,11 @@ public class ParcelaController {
     @Autowired
     private ParcelaService parcelaService;
 
-    @PostMapping
-    public ResponseEntity<ParcelaDTO> salvarParcela(@RequestBody ParcelaDTO parcelaDTO) {
-        ParcelaDTO parcelaSalva = parcelaService.salvarParcela(parcelaDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(parcelaSalva);
-    }
+   // @PostMapping
+  //  public ResponseEntity<ParcelaDTO> salvarParcela(@RequestBody ParcelaDTO parcelaDTO) {
+      //  ParcelaDTO parcelaSalva = parcelaService.salvarParcela(parcelaDTO);
+     //   return ResponseEntity.status(HttpStatus.CREATED).body(parcelaSalva);
+//    }
 
     // Outros métodos para buscar, atualizar, excluir parcelas
 }

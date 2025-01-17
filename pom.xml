@@ -55,9 +55,6 @@
 			<version>42.7.2</version>
 			<scope>runtime</scope>
 		</dependency>
-
-
-
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
@@ -146,7 +143,7 @@
 			<plugin>
 				<groupId>org.flywaydb</groupId>
 				<artifactId>flyway-maven-plugin</artifactId>
-				<version>10.10.0</version> <!-- Use a versão que você está utilizando -->
+				<version>9.17.0</version> <!-- Use a versão que você está utilizando -->
 				<configuration>
 					<url>jdbc:postgresql://localhost:5432/db_financeiro_home</url>
 					<user>postgres</user>

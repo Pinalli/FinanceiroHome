@@ -48,7 +48,6 @@ public class Compras {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal valor;
 
-
     @Setter
     @Getter
     @Column(name = "valor_parcela", precision = 10, scale = 2)
@@ -66,16 +65,11 @@ public class Compras {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal valorTotal;
 
-
-
-
     public void calcularValorTotal() {
         valorTotal = parcelas.stream()
                 .map(Parcela::getValorParcela)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
-
-
     public void adicionarParcela(Parcela parcela) {
         parcelas.add(parcela);
         parcela.setCompra(this);

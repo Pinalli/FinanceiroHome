@@ -1,14 +1,11 @@
 package br.com.pinalli.financeirohome.service;
 
-import br.com.pinalli.financeirohome.exception.ParcelaNotFoundException;
-import br.com.pinalli.financeirohome.exception.CartaoCreditoException;
-import br.com.pinalli.financeirohome.exception.CompraNotFoundException;
-import br.com.pinalli.financeirohome.exception.ParcelaJaPagaException;
-import br.com.pinalli.financeirohome.model.Compras;
-import br.com.pinalli.financeirohome.model.CartaoCredito;
-import br.com.pinalli.financeirohome.model.Parcela;
 import br.com.pinalli.financeirohome.dto.ComprasDTO;
 import br.com.pinalli.financeirohome.dto.CartaoCreditoDTO;
+import br.com.pinalli.financeirohome.exception.CartaoCreditoException;
+import br.com.pinalli.financeirohome.exception.CompraNotFoundException;
+import br.com.pinalli.financeirohome.model.Compras;
+import br.com.pinalli.financeirohome.model.CartaoCredito;
 import br.com.pinalli.financeirohome.repository.ComprasRepository;
 import br.com.pinalli.financeirohome.repository.CartaoCreditoRepository;
 import br.com.pinalli.financeirohome.repository.UsuarioRepository;
@@ -55,7 +52,6 @@ public class ComprasService {
         this.cartaoCreditoService = cartaoCreditoService;
     }
 
-
     @Transactional
     public ComprasDTO registrarCompra(ComprasDTO comprasDTO, Long cartaoId, Authentication authentication) {
         log.info("Registrando compra para o cartão: {}", cartaoId);
@@ -63,7 +59,7 @@ public class ComprasService {
 
         // Validação de DTO e Cartão de Crédito
         if (comprasDTO == null || comprasDTO.getCartaoCredito() == null || comprasDTO.getCartaoCredito().getId() == null) {
-            throw new IllegalArgumentException("Dados inválidos para criar a compra com o cartão.");
+            throw new IllegalArgumentException("Dados inválidos para criar a compra.");
         }
 
         // Obtém o ID do usuário autenticado
@@ -92,13 +88,12 @@ public class ComprasService {
             log.info("Compra criada: {}", compra);
 
             // Calcula e define o valor da parcela
-            if (compra.getParcelas().size() > 1) {
-                BigDecimal valorParcela = compra.getValor().divide(new BigDecimal(compra.getParcelas().size()), 2, RoundingMode.HALF_UP);
-                compra.setValorParcela(valorParcela);
-            } else {
+         //   if (compra.getParcelas() > 1) {
+         //       BigDecimal valorParcela = compra.getValor().divide(new BigDecimal(compra.getParcelas()), 2, RoundingMode.HALF_UP);
+             //   compra.setValorParcela(valorParcela);
+         //   } else {
                 compra.setValorParcela(compra.getValor());
-            }
-
+         //   }
             // Captura e define o limite disponível no momento da compra
             BigDecimal limiteDisponivel = cartaoCreditoService.getLimiteDisponivel(cartaoId);
             compra.setLimiteDisponivelMomentoCompra(limiteDisponivel);
@@ -119,28 +114,6 @@ public class ComprasService {
         }
     }
 
-    @Transactional
-    public void pagarParcela(Long compraId, Integer numeroParcela) {
-        Compras compra = comprasRepository.findById(compraId)
-                .orElseThrow(() -> new CompraNotFoundException("Compra não encontrada"));
-
-        Parcela parcela = compra.getParcelas().stream()
-                .filter(p -> p.getNumeroParcela().equals(numeroParcela))
-                .findFirst()
-                .orElseThrow(() -> new ParcelaNotFoundException("Parcela não encontrada"));
-
-        if (parcela.isPaga()) {
-            throw new ParcelaJaPagaException("Esta parcela já foi paga");
-        }
-
-    //    parcela.setPaga(true);
-        comprasRepository.save(compra);
-
-        // Atualizar o limite disponível e total de compras abertas
-        cartaoCreditoService.atualizarLimiteEComprasAbertas(compra.getCartaoCredito().getId(), parcela.getValorParcela(), false);
-    }
-
-
 
     private ComprasDTO converterParaDTO(Compras compra) {
         if (compra == null) {
@@ -153,8 +126,7 @@ public class ComprasService {
                 .valor(compra.getValor())
                 .descricao(compra.getDescricao())
                 .categoria(compra.getCategoria())
-                .parcelas(compra.getParcelas().size())
-             //   .parcelasPagas(compra.getParcelasPagas())
+            //    .parcelas(compra.getParcelas())
                 .cartaoCredito(CartaoCreditoDTO.converterParaDTO(compra.getCartaoCredito()))
                 .build();
     }
@@ -270,7 +242,8 @@ public class ComprasService {
             compraExistente.setValor(compraAtualizada.getValor());
             compraExistente.setDescricao(compraAtualizada.getDescricao());
             compraExistente.setCategoria(compraAtualizada.getCategoria());
-         //   compraExistente.setParcelas(compraAtualizada.getParcelas());
+       //     compraExistente.setParcelas(compraAtualizada.getParcelas());
+        //    compraExistente.setParcelasPagas(compraAtualizada.getParcelasPagas());
             compraExistente.setCartaoCredito(cartao.get());
 
             Compras compraSalva = comprasRepository.save(compraExistente);
