@@ -1,0 +1,4 @@
+GET http://localhost:8080/api/cartoes-credito/usuario/2
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJGaW5hbmNlaXJvSG9tZSIsInN1YiI6Imp1Y2EuYmFsYUBleGFtcGxlLmNvbSIsInJvbGVzIjpbeyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sImlhdCI6MTczNzI0NDgwNiwiZXhwIjoxNzM3MzMxMjA2fQ.2cmIxDV-iHDNJNzXIHneYBfTEUhVzZ-uYroLBBkpv7c
+Content-Type: application/json
+

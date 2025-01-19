@@ -1,0 +1,8 @@
+POST http://localhost:8080/api/login
+content-Type: application/json
+
+{
+  "nome": "Juca Balistico",
+  "email": "juca.ballistico@example.com",
+  "senha": "senhaSegura321"
+}

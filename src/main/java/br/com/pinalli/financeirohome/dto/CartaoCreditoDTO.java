@@ -1,6 +1,7 @@
 package br.com.pinalli.financeirohome.dto;
 
-import br.com.pinalli.financeirohome.model.CartaoCredito;import br.com.pinalli.financeirohome.model.Usuario;
+import br.com.pinalli.financeirohome.model.CartaoCredito;
+import br.com.pinalli.financeirohome.model.Usuario;
 
 import lombok.*;
 
@@ -52,8 +53,13 @@ public class CartaoCreditoDTO {
     }
 
     public CartaoCreditoDTO(Long id, String descricao, BigDecimal limite, BigDecimal limiteDisponivel, BigDecimal totalComprasAbertas) {
-    }
+        this.id = id;
+        this.descricao = descricao;
+        this.limite = limite;
+        this.limiteDisponivel = limiteDisponivel;
+        this.totalComprasAbertas = totalComprasAbertas;
 
+    }
 
     public static CartaoCreditoDTO fromEntity(CartaoCredito cartaoCredito) {
         return new CartaoCreditoDTO(
@@ -79,6 +85,7 @@ public class CartaoCreditoDTO {
                 .usuarioId(cartaoCredito.getUsuario().getId())
                 .build();
     }
+
     public CartaoCredito toEntity() {
         CartaoCredito cartaoCredito = new CartaoCredito();
         cartaoCredito.setId(this.id);

@@ -17,9 +17,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
-
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
@@ -31,7 +29,6 @@ import java.util.stream.Collectors;
 public class ComprasService {
 
     private static final Logger log = LoggerFactory.getLogger(ComprasService.class); // For SLF4j
-
 
     private final ComprasRepository comprasRepository;
     private final CartaoCreditoRepository cartaoCreditoRepository;

@@ -1,8 +1,10 @@
 package br.com.pinalli.financeirohome.controller;
 
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import br.com.pinalli.financeirohome.dto.LoginForm;
@@ -21,27 +23,35 @@ public class LoginController {
 
     private static final Logger log = LoggerFactory.getLogger(LoginController.class);
 
-    @Autowired
-    private AuthenticationManager authenticationManager; // Declarar e injetar
-    @Autowired
-    private TokenService tokenService;
+    private final AuthenticationManager authenticationManager; // Declarar e injetar
+    private final TokenService tokenService;
 
+    public LoginController(AuthenticationManager authenticationManager, TokenService tokenService) {
+        this.authenticationManager = authenticationManager;
+        this.tokenService = tokenService;
+    }
 
     @PostMapping("/login")
-    public ResponseEntity<String> autenticar(@RequestBody LoginForm form) {
-        System.out.println("Método autenticar chamado!");
-        System.out.println("Email: " + form.getEmail());
-        System.out.println("Senha: " + form.getSenha());
-        UsernamePasswordAuthenticationToken dadosLogin = form.converter();
+    public ResponseEntity<String> autenticar(@Valid @RequestBody LoginForm form) {
+        log.info("Tentativa de login para usuário: {}", form.getEmail());
+
         try {
+            form.validate(); // validação adicional se necessário
+            UsernamePasswordAuthenticationToken dadosLogin = form.converter();
             Authentication authentication = authenticationManager.authenticate(dadosLogin);
-            System.out.println("Autenticação: " + authentication); // Log do objeto Authentication
             String token = tokenService.gerarToken(authentication);
-            System.out.println("Token gerado: " + token); // Log do token gerado
+
+            log.info("Login bem-sucedido para usuário: {}", form.getEmail());
             return ResponseEntity.ok(token);
+
         } catch (AuthenticationException e) {
-            System.out.println("Erro na autenticação: " + e.getMessage());
-            return ResponseEntity.badRequest().build();
+            log.error("Erro na autenticação para usuário: {}", form.getEmail(), e);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Falha na autenticação: credenciais inválidas");
+        } catch (IllegalArgumentException e) {
+            log.error("Dados de login inválidos para usuário: {}", form.getEmail(), e);
+            return ResponseEntity.badRequest()
+                    .body("Dados de login inválidos: " + e.getMessage());
         }
     }
 }

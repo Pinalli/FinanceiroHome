@@ -1,8 +1,5 @@
 package br.com.pinalli.financeirohome.repository;
-
-import br.com.pinalli.financeirohome.dto.CartaoCreditoDTO;
 import br.com.pinalli.financeirohome.model.CartaoCredito;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

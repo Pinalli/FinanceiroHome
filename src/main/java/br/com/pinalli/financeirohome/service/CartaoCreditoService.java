@@ -45,20 +45,21 @@ public class CartaoCreditoService {
         }
 
         try {
+            // Recupera o usuário autenticado
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            Long usuarioId = obterIdUsuario(authentication);
+            Long usuarioId = obterIdUsuario(authentication); // Método para recuperar o ID do usuário
             Usuario usuario = usuarioRepository.findById(usuarioId)
                     .orElseThrow(() -> new RuntimeException("Usuário não encontrado com ID: " + usuarioId));
 
+            // Associa o usuário ao cartão de crédito
             CartaoCredito cartaoCredito = cartaoCreditoDTO.toEntity();
             cartaoCredito.setUsuario(usuario);
 
+            // Salva no repositório
             CartaoCredito savedCartaoCredito = cartaoCreditoRepository.save(cartaoCredito);
             return CartaoCreditoDTO.fromEntity(savedCartaoCredito);
         } catch (SecurityException | IllegalStateException e) {
             throw new RuntimeException("Erro de autenticação: " + e.getMessage(), e);
-        } catch (UsernameNotFoundException e) {
-            throw new RuntimeException("Usuário não encontrado: " + e.getMessage(), e);
         } catch (Exception e) {
             throw new RuntimeException("Erro ao criar cartão de crédito: " + e.getMessage(), e);
         }
@@ -121,9 +122,6 @@ public class CartaoCreditoService {
         CartaoCredito cartaoAtualizado = cartaoCreditoRepository.save(cartaoExistente);
         return CartaoCreditoDTO.fromEntity(cartaoAtualizado);
     }
-
-
-
 
     public Usuario obterUsuarioPorId(Long id) {
         return usuarioRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));

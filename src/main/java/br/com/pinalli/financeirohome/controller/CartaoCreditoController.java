@@ -2,51 +2,114 @@ package br.com.pinalli.financeirohome.controller;
 
 import br.com.pinalli.financeirohome.dto.CartaoCreditoDTO;
 import br.com.pinalli.financeirohome.exception.CartaoCreditoException;
-import br.com.pinalli.financeirohome.model.CartaoCredito;
+import br.com.pinalli.financeirohome.model.Usuario;
+import br.com.pinalli.financeirohome.repository.UsuarioRepository;
 import br.com.pinalli.financeirohome.service.CartaoCreditoService;
+import br.com.pinalli.financeirohome.service.TokenService;
+import br.com.pinalli.financeirohome.service.UsuarioService;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.validation.BindingResult;
 import jakarta.validation.Valid;
-
-import java.math.BigDecimal;
 import java.util.List;
-import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+
 
 @RestController
 @RequestMapping("/api/cartoes-credito")
 public class CartaoCreditoController {
 
+    private static final Logger log = LoggerFactory.getLogger(CartaoCreditoController.class);
     private final CartaoCreditoService cartaoCreditoService;
+    private final UsuarioService usuarioService;
+    private final TokenService tokenService;
+    private final UsuarioRepository userRepository;
 
-    public CartaoCreditoController(CartaoCreditoService cartaoCreditoService) {
+    public CartaoCreditoController(CartaoCreditoService cartaoCreditoService,
+                                   UsuarioRepository userRepository,
+                                   UsuarioService usuarioService,
+                                   TokenService tokenService) {
         this.cartaoCreditoService = cartaoCreditoService;
+        this.usuarioService = usuarioService;
+        this.tokenService = tokenService;
+        this.userRepository = userRepository;
+    }
+
+    private Long obterIdUsuario(Authentication authentication) {
+        log.debug("Authentication: {}", authentication);
+        log.debug("Principal: {}", authentication.getPrincipal());
+
+        if (!(authentication.getPrincipal() instanceof UserDetails)) {
+            log.error("Principal não é uma instância de UserDetails");
+            throw new RuntimeException("Tipo de autenticação inválido");
+        }
+
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        log.debug("Username: {}", userDetails.getUsername());
+
+        return usuarioService.findByEmail(userDetails.getUsername())
+                .map(usuario -> {
+                    Usuario usuarioEspecifico = (Usuario) usuario;
+                    log.debug("Usuario encontrado: {}", usuarioEspecifico.getId());
+                    return usuarioEspecifico.getId();
+                })
+                .orElseThrow(() -> {
+                    log.error("Usuário não encontrado para o email: {}", userDetails.getUsername());
+                    return new RuntimeException("Usuário não encontrado");
+                });
+
     }
 
     @PostMapping
-    public ResponseEntity<?> criarCartaoCredito(@Valid @RequestBody CartaoCreditoDTO cartaoCreditoDTO, BindingResult result) {
-        if (result.hasErrors()) {
-            List<String> errors = result.getAllErrors()
-                    .stream()
-                    .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                    .collect(Collectors.toList());
-            return ResponseEntity.badRequest().body(errors);
-        }
-
+    public ResponseEntity<?> criarCartaoCredito(@RequestBody CartaoCreditoDTO cartaoCreditoDTO) {
         try {
+            // Chama o metodo getUsuarioAutenticado() para obter o usuário logado
+            Usuario usuarioAutenticado = usuarioService.getUsuarioAutenticado();
+
+            // Verifica se o usuário autenticado é válido
+            if (usuarioAutenticado == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("Usuário não autenticado");
+            }
+
+            // Atribui o ID do usuário autenticado ao Cartão de Crédito
+            cartaoCreditoDTO.setUsuarioId(usuarioAutenticado.getId());
+
+            // Validação manual
+            Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+            Set<ConstraintViolation<CartaoCreditoDTO>> violations = validator.validate(cartaoCreditoDTO);
+
+            if (!violations.isEmpty()) {
+                List<String> errors = violations.stream()
+                        .map(ConstraintViolation::getMessage)
+                        .collect(Collectors.toList());
+                return ResponseEntity.badRequest().body(errors);
+            }
+
+            // Criação do cartão de crédito
             CartaoCreditoDTO novoCartao = cartaoCreditoService.criarCartaoCredito(cartaoCreditoDTO);
+
+            // Retorno da resposta com o cartão criado
             return new ResponseEntity<>(novoCartao, HttpStatus.CREATED);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao criar cartão de crédito: " + e.getMessage());
+        } catch (Exception e) {
+            // Captura qualquer erro e retorna a resposta de erro
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erro ao criar cartão de crédito: " + e.getMessage());
         }
     }
+
+
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<List<String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
@@ -60,15 +123,16 @@ public class CartaoCreditoController {
 
 
     private void verificarAutenticacao(Authentication authentication) {
-        Objects.requireNonNull(authentication, "Authentication não pode ser nula.");
-        if (!authentication.isAuthenticated()) {
-            throw new SecurityException("Usuário não autenticado.");
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new IllegalArgumentException("Usuário não autenticado.");
         }
     }
 
     @GetMapping("/usuario/{usuarioId}")
     public ResponseEntity<List<CartaoCreditoDTO>> buscarCartoesPorUsuario(@PathVariable Long usuarioId) {
+        log.info("Buscando cartões para o usuário com ID: {}", usuarioId);
         List<CartaoCreditoDTO> cartoes = cartaoCreditoService.buscarCartoesPorUsuario(usuarioId);
+        log.info("Cartões encontrados: {}", cartoes);
         return ResponseEntity.ok(cartoes);
     }
 

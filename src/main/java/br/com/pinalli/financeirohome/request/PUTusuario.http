@@ -1,0 +1,9 @@
+PUT http://localhost:8080/api/usuario/2
+authorization: Bearer  eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJGaW5hbmNlaXJvSG9tZSIsInN1YiI6Imp1Y2EuYmFsbGlzdGljb0BleGFtcGxlLmNvbSIsInJvbGVzIjpbeyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sImlhdCI6MTczNzI0NzMwNSwiZXhwIjoxNzM3MzMzNzA1fQ.YVUkPbqDnmLG3u4BPQ-0YjOWTLo_930vSjDJSrfv56Y
+content-Type: application/json
+
+{
+  "nome": "Juca Balistico",
+  "email": "juca.balistico@example.com",
+  "senha": "senhaSegura321"
+}

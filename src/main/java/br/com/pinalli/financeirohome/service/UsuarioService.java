@@ -1,6 +1,7 @@
 package br.com.pinalli.financeirohome.service;
 
 import br.com.pinalli.financeirohome.dto.UsuarioDTO;
+import br.com.pinalli.financeirohome.exception.UsuarioNaoAutenticadoException;
 import br.com.pinalli.financeirohome.model.Usuario;
 import br.com.pinalli.financeirohome.repository.UsuarioRepository;
 
@@ -23,15 +24,12 @@ public class UsuarioService {
 
     private static final Logger logger = LoggerFactory.getLogger(UsuarioService.class);
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-
-    public UsuarioService(UsuarioRepository usuarioRepository) {
+    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     // Converte a entidade Usuario para UsuarioDTO
@@ -39,7 +37,7 @@ public class UsuarioService {
         return new UsuarioDTO(usuario.getId(), usuario.getNome(), usuario.getEmail());
     }
 
-    public void cadastrarUsuario(UsuarioDTO usuarioDTO, String senha) {
+    public void cadastrarUsuario(UsuarioDTO usuarioDTO) {
         if (usuarioRepository.findByEmail(usuarioDTO.getEmail()).isPresent()) {
             throw new RuntimeException("E-mail já está em uso");
         }
@@ -47,7 +45,7 @@ public class UsuarioService {
         Usuario novoUsuario = new Usuario();
         novoUsuario.setNome(usuarioDTO.getNome());
         novoUsuario.setEmail(usuarioDTO.getEmail());
-        novoUsuario.setSenha(passwordEncoder.encode(senha));
+        novoUsuario.setSenha(passwordEncoder.encode(usuarioDTO.getSenha()));
 
         usuarioRepository.save(novoUsuario);
         logger.info("Novo usuário cadastrado: {}", novoUsuario.getEmail());
@@ -76,15 +74,43 @@ public class UsuarioService {
     }
 
 
-    public Usuario  getUsuarioAutenticado() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (!(authentication.getPrincipal() instanceof UserDetails)) {
-            throw new RuntimeException("Usuário não autenticado");
-        }
+    public Usuario getUsuarioAutenticado() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        String email = ((UserDetails) authentication.getPrincipal()).getUsername(); // Obter o email do UserDetails
-        return usuarioRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+            // Verifica se há autenticação
+            if (authentication == null) {
+                logger.error("Não há usuário autenticado no contexto.");
+                throw new UsuarioNaoAutenticadoException("Não há usuário autenticado no contexto");
+            }
+            logger.info("Autenticação encontrada para o usuário. Principal: {}", authentication.getPrincipal());
+
+            // Verifica se o principal é do tipo UserDetails
+            Object principal = authentication.getPrincipal();
+            if (!(principal instanceof UserDetails)) {
+                logger.error("Principal não é uma instância de UserDetails.");
+                throw new UsuarioNaoAutenticadoException("Principal não é uma instância de UserDetails");
+            }
+            logger.info("Principal é uma instância de UserDetails.");
+
+            // Recupera o email do principal
+            String email = ((UserDetails) principal).getUsername();
+            logger.info("Email do usuário autenticado: {}", email);
+
+            // Busca o usuário pelo email
+            return usuarioRepository.findByEmail(email)
+                    .orElseThrow(() -> {
+                        logger.error("Usuário não encontrado com email: {}", email);
+                        return new UsuarioNaoEncontradoException("Usuário não encontrado com email: " + email);
+                    });
+
+        } catch (UsuarioNaoAutenticadoException | UsuarioNaoEncontradoException e) {
+            logger.error("Erro ao recuperar o usuário autenticado: {}", e.getMessage());
+            throw e; // Re-throw the exception
+        } catch (Exception e) {
+            logger.error("Erro inesperado ao recuperar o usuário autenticado: {}", e.getMessage(), e);
+            throw new RuntimeException("Erro inesperado ao recuperar o usuário autenticado", e);
+        }
     }
 
     public Usuario atualizarUsuario(Long id, UsuarioDTO usuarioDTO) {
@@ -104,4 +130,9 @@ public class UsuarioService {
     public void excluirUsuario(Long id) {
         usuarioRepository.deleteById(id);
     }
+
+    public Optional<Usuario> findByEmail(String email) {
+        return usuarioRepository.findByEmail(email);
+    }
+
 }

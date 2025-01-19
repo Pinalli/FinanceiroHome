@@ -1,4 +1,7 @@
-
+.idea/
+*.iml
+*.iws
+*.ipr
 .mvn
 .gradle
 target
@@ -6,9 +9,6 @@ build
 out
 .idea
 .vscode
-*.iml
-*.ipr
-*.iws
 .DS_Store
 .classpath
 .factorypath

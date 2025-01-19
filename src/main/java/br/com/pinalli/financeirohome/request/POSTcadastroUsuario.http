@@ -1,0 +1,8 @@
+POST http://localhost:8080/api/usuario/cadastro
+content-Type: application/json
+
+{
+  "nome": "Juca Bala",
+  "email": "juca.bala@example.com",
+  "senha": "senhaSegura321"
+}

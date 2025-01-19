@@ -1,18 +1,15 @@
 package br.com.pinalli.financeirohome.service;
 
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.security.SignatureException;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-
+import java.util.Arrays;
+import java.util.Base64;
 import java.util.Date;
 
 @Service
@@ -25,40 +22,56 @@ public class TokenService {
     @Value("${jwt.expiration}")
     private Long expiration;
 
-    public String gerarToken(Authentication authentication) {
-        System.out.println("Gerando token para o usuário: " + authentication.getPrincipal());
+    public String getUsuarioEmail(String token) {
+        byte[] keyBytes = Base64.getDecoder().decode(secret);
+        return Jwts.parserBuilder()
+                .setSigningKey(Keys.hmacShaKeyFor(keyBytes))
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
+    }
 
+
+    public String gerarToken(Authentication authentication) {
         UserDetails usuario = (UserDetails) authentication.getPrincipal();
         Date hoje = new Date();
         Date dataExpiracao = new Date(hoje.getTime() + expiration);
 
-        return Jwts.builder()
+        byte[] keyBytes = Base64.getDecoder().decode(secret);
+        System.out.println("Chave secreta para geração do token: " + Arrays.toString(keyBytes));
+
+        String token = Jwts.builder()
                 .setIssuer("FinanceiroHome")
                 .setSubject(usuario.getUsername())
-                .claim("roles", usuario.getAuthorities()) // Adiciona as roles como claim
+                .claim("roles", usuario.getAuthorities())
                 .setIssuedAt(hoje)
                 .setExpiration(dataExpiracao)
-                .signWith(Keys.hmacShaKeyFor(secret.getBytes()), SignatureAlgorithm.HS256)
+                .signWith(Keys.hmacShaKeyFor(keyBytes), SignatureAlgorithm.HS256)
                 .compact();
+
+        System.out.println("Token gerado: " + token);
+        return token;
     }
 
     public boolean isTokenValido(String token) {
+        if (token == null) {
+            System.out.println("Token é null");
+            return false;
+        }
+
+        byte[] keyBytes = Base64.getDecoder().decode(secret);
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(Keys.hmacShaKeyFor(secret.getBytes()))
+            Jws<Claims> claims = Jwts.parserBuilder()
+                    .setSigningKey(Keys.hmacShaKeyFor(keyBytes))
                     .build()
                     .parseClaimsJws(token);
+            System.out.println("Claims do token: " + claims.getBody());
             return true;
-        } catch (ExpiredJwtException e) {
-            System.out.println("Token expirado: " + e.getMessage());
-        } catch (MalformedJwtException e) {
-            System.out.println("Token malformado: " + e.getMessage());
-        } catch (SignatureException e) {
-            System.out.println("Assinatura inválida: " + e.getMessage());
         } catch (Exception e) {
-            System.out.println("Erro ao validar token: " + e.getMessage());
+            System.out.println("Erro específico na validação: " + e.getClass().getName());
+            System.out.println("Mensagem de erro: " + e.getMessage());
+            return false;
         }
-        return false;
     }
-
 }

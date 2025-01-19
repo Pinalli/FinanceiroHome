@@ -6,7 +6,7 @@ import br.com.pinalli.financeirohome.model.Usuario;
 import br.com.pinalli.financeirohome.dto.UsuarioDTO;
 
 import br.com.pinalli.financeirohome.repository.UsuarioRepository;
-import br.com.pinalli.financeirohome.service.ComprasService;
+
 import jakarta.validation.Valid;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -14,6 +14,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import br.com.pinalli.financeirohome.service.UsuarioService;
@@ -30,7 +31,9 @@ import java.util.Optional;
 @RequestMapping("/api/usuario")
 public class UsuarioController {
 
-    private static final Logger log = LoggerFactory.getLogger(ComprasService.class); // For SLF4j
+    //private static final Logger log = LoggerFactory.getLogger(ComprasService.class); // For SLF4j
+    private static final Logger log = LoggerFactory.getLogger(UsuarioController.class);
+
 
     @Autowired
     private br.com.pinalli.financeirohome.service.TokenService tokenService;
@@ -42,6 +45,8 @@ public class UsuarioController {
     @Autowired
     private  UsuarioRepository usuarioRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
 
     @PostMapping("/login")
@@ -65,20 +70,19 @@ public class UsuarioController {
     }
 
     @PostMapping("/cadastro")
-    public ResponseEntity<?> cadastrarUsuario(@Valid @RequestBody UsuarioDTO usuarioDTO,
-                                              @RequestParam String senha,
-                                              BindingResult bindingResult) {
+    public ResponseEntity<?> cadastrarUsuario(@Valid @RequestBody UsuarioDTO usuarioDTO, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().body(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
         }
 
         try {
-            usuarioService.cadastrarUsuario(usuarioDTO, senha);
+            usuarioService.cadastrarUsuario(usuarioDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body("Usuário cadastrado com sucesso!");
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<Usuario> buscarUsuarioPorId(@PathVariable Long id, Authentication authentication) {

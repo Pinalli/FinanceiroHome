@@ -1,0 +1,9 @@
+GET http://localhost:8080/api/usuario/2
+authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJGaW5hbmNlaXJvSG9tZSIsInN1YiI6Imp1Y2EuYmFsYUBleGFtcGxlLmNvbSIsInJvbGVzIjpbeyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sImlhdCI6MTczNzI0NzAwMiwiZXhwIjoxNzM3MzMzNDAyfQ.Uk-6QbOnDdYcJVG6mthIR7uZdvpssCTB7bbVCseVxeg
+content-Type: application/json
+
+{
+  "nome": "Juca Balistico",
+  "email": "juca.ballistico@example.com",
+  "senha": "senhaSegura321"
+}

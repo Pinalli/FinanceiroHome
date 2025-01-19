@@ -25,7 +25,6 @@ public class AutenticacaoServiceTest {
     private AutenticacaoServiceTest autenticacaoService;
 
 
-
     @Test
     public void testFindByEmail_EmailEncontrado() {
         // Criar um usuário fake
@@ -43,12 +42,13 @@ public class AutenticacaoServiceTest {
         assertNotNull(result);
         assertEquals("usuario@example.com", result.getEmail());
     }
-   private Usuario findByEmail(String email) {
-     if ("usuario@exemplo.com".equals(email)) {
-           return new Usuario("Usuario Teste", email, "senha123");
+
+    private Usuario findByEmail(String email) {
+        if ("usuario@exemplo.com".equals(email)) {
+            return new Usuario("Usuario Teste", email, "senha123");
         }
-       return null;
-   }
+        return null;
+    }
 
     @Test
     public void testFindByEmail_EmailNaoEncontrado() {
