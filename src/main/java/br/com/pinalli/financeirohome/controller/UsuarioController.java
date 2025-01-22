@@ -38,15 +38,19 @@ public class UsuarioController {
     @Autowired
     private br.com.pinalli.financeirohome.service.TokenService tokenService;
 
-    @Autowired
-    private UsuarioService usuarioService;
-    @Autowired
-    private AuthenticationManager authManager;
-    @Autowired
-    private  UsuarioRepository usuarioRepository;
 
+    private final UsuarioService usuarioService;
+    private final AuthenticationManager authManager;
+    private final  UsuarioRepository usuarioRepository;
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    private  PasswordEncoder passwordEncoder;
+
+    public UsuarioController(UsuarioService usuarioService, AuthenticationManager authManager, UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
+        this.usuarioService = usuarioService;
+        this.authManager = authManager;
+        this.usuarioRepository = usuarioRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
 
     @PostMapping("/login")

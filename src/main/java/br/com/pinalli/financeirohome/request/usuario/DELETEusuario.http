@@ -1,0 +1,9 @@
+DELETE http://localhost:8080/api/usuario/2
+authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJGaW5hbmNlaXJvSG9tZSIsInN1YiI6Imp1Y2EuYmFsaXN0aWNvQGV4YW1wbGUuY29tIiwicm9sZXMiOlt7ImF1dGhvcml0eSI6IlJPTEVfVVNFUiJ9XSwiaWF0IjoxNzM3MjkyNzI2LCJleHAiOjE3MzczNzkxMjZ9.a-aJXV8vbUI7dCYEg3rEBwfPhr_gRgoh0decG28CL0s
+content-Type: application/json
+
+{
+  "nome": "Juca Balistico",
+  "email": "juca.ballistico@example.com",
+  "senha": "senhaSegura321"
+}

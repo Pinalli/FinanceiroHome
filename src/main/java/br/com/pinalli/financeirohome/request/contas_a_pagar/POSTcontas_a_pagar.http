@@ -1,0 +1,15 @@
+POST http://localhost:8080/api/contas-a-pagar
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJGaW5hbmNlaXJvSG9tZSIsInN1YiI6Imp1Y2EuYmFsYUBleGFtcGxlLmNvbSIsInJvbGVzIjpbeyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sImlhdCI6MTczNzQ5NTM4MSwiZXhwIjoxNzM3NTgxNzgxfQ.YcjayxTUR1VWjgAiWAmGIPjOKA_p1VOVZDr5OC_2z9g
+Content-Type: application/json
+
+{
+  "descricao": "Conta de agua",
+  "valor": 230.00,
+  "dataVencimento": "2025-02-05",
+  "status": "PENDENTE",
+  "categoria": "UTILIDADES",
+  "usuario": {
+    "id": 3,
+    "nome": "Juca Bala"
+  }
+}

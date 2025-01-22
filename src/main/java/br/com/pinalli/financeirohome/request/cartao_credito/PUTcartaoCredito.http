@@ -1,0 +1,12 @@
+PUT http://localhost:8080/api/cartoes-credito/3
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJGaW5hbmNlaXJvSG9tZSIsInN1YiI6Imp1Y2EuYmFsYUBleGFtcGxlLmNvbSIsInJvbGVzIjpbeyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sImlhdCI6MTczNzMzMzEzNCwiZXhwIjoxNzM3NDE5NTM0fQ.Gl9ghP62TW8Gky1VblAYOGRGa6fi24UuWmvNjlbgl3I
+Content-Type: application/json
+
+{
+  "descricao": "American Card HardCore",
+  "limite": 1230000.00,
+  "totalComprasAbertas": 1000.00,
+  "limiteDisponivel": 1229000.00,
+    "valor": 1000.00,
+    "usuarioId": 3
+}

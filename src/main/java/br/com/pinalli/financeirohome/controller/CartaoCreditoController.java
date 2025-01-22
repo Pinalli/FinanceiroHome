@@ -20,10 +20,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
+
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 
 
 @RestController
@@ -44,31 +44,6 @@ public class CartaoCreditoController {
         this.usuarioService = usuarioService;
         this.tokenService = tokenService;
         this.userRepository = userRepository;
-    }
-
-    private Long obterIdUsuario(Authentication authentication) {
-        log.debug("Authentication: {}", authentication);
-        log.debug("Principal: {}", authentication.getPrincipal());
-
-        if (!(authentication.getPrincipal() instanceof UserDetails)) {
-            log.error("Principal não é uma instância de UserDetails");
-            throw new RuntimeException("Tipo de autenticação inválido");
-        }
-
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        log.debug("Username: {}", userDetails.getUsername());
-
-        return usuarioService.findByEmail(userDetails.getUsername())
-                .map(usuario -> {
-                    Usuario usuarioEspecifico = (Usuario) usuario;
-                    log.debug("Usuario encontrado: {}", usuarioEspecifico.getId());
-                    return usuarioEspecifico.getId();
-                })
-                .orElseThrow(() -> {
-                    log.error("Usuário não encontrado para o email: {}", userDetails.getUsername());
-                    return new RuntimeException("Usuário não encontrado");
-                });
-
     }
 
     @PostMapping
@@ -109,6 +84,31 @@ public class CartaoCreditoController {
         }
     }
 
+
+    private Long obterIdUsuario(Authentication authentication) {
+        log.debug("Authentication: {}", authentication);
+        log.debug("Principal: {}", authentication.getPrincipal());
+
+        if (!(authentication.getPrincipal() instanceof UserDetails)) {
+            log.error("Principal não é uma instância de UserDetails");
+            throw new RuntimeException("Tipo de autenticação inválido");
+        }
+
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        log.debug("Username: {}", userDetails.getUsername());
+
+        return usuarioService.findByEmail(userDetails.getUsername())
+                .map(usuario -> {
+                    Usuario usuarioEspecifico = (Usuario) usuario;
+                    log.debug("Usuario encontrado: {}", usuarioEspecifico.getId());
+                    return usuarioEspecifico.getId();
+                })
+                .orElseThrow(() -> {
+                    log.error("Usuário não encontrado para o email: {}", userDetails.getUsername());
+                    return new RuntimeException("Usuário não encontrado");
+                });
+
+    }
 
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

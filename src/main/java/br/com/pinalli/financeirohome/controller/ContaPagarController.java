@@ -3,7 +3,6 @@ package br.com.pinalli.financeirohome.controller;
 import br.com.pinalli.financeirohome.dto.ContaPagarDTO;
 import br.com.pinalli.financeirohome.dto.UsuarioDTO;
 import br.com.pinalli.financeirohome.model.ContaPagar;
-import br.com.pinalli.financeirohome.model.StatusConta;
 import br.com.pinalli.financeirohome.model.Usuario;
 import br.com.pinalli.financeirohome.repository.ContaPagarRepository;
 import br.com.pinalli.financeirohome.service.ContaPagarService;
@@ -27,14 +26,14 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/contas-a-pagar")
 public class ContaPagarController {
 
-    private static final Logger logger = LoggerFactory.getLogger(ContaPagarService.class);
+    private static final Logger logger = LoggerFactory.getLogger(ContaPagarController.class);
 
     private final ContaPagarService contaPagarService;
+    private final ContaPagarRepository contaPagarRepository;
 
-    private ContaPagarRepository contaPagarRepository;
-
-    public ContaPagarController(ContaPagarService contaPagarService) {
+    public ContaPagarController(ContaPagarService contaPagarService, ContaPagarRepository contaPagarRepository) {
         this.contaPagarService = contaPagarService;
+        this.contaPagarRepository = contaPagarRepository;
     }
 
     private void verificarAutenticacao() {
@@ -49,6 +48,7 @@ public class ContaPagarController {
         verificarAutenticacao();
         logger.info("Iniciando criação da conta a pagar");
             try {
+                logger.info("Dados recebidos: {}", contaPagarDTO);
                 ContaPagar conta = contaPagarService.converterDtoParaEntidade(contaPagarDTO);
                 ContaPagar novaConta = contaPagarService.criarContaPagar(conta);
                 ContaPagarDTO contaDTO = contaPagarService.converterParaDTO(novaConta);
@@ -61,33 +61,8 @@ public class ContaPagarController {
             }catch(Exception e) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
             }
-
         }
 
-
-    private ContaPagar convertToEntity(ContaPagarDTO contaPagarDTO) {
-        if (contaPagarDTO == null) {
-            throw new IllegalArgumentException("ContaPagarDTO não pode ser nula.");
-        }
-//Validação dos atributos obrigatórios.  É crucial!
-        if (contaPagarDTO.getDescricao() == null || contaPagarDTO.getDescricao().isEmpty() ||
-                contaPagarDTO.getValor() == null || contaPagarDTO.getDataVencimento() == null ||
-                contaPagarDTO.getUsuario() == null || contaPagarDTO.getUsuario().getId() == null) {
-            throw new IllegalArgumentException("Dados da conta a pagar inválidos.");
-        }
-        try {
-            return new ContaPagar(
-                    contaPagarDTO.getDescricao(),
-                    contaPagarDTO.getValor(),
-                    contaPagarDTO.getDataVencimento(),
-                    StatusConta.valueOf(contaPagarDTO.getStatus()),
-                    contaPagarDTO.getCategoria(),
-                    contaPagarDTO.getUsuario()
-            );
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Valor inválido para o status da conta: " + contaPagarDTO.getStatus(), e);
-        }
-    }
 
     private ContaPagarDTO converterParaDTO(ContaPagar contaPagar) {
         if (contaPagar == null) return null;

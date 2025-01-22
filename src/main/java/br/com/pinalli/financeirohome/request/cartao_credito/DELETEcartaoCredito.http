@@ -1,0 +1,4 @@
+DELETE http://localhost:8080/api/cartoes-credito/2
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJGaW5hbmNlaXJvSG9tZSIsInN1YiI6Imp1Y2EuYmFsaXN0aWNvQGV4YW1wbGUuY29tIiwicm9sZXMiOlt7ImF1dGhvcml0eSI6IlJPTEVfVVNFUiJ9XSwiaWF0IjoxNzM3MzIwMTYyLCJleHAiOjE3Mzc0MDY1NjJ9.9nE6Pf5s5ZF2iL7rk1PmZBiGqFDzx9WkM5YjuhEOSRw
+Content-Type: application/json
+

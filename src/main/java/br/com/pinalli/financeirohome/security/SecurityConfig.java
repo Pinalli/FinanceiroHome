@@ -60,6 +60,7 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((authorize) -> authorize
+                        //login/cadastro
                         .requestMatchers(HttpMethod.POST, "/api/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/usuario/cadastro").permitAll()
 
@@ -85,9 +86,9 @@ public class SecurityConfig {
                         //cartao-credito
                         .requestMatchers(HttpMethod.POST, "/api/cartoes-credito").hasRole("USER")
                         .requestMatchers(HttpMethod.PUT, "/api/cartoes-credito/{id}").hasRole("USER")
-                        .requestMatchers(HttpMethod.PUT, "/api/cartoes-credito").hasRole("USER")
-                        .requestMatchers(HttpMethod.DELETE, "/api/cartoes-credito/**").hasRole("USER")
-                        .requestMatchers(HttpMethod.GET, "/api/cartoes-credito/usuario/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.PUT, "/api/cartoes-credito/{id}").hasRole("USER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/cartoes-credito/{usuarioId}").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/api/cartoes-credito/usuario/{usuarioId}").hasRole("USER")
                         .requestMatchers(HttpMethod.GET, "/api/cartoes-credito/usuario/{usuarioId}").hasRole("USER")
                         .requestMatchers(HttpMethod.GET, "/api/cartoes-credito/{id}/limite").hasRole("USER")
                         .requestMatchers(HttpMethod.GET, "/api/cartoes-credito/{usuarioId}/limite-compras-abertas").hasRole("USER")
