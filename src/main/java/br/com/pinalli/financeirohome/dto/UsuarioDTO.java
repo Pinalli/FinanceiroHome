@@ -28,13 +28,20 @@ public class UsuarioDTO {
     public UsuarioDTO(Long id, String nome, String email) {
     }
 
+    public UsuarioDTO(Usuario usuario) {
+        this.id = usuario.getId();
+        this.nome = usuario.getNome();
+        this.email = usuario.getEmail();
+        this.senha = usuario.getSenha();
+    }
+
     public static UsuarioDTO fromUsuario(Usuario usuario) {
         if (usuario == null) return null;
         return UsuarioDTO.builder()
                 .id(usuario.getId())
                 .nome(usuario.getNome())
                 .email(usuario.getEmail())
-                .email(usuario.getSenha())
+                .senha(usuario.getSenha())
                 .build();
     }
 }

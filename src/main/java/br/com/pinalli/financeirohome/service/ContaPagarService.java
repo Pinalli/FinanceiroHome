@@ -52,6 +52,7 @@ public class ContaPagarService {
                 .orElseThrow(() -> new UsuarioNaoEncontradoException("Usuário não encontrado."));
 
         contaPagar.setUsuario(usuarioLogado);
+
         return contaPagarRepository.save(contaPagar);
     }
 
@@ -75,8 +76,7 @@ public class ContaPagarService {
 
         if (principal instanceof CustomUserDetails) {
             return ((CustomUserDetails) principal).getId();
-        } else if (principal instanceof String) {
-            String email = (String) principal;
+        } else if (principal instanceof String email) {
             Usuario usuario = usuarioRepository.findByEmail(email)
                     .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
             return usuario.getId();
@@ -101,7 +101,7 @@ public class ContaPagarService {
                 .map(this::converterParaDTO)
                 .collect(Collectors.toList());
     }
-
+/**
     public ContaPagar converterDtoParaEntidade(ContaPagarDTO contaPagarDTO) {
         if (contaPagarDTO == null) {
             return null;
@@ -125,7 +125,30 @@ public class ContaPagarService {
                 .usuario(usuario) // Correctly sets the Usuario object
                 .build();
     }
-
+ */
+    public ContaPagar converterDtoParaEntidade(ContaPagarDTO dto) {
+        return ContaPagar.builder()
+                .descricao(dto.getDescricao())
+                .valor(dto.getValor())
+                .dataVencimento(dto.getDataVencimento())
+                .status(StatusConta.valueOf(dto.getStatus()))
+                .categoria(dto.getCategoria())
+                .usuario(usuarioRepository.findById(dto.getUsuario().getId())
+                        .orElseThrow(() -> new UsuarioNaoEncontradoException("Usuário não encontrado")))
+                .build();
+    }
+    public ContaPagarDTO converterParaDTO(ContaPagar entity) {
+        return ContaPagarDTO.builder()
+                .id(entity.getId())
+                .descricao(entity.getDescricao())
+                .valor(entity.getValor())
+                .dataVencimento(entity.getDataVencimento())
+                .status(entity.getStatus().name())
+                .categoria(entity.getCategoria())
+                .usuario(UsuarioDTO.fromUsuario(entity.getUsuario()))
+                .build();
+    }
+/**
     public ContaPagarDTO converterParaDTO(ContaPagar contaPagar) {
         if (contaPagar == null) return null;
 
@@ -138,7 +161,7 @@ public class ContaPagarService {
                 .usuario(converterUsuarioParaDTO(contaPagar.getUsuario()))
                 .build();
     }
-
+*/
 
     public Optional<ContaPagar> obterContaPagarPorId(Long id) {
         if(id == null || id <= 0) throw new IllegalArgumentException("ID inválido para a conta a pagar.");

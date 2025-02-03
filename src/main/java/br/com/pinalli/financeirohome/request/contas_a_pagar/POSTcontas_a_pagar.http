@@ -1,5 +1,5 @@
 POST http://localhost:8080/api/contas-a-pagar
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJGaW5hbmNlaXJvSG9tZSIsInN1YiI6Imp1Y2EuYmFsYUBleGFtcGxlLmNvbSIsInJvbGVzIjpbeyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sImlhdCI6MTczNzQ5NTM4MSwiZXhwIjoxNzM3NTgxNzgxfQ.YcjayxTUR1VWjgAiWAmGIPjOKA_p1VOVZDr5OC_2z9g
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJGaW5hbmNlaXJvSG9tZSIsInN1YiI6Imp1Y2EuYmFsYUBleGFtcGxlLmNvbSIsInJvbGVzIjpbeyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sImlhdCI6MTczODQ1MjQ1NCwiZXhwIjoxNzM4NTM4ODU0fQ.jF-p_YWAbUXV7buwogCS6oM2iwQ_leIVmlH66kc9ldI
 Content-Type: application/json
 
 {
@@ -9,7 +9,7 @@ Content-Type: application/json
   "status": "PENDENTE",
   "categoria": "UTILIDADES",
   "usuario": {
-    "id": 3,
+    "id": 1,
     "nome": "Juca Bala"
   }
 }

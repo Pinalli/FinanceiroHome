@@ -43,8 +43,14 @@ public class ContaPagarDTO {
 
     public ContaPagarDTO(ContaPagar entity) {
         //copy all attributes from entity to this
-        BeanUtils.copyProperties(entity, this);
-
+        //BeanUtils.copyProperties(entity, this);
+        this.id = entity.getId();
+        this.descricao = entity.getDescricao();
+        this.valor = entity.getValor();
+        this.dataVencimento = entity.getDataVencimento();
+        this.status = entity.getStatus().name();
+        this.categoria = entity.getCategoria();
+        this.usuario = UsuarioDTO.fromUsuario(entity.getUsuario());
     }
 
 }

@@ -54,6 +54,7 @@ public class ContaPagarController {
                 ContaPagarDTO contaDTO = contaPagarService.converterParaDTO(novaConta);
                 logger.info("Conta a pagar criada com sucesso");
                 return new ResponseEntity<>(contaDTO, HttpStatus.CREATED); // Retorna o DTO
+
             } catch (IllegalArgumentException e) {
                 return ResponseEntity.badRequest().body(null);
             } catch (SecurityException e){
