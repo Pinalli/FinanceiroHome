@@ -9,13 +9,14 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Entity
-@Table(name = "parcelas")
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Parcela {
+@Table(name = "parcela_compra")
+@Entity
+public class ParcelaCompra {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,6 +46,4 @@ public class Parcela {
         PAGA,
         CANCELADA
     }
-
-
 }

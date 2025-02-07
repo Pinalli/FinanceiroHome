@@ -1,11 +1,11 @@
 POST http://localhost:8080/api/cartoes-credito
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJGaW5hbmNlaXJvSG9tZSIsInN1YiI6Imp1Y2EuYmFsYUBleGFtcGxlLmNvbSIsInJvbGVzIjpbeyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sImlhdCI6MTczODQ1MjQ1NCwiZXhwIjoxNzM4NTM4ODU0fQ.jF-p_YWAbUXV7buwogCS6oM2iwQ_leIVmlH66kc9ldI
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJGaW5hbmNlaXJvSG9tZSIsInN1YiI6Imp1Y2EuYmFsYUBleGFtcGxlLmNvbSIsInJvbGVzIjpbeyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sImlhdCI6MTczODk1MjA0MywiZXhwIjoxNzM5MDM4NDQzfQ.iD_sE7ieKEdS-P4F4e2HirjytTUeLSEP7Z5GGLPFVY4
 Content-Type: application/json
 
 {
-  "descricao": "Cartão Mastercard Master Platinum",
+  "bandeiraCartao": "Cartão Mastercard Master Platinum",
   "limite": 75000.00,
   "valor": 0.00,
-  "limiteDisponivel": 70000,
+  "limiteDisponivel": 75000.00,
   "totalComprasAbertas": 0.00
 }

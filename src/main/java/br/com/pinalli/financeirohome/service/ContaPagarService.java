@@ -2,6 +2,7 @@ package br.com.pinalli.financeirohome.service;// ContaPagarService.java
 
 import br.com.pinalli.financeirohome.dto.ContaPagarDTO;
 import br.com.pinalli.financeirohome.dto.UsuarioDTO;
+import br.com.pinalli.financeirohome.exception.UsuarioNaoEncontradoException;
 import br.com.pinalli.financeirohome.model.ContaPagar;
 import br.com.pinalli.financeirohome.model.StatusConta;
 import br.com.pinalli.financeirohome.model.Usuario;
@@ -200,10 +201,3 @@ public class ContaPagarService {
     }
 }
 
-class UsuarioNaoEncontradoException extends RuntimeException {
-    public UsuarioNaoEncontradoException(String message) {
-        super(message);
-    }
-
-
-}

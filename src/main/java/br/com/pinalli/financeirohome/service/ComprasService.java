@@ -6,10 +6,12 @@ import br.com.pinalli.financeirohome.exception.CartaoCreditoException;
 import br.com.pinalli.financeirohome.exception.CompraNotFoundException;
 import br.com.pinalli.financeirohome.model.Compras;
 import br.com.pinalli.financeirohome.model.CartaoCredito;
+import br.com.pinalli.financeirohome.model.Parcelas;
 import br.com.pinalli.financeirohome.repository.ComprasRepository;
 import br.com.pinalli.financeirohome.repository.CartaoCreditoRepository;
 import br.com.pinalli.financeirohome.repository.UsuarioRepository;
 import jakarta.transaction.Transactional;
+import org.modelmapper.ModelMapper;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -17,8 +19,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
+
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -35,82 +40,88 @@ public class ComprasService {
     private final UsuarioRepository usuarioRepository;
     private final UsuarioService usuarioService;
     private final CartaoCreditoService cartaoCreditoService;
+    @Autowired
+    private ModelMapper modelMapper;
 
     @Autowired
     public ComprasService(ComprasRepository comprasRepository,
                           CartaoCreditoRepository cartaoCreditoRepository,
                           UsuarioRepository usuarioRepository,
-                          UsuarioService usuarioService
-            , CartaoCreditoService cartaoCreditoService) {
+                          UsuarioService usuarioService,
+                          CartaoCreditoService cartaoCreditoService) {
         this.comprasRepository = comprasRepository;
         this.cartaoCreditoRepository = cartaoCreditoRepository;
         this.usuarioRepository = usuarioRepository;
         this.usuarioService = usuarioService;
         this.cartaoCreditoService = cartaoCreditoService;
     }
-
     @Transactional
     public ComprasDTO registrarCompra(ComprasDTO comprasDTO, Long cartaoId, Authentication authentication) {
         log.info("Registrando compra para o cartão: {}", cartaoId);
-        log.info("ComprasDTO recebido: {}", comprasDTO);
 
-        // Validação de DTO e Cartão de Crédito
-        if (comprasDTO == null || comprasDTO.getCartaoCredito() == null || comprasDTO.getCartaoCredito().getId() == null) {
+        // Validações iniciais
+        if (comprasDTO == null || comprasDTO.getCartaoCredito() == null) {
             throw new IllegalArgumentException("Dados inválidos para criar a compra.");
         }
 
-        // Obtém o ID do usuário autenticado
+        // Obter usuário
         Long idUsuario = obterIdUsuario(authentication);
         if (idUsuario == null) {
             throw new SecurityException("Erro ao obter ID do usuário.");
         }
-        log.debug("ID do usuário autenticado: {}", idUsuario);
 
-        // Verifica se o cartão de crédito existe e se pertence ao usuário autenticado
-        Optional<CartaoCredito> cartaoCredito = cartaoCreditoRepository.findById(cartaoId);
-        if (cartaoCredito.isEmpty()) {
+        // Obter cartão de crédito
+        Optional<CartaoCredito> cartaoCreditoOpt = cartaoCreditoRepository.findById(cartaoId);
+        if (cartaoCreditoOpt.isEmpty()) {
             throw new CartaoCreditoException("Cartão de crédito não encontrado.");
         }
-        if (!Objects.equals(cartaoCredito.get().getUsuario().getId(), idUsuario)) {
-            throw new SecurityException("Usuário não autorizado a criar compras para este cartão.");
-        }
-
-        // Define o usuarioId no DTO
-        comprasDTO.setUsuarioId(idUsuario);  // Atribui o usuarioId ao ComprasDTO
-        comprasDTO.getCartaoCredito().setUsuarioId(idUsuario);  // Atribui o usuarioId ao CartaoCreditoDTO
+        CartaoCredito cartaoCredito = cartaoCreditoOpt.get();
 
         try {
-            // Converte o DTO para entidade e define o Cartão de Crédito e Usuário
-            Compras compra = comprasDTO.toEntity();
-            log.info("Compra criada: {}", compra);
+            // Calcular valor da parcela
+            BigDecimal valorParcela = comprasDTO.getValor()
+                    .divide(BigDecimal.valueOf(comprasDTO.getParcelas()), 2, RoundingMode.HALF_UP);
 
-            // Calcula e define o valor da parcela
-         //   if (compra.getParcelas() > 1) {
-         //       BigDecimal valorParcela = compra.getValor().divide(new BigDecimal(compra.getParcelas()), 2, RoundingMode.HALF_UP);
-             //   compra.setValorParcela(valorParcela);
-         //   } else {
-                compra.setValorParcela(compra.getValor());
-         //   }
-            // Captura e define o limite disponível no momento da compra
-            BigDecimal limiteDisponivel = cartaoCreditoService.getLimiteDisponivel(cartaoId);
-            compra.setLimiteDisponivelMomentoCompra(limiteDisponivel);
-            compra.setCartaoCredito(cartaoCredito.get());
-            compra.setUsuario(cartaoCredito.get().getUsuario());  // Seta o usuário autenticado
+            // Criar a compra
+            Compras compra = Compras.builder()
+                    .dataCompra(comprasDTO.getDataCompra().atStartOfDay())
+                    .valor(comprasDTO.getValor())
+                    .descricao(comprasDTO.getDescricao())
+                    .categoria(comprasDTO.getCategoria())
+                    .parcelas(comprasDTO.getParcelas())  // Campo que estava faltando
+                    .parcelasPagas(0)
+                    .cartaoCredito(cartaoCredito)
+                    .usuario(cartaoCredito.getUsuario())
+                    .status(Compras.StatusCompra.PENDENTE)
+                    .valorParcela(valorParcela)
+                    .limiteDisponivelMomentoCompra(cartaoCreditoService.getLimiteDisponivel(cartaoId))
+                    .dataLimite(comprasDTO.getDataCompra().plusMonths(comprasDTO.getParcelas()).atStartOfDay())
+                    .build();
 
-            log.info("Salvando compra: {}", compra);
-            Compras compraSalva = comprasRepository.save(compra);  // Salva a compra no banco de dados
-            log.info("Compra salva com sucesso: {}", compraSalva);
+            // Criar parcelas
+            for (int i = 1; i <= comprasDTO.getParcelas(); i++) {
+                Parcelas parcela = Parcelas.builder()
+                        .numeroParcela(i)
+                        .valorParcela(valorParcela)
+                        .dataVencimento(comprasDTO.getDataCompra().plusMonths(i-1))
+                        .status(Parcelas.StatusParcela.PENDENTE)
+                        .compra(compra)
+                        .build();
+                compra.adicionarParcela(parcela);
+            }
 
-            // Atualiza o limite do cartão e o total de compras abertas
+            // Salvar a compra
+            Compras compraSalva = comprasRepository.save(compra);
+
+            // Atualizar limite do cartão
             cartaoCreditoService.atualizarLimiteEComprasAbertas(cartaoId, compra.getValor(), true);
 
-            return ComprasDTO.fromEntity(compraSalva);  // Retorna o DTO da compra salva
+            return ComprasDTO.fromEntity(compraSalva);
         } catch (Exception e) {
             log.error("Erro ao criar compra: ", e);
-            throw e;  // Relança a exceção para ser tratada no nível superior
+            throw new RuntimeException("Erro ao criar compra: " + e.getMessage(), e);
         }
     }
-
 
     private ComprasDTO converterParaDTO(Compras compra) {
         if (compra == null) {
@@ -123,7 +134,7 @@ public class ComprasService {
                 .valor(compra.getValor())
                 .descricao(compra.getDescricao())
                 .categoria(compra.getCategoria())
-            //    .parcelas(compra.getParcelas())
+                //    .parcelas(compra.getParcelas())
                 .cartaoCredito(CartaoCreditoDTO.converterParaDTO(compra.getCartaoCredito()))
                 .build();
     }
@@ -239,8 +250,8 @@ public class ComprasService {
             compraExistente.setValor(compraAtualizada.getValor());
             compraExistente.setDescricao(compraAtualizada.getDescricao());
             compraExistente.setCategoria(compraAtualizada.getCategoria());
-       //     compraExistente.setParcelas(compraAtualizada.getParcelas());
-        //    compraExistente.setParcelasPagas(compraAtualizada.getParcelasPagas());
+            //     compraExistente.setParcelas(compraAtualizada.getParcelas());
+            //    compraExistente.setParcelasPagas(compraAtualizada.getParcelasPagas());
             compraExistente.setCartaoCredito(cartao.get());
 
             Compras compraSalva = comprasRepository.save(compraExistente);

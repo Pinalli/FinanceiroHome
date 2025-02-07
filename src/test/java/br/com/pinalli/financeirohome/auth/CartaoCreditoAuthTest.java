@@ -56,7 +56,7 @@ public class CartaoCreditoAuthTest {
     @Test
     public void testCriarCartaoCreditoComTokenValido() throws Exception {
         CartaoCreditoDTO dto = new CartaoCreditoDTO();
-        dto.setDescricao("Cartão de Teste Auth");
+        dto.setBandeiraCartao("Cartão de Teste Auth");
         dto.setLimite(new BigDecimal("1000.00"));
         dto.setValor(new BigDecimal("0.00"));
 
@@ -71,7 +71,7 @@ public class CartaoCreditoAuthTest {
     @Test
     public void testCriarCartaoCreditoComTokenInvalido() throws Exception {
         CartaoCreditoDTO dto = new CartaoCreditoDTO();
-        dto.setDescricao("Cartão de Teste Auth Inválido");
+        dto.setBandeiraCartao("Cartão de Teste Auth Inválido");
         dto.setLimite(new BigDecimal("1000.00"));
         dto.setValor(new BigDecimal("0.00"));
 
@@ -92,7 +92,7 @@ public class CartaoCreditoAuthTest {
     public void testAtualizarCartaoCreditoComTokenValido() throws Exception {
         // Primeiro, crie um cartão de crédito
         CartaoCreditoDTO dto = new CartaoCreditoDTO();
-        dto.setDescricao("Cartão Original Auth");
+        dto.setBandeiraCartao("Cartão Original Auth");
         dto.setLimite(new BigDecimal("3000.00"));
         dto.setValor(new BigDecimal("0.00"));
 
@@ -106,7 +106,7 @@ public class CartaoCreditoAuthTest {
         CartaoCreditoDTO createdDto = objectMapper.readValue(response, CartaoCreditoDTO.class);
 
         // Atualize o cartão
-        createdDto.setDescricao("Cartão Atualizado Auth");
+        createdDto.setBandeiraCartao("Cartão Atualizado Auth");
 
         mockMvc.perform(put("/api/cartoes-credito/" + createdDto.getId())
                         .header("Authorization", "Bearer " + jwtToken)

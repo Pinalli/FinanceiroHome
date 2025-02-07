@@ -14,34 +14,33 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties({"usuario"})
-@Table(name = "cartoes_credito")
+@Table(name = "cartao_credito")
 public class CartaoCredito {
 
     @Id
-    @Setter
-    @Getter
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 100)
-    private String descricao;
+    @ManyToOne
+    @JoinColumn(name = "usuario_id", nullable = false)
+    private Usuario usuario;
+
+
+    @Column(name="bandeira_cartao",nullable = false, length = 100)
+    private String bandeiraCartao;
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal limite;
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal valor;
-    @Setter
-    @Getter
+
     @Column(name="limite_disponivel", nullable = false, precision = 10, scale = 2)
     private BigDecimal limiteDisponivel;
 
     @Column(name = "total_compras_abertas",nullable = false, precision = 10, scale = 2)
     private BigDecimal totalComprasAbertas;
 
-    @ManyToOne
-    @JoinColumn(name = "usuario_id", nullable = false)
-    private Usuario usuario;
 
     public void atualizarLimiteDisponivel(BigDecimal valorCompra) {
         this.limiteDisponivel = this.limiteDisponivel.subtract(valorCompra);
@@ -49,5 +48,17 @@ public class CartaoCredito {
 
     public void atualizarTotalComprasAbertas(BigDecimal valorCompra) {
         this.totalComprasAbertas = this.totalComprasAbertas.add(valorCompra);
+    }
+
+    public CartaoCredito toEntity() {
+        return CartaoCredito.builder()
+                .id(this.id)
+                .usuario(this.usuario)
+                .bandeiraCartao(this.bandeiraCartao)
+                .limite(this.limite)
+                .valor(this.valor)
+                .limiteDisponivel(this.limiteDisponivel)
+                .totalComprasAbertas(this.totalComprasAbertas)
+                .build();
     }
 }

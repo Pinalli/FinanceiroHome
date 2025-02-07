@@ -23,7 +23,7 @@ public class CartaoCreditoDTO {
 
     @NotNull(message = "A descrição não pode ser nula")
     @Size(min = 3, max = 100, message = "A descrição deve ter entre 3 e 100 caracteres")
-    private String descricao;
+    private String bandeiraCartao;
 
     @NotNull(message = "O limite não pode ser nulo")
     @Positive(message = "O limite deve ser um valor positivo")
@@ -52,9 +52,9 @@ public class CartaoCreditoDTO {
         this.totalComprasAbertas = totalComprasAbertas;
     }
 
-    public CartaoCreditoDTO(Long id, String descricao, BigDecimal limite, BigDecimal limiteDisponivel, BigDecimal totalComprasAbertas) {
+    public CartaoCreditoDTO(Long id, String bandeiraCartao, BigDecimal limite, BigDecimal limiteDisponivel, BigDecimal totalComprasAbertas) {
         this.id = id;
-        this.descricao = descricao;
+        this.bandeiraCartao = bandeiraCartao;
         this.limite = limite;
         this.limiteDisponivel = limiteDisponivel;
         this.totalComprasAbertas = totalComprasAbertas;
@@ -64,7 +64,7 @@ public class CartaoCreditoDTO {
     public static CartaoCreditoDTO fromEntity(CartaoCredito cartaoCredito) {
         return new CartaoCreditoDTO(
                 cartaoCredito.getId(),
-                cartaoCredito.getDescricao(),
+                cartaoCredito.getBandeiraCartao(),
                 cartaoCredito.getLimite(),
                 cartaoCredito.getValor(),
                 cartaoCredito.getLimiteDisponivel(),
@@ -72,24 +72,24 @@ public class CartaoCreditoDTO {
                 cartaoCredito.getUsuario().getId());
     }
 
-    public static CartaoCreditoDTO converterParaDTO(CartaoCredito cartaoCredito) {
+    public static CartaoCredito converterParaDTO(CartaoCredito cartaoCredito) {
         if (cartaoCredito == null) return null; // Tratamento para cartaoCredito nulo
 
         return CartaoCreditoDTO.builder()
                 .id(cartaoCredito.getId())
-                .descricao(cartaoCredito.getDescricao())
+                .bandeiraCartao(cartaoCredito.getBandeiraCartao())
                 .limite(cartaoCredito.getLimite())
                 .valor(cartaoCredito.getValor())
                 .limiteDisponivel(cartaoCredito.getLimiteDisponivel())
                 .totalComprasAbertas(cartaoCredito.getTotalComprasAbertas())
                 .usuarioId(cartaoCredito.getUsuario().getId())
-                .build();
+                .build().toEntity();
     }
 
     public CartaoCredito toEntity() {
         CartaoCredito cartaoCredito = new CartaoCredito();
         cartaoCredito.setId(this.id);
-        cartaoCredito.setDescricao(this.descricao);
+        cartaoCredito.setBandeiraCartao(this.bandeiraCartao);
         cartaoCredito.setLimite(this.limite);
         cartaoCredito.setValor(this.valor);
         cartaoCredito.setLimiteDisponivel(this.limiteDisponivel);

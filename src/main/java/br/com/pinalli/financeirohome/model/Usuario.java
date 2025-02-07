@@ -7,6 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -14,14 +15,22 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-@Table(name = "usuarios")
+@Table(name = "usuario")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Data
 public class Usuario implements UserDetails {
 
-
+    /**
+     *
+     *  id SERIAL PRIMARY KEY,
+     *                          nome VARCHAR(100) NOT NULL,
+     *                          email VARCHAR(100) UNIQUE NOT NULL,
+     *                          senha VARCHAR(255) NOT NULL,
+     *                          data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+     *                          data_atualizacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -34,6 +43,12 @@ public class Usuario implements UserDetails {
 
     @Column(nullable = false)
     private String senha;
+
+    @Column(nullable = false)
+    private LocalDateTime data_criacao;
+
+    @Column(nullable = false)
+    private LocalDateTime data_atualizacao;
 
     @JsonIgnore
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)

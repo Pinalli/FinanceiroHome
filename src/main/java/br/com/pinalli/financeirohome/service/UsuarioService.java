@@ -2,13 +2,13 @@ package br.com.pinalli.financeirohome.service;
 
 import br.com.pinalli.financeirohome.dto.UsuarioDTO;
 import br.com.pinalli.financeirohome.exception.UsuarioNaoAutenticadoException;
+import br.com.pinalli.financeirohome.exception.UsuarioNaoEncontradoException;
 import br.com.pinalli.financeirohome.model.Usuario;
 import br.com.pinalli.financeirohome.repository.UsuarioRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;

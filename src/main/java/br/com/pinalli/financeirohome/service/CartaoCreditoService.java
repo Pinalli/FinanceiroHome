@@ -115,7 +115,7 @@ public class CartaoCreditoService {
                 .orElseThrow(() -> new CartaoCreditoException("Cartão de crédito não encontrado."));
 
         // Atualiza os campos
-        cartaoExistente.setDescricao(cartaoCreditoDTO.getDescricao());
+        cartaoExistente.setBandeiraCartao(cartaoCreditoDTO.getBandeiraCartao());
         cartaoExistente.setLimite(cartaoCreditoDTO.getLimite());
         cartaoExistente.setValor(cartaoCreditoDTO.getValor());
 
@@ -134,7 +134,7 @@ public class CartaoCreditoService {
         }
         return CartaoCreditoDTO.builder()
                 .id(cartaoCredito.getId())
-                .descricao(cartaoCredito.getDescricao())
+                .bandeiraCartao(cartaoCredito.getBandeiraCartao())
                 .limite(cartaoCredito.getLimite())
                 .build();
     }
@@ -215,7 +215,7 @@ public class CartaoCreditoService {
         return cartaoCreditoRepository.findById(cartaoId)
                 .map(cartao -> new CartaoCreditoDTO(
                         cartao.getId(),
-                        cartao.getDescricao(),
+                        cartao.getBandeiraCartao(),
                         cartao.getLimite(),
                         cartao.getLimiteDisponivel(),
                         cartao.getTotalComprasAbertas()

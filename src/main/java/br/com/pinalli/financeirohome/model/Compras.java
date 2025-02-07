@@ -5,84 +5,80 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-
-@Setter
-@Getter
 @Entity
 @Table(name = "compras")
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class Compras {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "cartao_credito_id", nullable = false)
+    @JoinColumn(name = "cartao_credito_id")
     private CartaoCredito cartaoCredito;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "usuario_id", nullable = false)
-    private Usuario usuario;
 
     @Column(nullable = false)
     private String categoria;
 
-    @Column(name = "data_compra", nullable = false)
+    @Column(name = "data_compra")
     private LocalDateTime dataCompra;
 
     @Column(nullable = false)
     private String descricao;
 
-    @OneToMany(mappedBy = "compra", cascade = CascadeType.ALL)
-    private List<Parcela> parcelas = new ArrayList<>();
+    @Column(nullable = false)
+    private Integer parcelas;
+
+    @Column(name = "parcelas_pagas", nullable = false)
+    private Integer parcelasPagas;
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal valor;
 
-    @Setter
-    @Getter
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id")
+    private Usuario usuario;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private StatusCompra status;
+
     @Column(name = "valor_parcela", precision = 10, scale = 2)
     private BigDecimal valorParcela;
 
-    @Enumerated(EnumType.STRING)
-    @NotNull
-    private StatusCompra status;
-
-    @Setter
-    @Getter
     @Column(name = "limite_disponivel_momento_compra", precision = 10, scale = 2)
     private BigDecimal limiteDisponivelMomentoCompra;
 
-    @Column(nullable = false, precision = 10, scale = 2)
+    @Column(name = "data_limite_compra")
+    private LocalDateTime dataLimite;
+
+    @OneToMany(mappedBy = "compra", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<ParcelaCompra> listaParcelas = new ArrayList<>();
+
+    // Getter e Setter
+    @Getter
     private BigDecimal valorTotal;
 
-    public void calcularValorTotal() {
-        valorTotal = parcelas.stream()
-                .map(Parcela::getValorParcela)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
-    public void adicionarParcela(Parcela parcela) {
-        parcelas.add(parcela);
+
+    public void adicionarParcela(ParcelaCompra parcela) {
+        listaParcelas.add(parcela);
         parcela.setCompra(this);
     }
 
-    public void removerParcela(Parcela parcela) {
-        parcelas.remove(parcela);
+    public void removerParcela(ParcelaCompra parcela) {
+        listaParcelas.remove(parcela);
         parcela.setCompra(null);
     }
 
     public enum StatusCompra {
-        PENDENTE, PAGO
-
+        PENDENTE, PAGO, ABERTO
     }
-
 }

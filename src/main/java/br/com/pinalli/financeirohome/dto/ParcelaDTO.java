@@ -1,6 +1,6 @@
 package br.com.pinalli.financeirohome.dto;
 
-import br.com.pinalli.financeirohome.model.Parcela;
+import br.com.pinalli.financeirohome.model.Parcelas;
 import lombok.Builder;
 import lombok.Data;
 
@@ -14,5 +14,5 @@ public class ParcelaDTO {
     private BigDecimal valorParcela;
     private LocalDate dataVencimento;
     private LocalDate dataPagamento;
-    private Parcela.StatusParcela status;
+    private Parcelas.StatusParcela status;
 }

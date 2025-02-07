@@ -21,7 +21,7 @@ public class RelatorioFinanceiroItem {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "relatorio_financeiro_id", nullable = false)
-    private RelatorioFinanceiro relatorioFinanceiro;
+    private RelatoriosFinanceiros relatoriosFinanceiros;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "conta_a_pagar_id")
