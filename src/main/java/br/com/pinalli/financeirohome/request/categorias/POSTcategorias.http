@@ -1,12 +1,8 @@
-POST http://localhost:8080/api/contas
+POST http://localhost:8080/api/categorias
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJGaW5hbmNlaXJvSG9tZSIsInN1YiI6Imp1Y2EuYmFsYUBleGFtcGxlLmNvbSIsInJvbGVzIjpbeyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sImlhdCI6MTczOTIwNzAzNCwiZXhwIjoxNzM5MjkzNDM0fQ.ImGCggYkt0RG1d8QgRusVW5BpAtABpDrPWULtmkeYtA
 content-Type: application/json
 
 {
-  "descricao": "Conta de Energia",
-  "valor": 250.75,
-  "dataVencimento": "2025-02-15",
-  "tipo": "PAGAR",
-  "categoria": "Moradia",
-  "usuarioId": 1
+  "nome": "Alimentação",
+  "tipo": "DESPESA"
 }
