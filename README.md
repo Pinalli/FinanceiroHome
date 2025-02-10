@@ -50,3 +50,15 @@ O sistema de gestão de contas domésticas tem como objetivo auxiliar usuários 
 - Redução de inadimplência com lembretes automáticos de vencimento de contas.
 - Maior segurança das informações financeiras com controle de acesso robusto.
 
+# Diagrama de Sequência
+## Fluxo para inserção Categorias
+
+Frontend -> Backend: GET /api/categorias?tipo=DESPESA<br>
+Backend -> Database: SELECT * FROM categorias WHERE tipo = 'DESPESA'<br>
+Database -> Backend: Retorna categorias<br>
+Backend -> Frontend: Lista de categorias DESPESA<br>
+Frontend: Exibe dropdown com categorias<br>
+Usuário: Seleciona categoria e preenche formulário<br>
+Frontend -> Backend: POST /api/contas-pagar (com categoria_id)<br>
+Backend: Valida se categoria_id é DESPESA<br>
+Backend -> Database: INSERT INTO conta_pagar (...)<br>
