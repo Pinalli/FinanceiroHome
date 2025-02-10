@@ -45,20 +45,19 @@ public class ContaController {
         }
     }
 
-
+    @GetMapping("/{tipo}")
+    public ResponseEntity<List<Conta>> listarPorTipo(@PathVariable String tipo) {
+        return ResponseEntity.ok(contaService.listarContasPorTipo(tipo));
+    }
 
     private ContaDTO convertToDTO(Conta conta) {
         return new ContaDTO(
                 conta.getId(),
                 conta.getDescricao(),
                 conta.getValor(),
-                conta.getDataVencimento(),
                 conta.getTipo(),
                 conta.getStatus(),
                 conta.getCategoria() != null ? conta.getCategoria().getId() : null,
-                conta.isRecorrente(),
-                conta.getPeriodicidade(),
-                conta.getObservacao(),
                 conta.getUsuario().getId()
         );
     }

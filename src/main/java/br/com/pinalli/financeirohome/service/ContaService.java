@@ -49,8 +49,9 @@ public class ContaService {
     }
 
     public List<Conta> listarContasPorTipo(String tipo) {
-        TipoConta tipoConta = TipoConta.valueOf(tipo.toUpperCase()); // Converte string para enum
-        return contaRepository.findByTipo(tipoConta);
+        return contaRepository.findByTipo(TipoConta.valueOf(tipo)); // Query com filtro
     }
+
+
 
 }

@@ -26,4 +26,7 @@ public class ContaDTO {
     private String periodicidade;
     private String observacao;
     private Long usuarioId;
+
+    public ContaDTO(Long id, String descricao, BigDecimal valor, String tipo, String status, Long aLong, Long id1) {
+    }
 }

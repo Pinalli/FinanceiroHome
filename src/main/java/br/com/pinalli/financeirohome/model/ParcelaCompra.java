@@ -22,28 +22,24 @@ public class ParcelaCompra {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "compra_id")
-    private ParcelaCompra compra;
-
     @Column(nullable = false)
-    private Integer numeroParcela;
+    private Integer numeroParcela; // Ex: 1, 2, 3...
 
-    @Column(nullable = false)
-    private BigDecimal valorParcela;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal valor; // Valor da parcela
 
-    @Column(nullable = false)
-    private LocalDate dataVencimento;
+    @Column(name = "data_vencimento", nullable = false)
+    private LocalDate dataVencimento; // Data de vencimento
 
-    @Column
-    private LocalDate dataPagamento;
+    @ManyToOne
+    @JoinColumn(name = "status_id", nullable = false)
+    private StatusParcelaCompra status; // Status (PENDENTE, PAGA, etc.)
 
-    @Enumerated(EnumType.STRING)
-    private StatusParcela status;
+    @ManyToOne
+    @JoinColumn(name = "compra_id", nullable = false)
+    private CompraCartao compra; // Compra associada
 
-    public enum StatusParcela {
-        PENDENTE,
-        PAGA,
-        CANCELADA
-    }
+    @ManyToOne
+    @JoinColumn(name = "usuario_id", nullable = false)
+    private Usuario usuario; // Usuário dono da parcela
 }

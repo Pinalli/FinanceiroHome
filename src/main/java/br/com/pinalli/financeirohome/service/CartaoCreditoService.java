@@ -7,6 +7,8 @@ import br.com.pinalli.financeirohome.repository.CartaoCreditoRepository;
 import br.com.pinalli.financeirohome.model.Usuario;
 import br.com.pinalli.financeirohome.repository.UsuarioRepository;
 import br.com.pinalli.financeirohome.security.CustomUserDetails;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -22,6 +24,9 @@ import java.util.stream.Collectors;
 
 @Service
 public class CartaoCreditoService {
+
+    @Autowired
+    private EntityManager entityManager;
 
     @Autowired
     private CartaoCreditoRepository cartaoCreditoRepository;
@@ -62,6 +67,21 @@ public class CartaoCreditoService {
             throw new RuntimeException("Erro ao criar cartão de crédito: " + e.getMessage(), e);
         }
     }
+
+
+    @Transactional(readOnly = true)
+    public BigDecimal calcularLimiteDisponivel(Long cartaoId) {
+        CartaoCredito cartao = cartaoCreditoRepository.findById(cartaoId)
+                .orElseThrow(() -> new EntityNotFoundException("Cartão não encontrado"));
+
+        String jpql = "SELECT SUM(c.valorTotal) FROM CompraCartao c WHERE c.cartao.id = :cartaoId";
+        BigDecimal totalGasto = entityManager.createQuery(jpql, BigDecimal.class)
+                .setParameter("cartaoId", cartaoId)
+                .getSingleResult();
+
+        return cartao.getLimiteTotal().subtract(totalGasto != null ? totalGasto : BigDecimal.ZERO);
+    }
+
 
     @Transactional
     public CartaoCredito findById(Long id) {

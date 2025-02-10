@@ -30,8 +30,5 @@ public class RelatoriosFinanceiros {
     @Column(name = "data_fim", nullable = false)
     private LocalDate dataFim;
 
-    @OneToMany(mappedBy = "relatorioFinanceiro", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RelatorioFinanceiroItem> itens;
-
 
 }

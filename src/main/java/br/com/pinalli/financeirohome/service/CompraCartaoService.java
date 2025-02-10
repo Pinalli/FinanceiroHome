@@ -3,6 +3,7 @@ package br.com.pinalli.financeirohome.service;
 import br.com.pinalli.financeirohome.dto.CompraCartaoDTO;
 import br.com.pinalli.financeirohome.model.CartaoCredito;
 import br.com.pinalli.financeirohome.model.CompraCartao;
+import br.com.pinalli.financeirohome.model.ParcelaCompra;
 import br.com.pinalli.financeirohome.model.Usuario;
 import br.com.pinalli.financeirohome.repository.CartaoCreditoRepository;
 import br.com.pinalli.financeirohome.repository.CompraCartaoRepository;
@@ -37,19 +38,21 @@ public class CompraCartaoService {
                 .orElseThrow(() -> new EntityNotFoundException("Cartão não encontrado"));
 
         CompraCartao compra = new CompraCartao();
-        compra.setDescricao(dto.getDescricao());
-        compra.setValor(dto.getValor());
+        compra.setDescricao(dto.getDescricao()); // Corrigido para "setDescricao"
+        compra.setValorTotal(dto.getValorTotal()); // Assume que o DTO tem "valorTotal"
         compra.setDataCompra(dto.getDataCompra());
         compra.setCategoria(dto.getCategoria());
-        compra.setParcelas(dto.getParcelas());
         compra.setUsuario(usuario);
         compra.setCartao(cartao);
 
+        // Lógica para criar parcelas (se necessário)
+        if (dto.isParcelado()) {
+            List<ParcelaCompra> parcelas = criarParcelas(compra, dto.getQuantidadeParcelas());
+            compra.setParcelas(parcelas);
+        }
+
         return compraCartaoRepository.save(compra);
     }
-
-
-
 
     public List<CompraCartao> listarComprasPorCartao(Long cartaoId) {
         return compraCartaoRepository.findByCartaoId(cartaoId);

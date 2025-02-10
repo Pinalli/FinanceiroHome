@@ -14,5 +14,5 @@ public class ParcelaCompraDTO {
     private BigDecimal valorParcela;
     private LocalDate dataVencimento;
     private LocalDate dataPagamento;
-    private ParcelaCompra.StatusParcela status;
+    private ParcelaCompra status;
 }

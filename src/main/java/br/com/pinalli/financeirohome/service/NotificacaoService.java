@@ -14,27 +14,4 @@ public class NotificacaoService {
     private NotificacaoRepository notificacaoRepository;
 
 
-    public void criarNotificacao(Usuario usuario, ContaPagar conta, TipoNotificacao tipo) {
-        Notificacao notificacao = new Notificacao();
-        notificacao.setUsuario(usuario);
-        notificacao.setContaPagar(conta);
-        notificacao.setTipo(tipo);
-        notificacao.setDataEnvio(LocalDate.now());
-        notificacao.setDataVencimento(conta.getDataVencimento());
-        notificacao.setStatus(false); // Assumindo que 'false' representa 'não lida'
-
-        notificacaoRepository.save(notificacao);
-    }
-
-    public void criarNotificacao(Usuario usuario, ContaReceber conta, TipoNotificacao tipo) {
-        Notificacao notificacao = new Notificacao();
-        notificacao.setUsuario(usuario);
-        notificacao.setContaReceber(conta); // Definir a conta a receber
-        notificacao.setTipo(tipo);
-        notificacao.setDataEnvio(LocalDate.now());
-        notificacao.setDataVencimento(conta.getDataRecebimento());
-        notificacao.setStatus(false);
-
-        notificacaoRepository.save(notificacao);
-    }
 }

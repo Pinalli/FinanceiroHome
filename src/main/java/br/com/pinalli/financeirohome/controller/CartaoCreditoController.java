@@ -21,6 +21,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -82,6 +83,12 @@ public class CartaoCreditoController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Erro ao criar cartão de crédito: " + e.getMessage());
         }
+    }
+
+    @GetMapping("/{id}/limite-disponivel")
+    public ResponseEntity<BigDecimal> getLimiteDisponivel(@PathVariable Long id) {
+        BigDecimal limite = cartaoCreditoService.calcularLimiteDisponivel(id);
+        return ResponseEntity.ok(limite);
     }
 
 

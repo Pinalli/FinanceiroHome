@@ -11,7 +11,13 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CategoriaDTO {
+
     private Long id;
     private String nome;
     private TipoCategoria tipo;
+
+    public CategoriaDTO(Long id, String nome) {
+        this.id = id;
+        this.nome = nome;
+    }
 }

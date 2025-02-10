@@ -41,6 +41,9 @@ public class CartaoCredito {
     @Column(name = "total_compras_abertas",nullable = false, precision = 10, scale = 2)
     private BigDecimal totalComprasAbertas;
 
+    @Column(name = "limite_total") // Nome do campo no banco
+    private BigDecimal limiteTotal; // Nome do campo na entidade
+
 
     public void atualizarLimiteDisponivel(BigDecimal valorCompra) {
         this.limiteDisponivel = this.limiteDisponivel.subtract(valorCompra);
