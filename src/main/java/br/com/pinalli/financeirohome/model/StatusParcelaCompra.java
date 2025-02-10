@@ -12,16 +12,16 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-@Table(name = "status_parcelas")
-public class StatusParcelas {
+@Table(name = "status_parcela_compra")
+public class StatusParcelaCompra {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "parcela_id", nullable = false)
-    private Parcelas parcela;
+    @JoinColumn(name = "parcela_id") // Campo é uma entidade!
+    private ParcelaCompra parcela;
 
     @Convert(converter = StatusContaEnumConverter.class)
     @Column(name = "status", nullable = false)
@@ -33,13 +33,6 @@ public class StatusParcelas {
     @ManyToOne
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
-
-    public void setParcelaId(Long parcelaId) {
-        if (parcela == null) {
-            parcela = new Parcelas();
-        }
-        parcela.setId(parcelaId);
-    }
 
     public Long getUsuarioId() {
         if (usuario != null) {
@@ -55,10 +48,5 @@ public class StatusParcelas {
         usuario.setId(usuarioId);
     }
 
-    public Long getParcelaId() {
-        if (parcela != null) {
-            return parcela.getId();
-        }
-        return null;
-    }
+
 }

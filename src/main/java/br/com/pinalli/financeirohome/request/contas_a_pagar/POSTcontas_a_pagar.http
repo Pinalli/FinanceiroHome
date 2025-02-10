@@ -1,11 +1,11 @@
-POST http://localhost:8080/api/contas-a-pagar
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJGaW5hbmNlaXJvSG9tZSIsInN1YiI6Imp1Y2EuYmFsYUBleGFtcGxlLmNvbSIsInJvbGVzIjpbeyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sImlhdCI6MTczODQ1MjQ1NCwiZXhwIjoxNzM4NTM4ODU0fQ.jF-p_YWAbUXV7buwogCS6oM2iwQ_leIVmlH66kc9ldI
-Content-Type: application/json
+POST http://localhost:8080/api/conta-a-pagar
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJGaW5hbmNlaXJvSG9tZSIsInN1YiI6Imp1Y2EuYmFsYUBleGFtcGxlLmNvbSIsInJvbGVzIjpbeyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sImlhdCI6MTczOTE1MjcwNCwiZXhwIjoxNzM5MjM5MTA0fQ.r8QsY11sD5if9etleMythQ1bw4b-9hSNNfqr8EhJEKk
+content-Type: application/json
 
 {
   "descricao": "Conta de agua",
   "valor": 230.00,
-  "dataVencimento": "2025-02-05",
+  "dataVencimento": "2025-02-23",
   "status": "PENDENTE",
   "categoria": "UTILIDADES",
   "usuario": {

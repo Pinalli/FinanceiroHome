@@ -1,0 +1,10 @@
+POST http://localhost:8080/status-parcelas
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJGaW5hbmNlaXJvSG9tZSIsInN1YiI6Imp1Y2EuYmFsYUBleGFtcGxlLmNvbSIsInJvbGVzIjpbeyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sImlhdCI6MTczOTE1MjcwNCwiZXhwIjoxNzM5MjM5MTA0fQ.r8QsY11sD5if9etleMythQ1bw4b-9hSNNfqr8EhJEKk
+Content-Type: application/json
+
+{
+           "parcelaId": 1,
+           "status": "PENDENTE",
+           "dataAlteracao": "2025-02-09T10:00:00",
+           "usuarioId": 1
+         }

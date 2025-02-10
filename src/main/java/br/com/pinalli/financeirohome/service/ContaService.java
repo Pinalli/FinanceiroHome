@@ -10,14 +10,16 @@ import org.springframework.stereotype.Service;
 public class ContaService {
 
     private final ContaRepository contaRepository;
+
     public ContaService(ContaRepository contaRepository) {
         this.contaRepository = contaRepository;
     }
-    public Conta criarConta(ContaDTO contaDTO) {
+
+    public Conta criarConta(ContaDTO contaDTO) { // Nome do método corrigido
         Conta conta = new Conta();
-        conta.setDescricao(contaDTO.getDescricao());
-        conta.setTipo(contaDTO.isTipo()); // Define se é conta a pagar ou receber
-        // ... outros campos
-        return contaRepository.save(conta);
+        conta.setDescricao(contaDTO.getDescricao()); // Usando a instância "contaDTO"
+        conta.setTipo(contaDTO.getTipo()); // Método corrigido (assumindo que existe "getTipo()")
+        // ... outros campos (ex: valor, data, status)
+        return contaRepository.save(conta); // Instância "conta" passada para save()
     }
 }

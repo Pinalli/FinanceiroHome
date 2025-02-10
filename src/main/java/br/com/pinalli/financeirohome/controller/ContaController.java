@@ -24,4 +24,8 @@ public class ContaController {
         return ResponseEntity.ok(responseDTO);
 
     }
+
+    private ContaDTO convertToDTO(Conta novaConta) {
+        return new ContaDTO(novaConta.getId(), novaConta.getDescricao(), novaConta.isTipo());
+    }
 }

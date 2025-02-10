@@ -1,11 +1,12 @@
-POST http://localhost:8080/api/cartoes-credito
+POST http://localhost:8080/api/compra/1/compra
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJGaW5hbmNlaXJvSG9tZSIsInN1YiI6Imp1Y2EuYmFsYUBleGFtcGxlLmNvbSIsInJvbGVzIjpbeyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sImlhdCI6MTczOTE1NjExNCwiZXhwIjoxNzM5MjQyNTE0fQ.bzKbYSsg8OTWqMtcXx5OvDA7bu57Qpcztik-hOHAYmk
-Content-Type: application/json
+content-Type: application/json
 
 {
-  "bandeiraCartao": "Cartão Mastercard Master Platinum",
-  "limite": 75000.00,
-  "valor": 0.00,
-  "limiteDisponivel": 75000.00,
-  "totalComprasAbertas": 0.00
+  "descricao": "Compra de Eletrônicos",
+  "valor": 1200.50,
+  "dataCompra": "2025-02-09",
+  "categoria": "Eletrônicos",
+  "parcelas": 12,
+  "usuarioId": 1
 }

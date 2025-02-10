@@ -1,8 +1,9 @@
 package br.com.pinalli.financeirohome.repository;
 
-import br.com.pinalli.financeirohome.model.Parcelas;
+import br.com.pinalli.financeirohome.model.ParcelaCompra;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ParcelaRepository extends JpaRepository<Parcelas, Long> {
+public interface ParcelaCompraRepository extends JpaRepository<ParcelaCompra, Long> {
+
     // Métodos personalizados, se necessário
 }

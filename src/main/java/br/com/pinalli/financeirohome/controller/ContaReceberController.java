@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/contas-a-receber")
+@RequestMapping("/api/conta-a-receber")
 public class ContaReceberController {
 
     @Autowired

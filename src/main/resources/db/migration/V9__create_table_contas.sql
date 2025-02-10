@@ -1,19 +1,22 @@
+CREATE TYPE tipo_conta AS ENUM ('PAGAR', 'RECEBER');
+CREATE TYPE status_conta AS ENUM ('PENDENTE', 'PAGO', 'ATRASADO', 'CANCELADO');
+
 CREATE TABLE contas (
-                        id SERIAL PRIMARY KEY,
-                        descricao VARCHAR(50) NOT NULL,
-                        valor DECIMAL(10, 2) NOT NULL,
-                        tipo BOOLEAN NOT NULL, -- TRUE para contas a pagar, FALSE para contas a receber
-                        data_vencimento DATE, -- Data de vencimento (para contas a pagar)
-                        data_recebimento DATE, -- Data de recebimento (para contas a receber)
-                        status VARCHAR(50) NOT NULL, -- Status da conta (ex: "pendente", "paga", "recebida")
-                        categoria VARCHAR(100), -- Categoria da conta (ex: "Alimentação", "Moradia")
-                        usuario_id INTEGER NOT NULL,
-                        FOREIGN KEY (usuario_id) REFERENCES usuario(id)
+                        id BIGSERIAL PRIMARY KEY,
+                        descricao VARCHAR(100) NOT NULL,
+                        valor DECIMAL(10,2) NOT NULL,
+                        data_vencimento DATE NOT NULL,
+                        data_pagamento DATE, -- Para PAGAR
+                        data_recebimento DATE, -- Para RECEBER
+                        tipo tipo_conta NOT NULL,
+                        status status_conta NOT NULL,
+                        categoria_id BIGINT  REFERENCES categorias(id),
+                        recorrente BOOLEAN DEFAULT FALSE,
+                        periodicidade VARCHAR(20) CHECK (periodicidade IN ('MENSAL', 'ANUAL', 'SEMANAL', NULL)),
+                        data_criacao TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                        data_atualizacao TIMESTAMP,
+                        observacao TEXT,
+                        usuario_id BIGINT NOT NULL REFERENCES usuario(id),
+                        CONSTRAINT chk_recorrencia_valida CHECK (recorrente = FALSE OR periodicidade IS NOT NULL)
 );
 
--- Comentários adicionais para documentação
-COMMENT ON COLUMN contas.tipo IS 'TRUE para contas a pagar, FALSE para contas a receber';
-COMMENT ON COLUMN contas.data_vencimento IS 'Data de vencimento (para contas a pagar)';
-COMMENT ON COLUMN contas.data_recebimento IS 'Data de recebimento (para contas a receber)';
-COMMENT ON COLUMN contas.status IS 'Status da conta (ex: "pendente", "paga", "recebida")';
-COMMENT ON COLUMN contas.categoria IS 'Categoria da conta (ex: "Alimentação", "Moradia")';

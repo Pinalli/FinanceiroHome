@@ -5,7 +5,6 @@ import br.com.pinalli.financeirohome.exception.CartaoCreditoException;
 import br.com.pinalli.financeirohome.model.CartaoCredito;
 import br.com.pinalli.financeirohome.repository.CartaoCreditoRepository;
 import br.com.pinalli.financeirohome.model.Usuario;
-import br.com.pinalli.financeirohome.repository.ComprasRepository;
 import br.com.pinalli.financeirohome.repository.UsuarioRepository;
 import br.com.pinalli.financeirohome.security.CustomUserDetails;
 import jakarta.transaction.Transactional;
@@ -30,8 +29,7 @@ public class CartaoCreditoService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    @Autowired
-    private ComprasRepository comprasRepository;
+
 
     public CartaoCreditoService(CartaoCreditoRepository cartaoCreditoRepository, UsuarioRepository usuarioRepository) {
         this.cartaoCreditoRepository = cartaoCreditoRepository;

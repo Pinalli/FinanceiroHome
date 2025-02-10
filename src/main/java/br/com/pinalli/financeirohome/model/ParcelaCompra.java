@@ -24,7 +24,7 @@ public class ParcelaCompra {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "compra_id")
-    private Compras compra;
+    private ParcelaCompra compra;
 
     @Column(nullable = false)
     private Integer numeroParcela;

@@ -89,9 +89,6 @@ public class ContaPagarService {
         if (usuario == null) return null;
         return new UsuarioDTO(usuario.getId(), usuario.getNome(), usuario.getEmail());
     }
-    //private UsuarioDTO converterUsuarioParaDTO(Usuario usuario) {
-        //return UsuarioDTO.fromUsuario(usuario);
-   // }
 
     private List<ContaPagarDTO> converterContasParaDTOs(List<ContaPagar> contas) {
         if (contas == null) {
@@ -102,31 +99,7 @@ public class ContaPagarService {
                 .map(this::converterParaDTO)
                 .collect(Collectors.toList());
     }
-/**
-    public ContaPagar converterDtoParaEntidade(ContaPagarDTO contaPagarDTO) {
-        if (contaPagarDTO == null) {
-            return null;
-        }
-        //Validações - Erros de dados
-        if (contaPagarDTO.getValor() == null || contaPagarDTO.getDataVencimento() == null ||
-                contaPagarDTO.getDescricao() == null || contaPagarDTO.getUsuario() == null ||
-                contaPagarDTO.getUsuario().getId() == null || contaPagarDTO.getCategoria() == null || contaPagarDTO.getCategoria().isEmpty()) {
-            throw new IllegalArgumentException("Dados inválidos para a conta a pagar.");
-        }
 
-        Usuario usuario = usuarioRepository.findById(contaPagarDTO.getUsuario().getId())
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
-
-        return ContaPagar.builder()
-                .descricao(contaPagarDTO.getDescricao())
-                .valor(contaPagarDTO.getValor())
-                .dataVencimento(contaPagarDTO.getDataVencimento())
-                .status(StatusConta.valueOf(contaPagarDTO.getStatus()))
-                .categoria(contaPagarDTO.getCategoria())
-                .usuario(usuario) // Correctly sets the Usuario object
-                .build();
-    }
- */
     public ContaPagar converterDtoParaEntidade(ContaPagarDTO dto) {
         return ContaPagar.builder()
                 .descricao(dto.getDescricao())
@@ -149,20 +122,7 @@ public class ContaPagarService {
                 .usuario(UsuarioDTO.fromUsuario(entity.getUsuario()))
                 .build();
     }
-/**
-    public ContaPagarDTO converterParaDTO(ContaPagar contaPagar) {
-        if (contaPagar == null) return null;
 
-        return ContaPagarDTO.builder()
-                .id(contaPagar.getId())
-                .descricao(contaPagar.getDescricao())
-                .valor(contaPagar.getValor())
-                .status(contaPagar.getStatus().name())
-                .categoria(contaPagar.getCategoria())
-                .usuario(converterUsuarioParaDTO(contaPagar.getUsuario()))
-                .build();
-    }
-*/
 
     public Optional<ContaPagar> obterContaPagarPorId(Long id) {
         if(id == null || id <= 0) throw new IllegalArgumentException("ID inválido para a conta a pagar.");

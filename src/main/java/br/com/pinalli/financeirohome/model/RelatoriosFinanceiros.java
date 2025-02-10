@@ -33,5 +33,5 @@ public class RelatoriosFinanceiros {
     @OneToMany(mappedBy = "relatorioFinanceiro", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RelatorioFinanceiroItem> itens;
 
-    // Getters e Setters (opcional, se não estiver usando Lombok)
+
 }

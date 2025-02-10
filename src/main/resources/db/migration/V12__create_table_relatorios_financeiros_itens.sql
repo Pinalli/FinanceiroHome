@@ -1,7 +1,7 @@
 -- Certifique-se de que o nome do arquivo está correto (sem erros de digitação)
 CREATE TABLE relatorios_financeiros_itens (
-                                              id SERIAL PRIMARY KEY,
-                                              relatorio_financeiro_id INTEGER NOT NULL,
+                                              id BIGSERIAL PRIMARY KEY,
+                                              relatorio_financeiro_id BIGINT NOT NULL REFERENCES relatorios_financeiros(id),
                                               conta_id INTEGER,
                                               cartao_credito_id INTEGER,
                                               tipo BOOLEAN NOT NULL, -- Coluna adicionada
@@ -16,3 +16,5 @@ COMMENT ON COLUMN relatorios_financeiros_itens.relatorio_financeiro_id IS 'Vincu
 COMMENT ON COLUMN relatorios_financeiros_itens.conta_id IS 'Vincula o item a uma conta (a pagar ou a receber).';
 COMMENT ON COLUMN relatorios_financeiros_itens.cartao_credito_id IS 'Vincula o item a uma compra com cartão de crédito.';
 COMMENT ON COLUMN relatorios_financeiros_itens.tipo IS 'Define se o item é uma receita (true) ou despesa (false).';
+
+

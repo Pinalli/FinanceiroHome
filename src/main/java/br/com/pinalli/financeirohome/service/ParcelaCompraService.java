@@ -1,17 +1,17 @@
 package br.com.pinalli.financeirohome.service;
 
-import br.com.pinalli.financeirohome.repository.ParcelaRepository;
+import br.com.pinalli.financeirohome.repository.ParcelaCompraRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ParcelaService {
+public class ParcelaCompraService {
     @Autowired
-    private ParcelaRepository parcelaRepository;
+    private ParcelaCompraRepository parcelaRepository;
 
-  //  public ParcelaDTO salvarParcela(ParcelaDTO parcelaDTO) {
+  //  public ParcelaCompraDTO salvarParcela(ParcelaCompraDTO parcelaDTO) {
        // Parcelas parcela = modelMapper.map(parcelaDTO, Parcelas.class);
      //   parcela = parcelaRepository.save(parcela);
-    //    return modelMapper.map(parcela, ParcelaDTO.class);
+    //    return modelMapper.map(parcela, ParcelaCompraDTO.class);
  //   }
 }

@@ -3,6 +3,8 @@ package br.com.pinalli.financeirohome.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,23 +16,14 @@ import java.util.List;
 
 @Getter
 @Setter
+@ToString(exclude = "senha")
 @Entity
 @Table(name = "usuario")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Data
 public class Usuario implements UserDetails {
 
-    /**
-     *
-     *  id SERIAL PRIMARY KEY,
-     *                          nome VARCHAR(100) NOT NULL,
-     *                          email VARCHAR(100) UNIQUE NOT NULL,
-     *                          senha VARCHAR(255) NOT NULL,
-     *                          data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-     *                          data_atualizacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -44,19 +37,25 @@ public class Usuario implements UserDetails {
     @Column(nullable = false)
     private String senha;
 
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
+    @CreationTimestamp
     private LocalDateTime data_criacao;
 
     @Column(nullable = false)
+    @UpdateTimestamp
     private LocalDateTime data_atualizacao;
 
     @JsonIgnore
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ContaPagar> contasPagar;
 
-    public Usuario(String usuarioTeste, String email, String senha123) {
+    public Usuario(String nome, String email, String senha) {
+        this.nome = nome;
+        this.email = email;
+        this.senha = senha;
     }
 
+    // Métodos do UserDetails
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")); // Única role
@@ -73,12 +72,7 @@ public class Usuario implements UserDetails {
     }
 
     @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
+    public boolean isCredentialsNonExpired() {
         return true;
     }
 

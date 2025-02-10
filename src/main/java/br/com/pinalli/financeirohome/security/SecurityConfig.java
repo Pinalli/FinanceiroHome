@@ -72,16 +72,16 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/usuario/{id}").hasRole("USER")
 
                         //contas-a-pagar
-                        .requestMatchers(HttpMethod.GET, "/api/contas-a-pagar/{id}").hasRole("USER")
-                        .requestMatchers(HttpMethod.POST, "/api/contas-a-pagar").hasRole("USER")
-                        .requestMatchers(HttpMethod.PUT, "/api/contas-a-pagar/{id}").hasRole("USER")
-                        .requestMatchers(HttpMethod.DELETE, "/api/contas-a-pagar/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/api/conta-a-pagar/{id}").hasRole("USER")
+                        .requestMatchers(HttpMethod.POST, "/api/conta-a-pagar").hasRole("USER")
+                        .requestMatchers(HttpMethod.PUT, "/api/conta-a-pagar/{id}").hasRole("USER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/conta-a-pagar/**").hasRole("USER")
 
                         //contas-a-receber
-                        .requestMatchers(HttpMethod.GET, "/api/contas-a-receber/**").hasRole("USER")
-                        .requestMatchers(HttpMethod.POST, "/api/contas-a-receber").hasRole("USER")
-                        .requestMatchers(HttpMethod.PUT, "/api/contas-a-receber").hasRole("USER")
-                        .requestMatchers(HttpMethod.DELETE, "/api/contas-a-receber/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/api/conta-a-receber/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.POST, "/api/conta-a-receber").hasRole("USER")
+                        .requestMatchers(HttpMethod.PUT, "/api/conta-a-receber").hasRole("USER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/conta-a-receber/**").hasRole("USER")
 
                         //cartao-credito
                         .requestMatchers(HttpMethod.POST, "/api/cartoes-credito").hasRole("USER")
@@ -96,9 +96,9 @@ public class SecurityConfig {
 
 
                         // Compra Cartão de Crédito
-                        .requestMatchers(HttpMethod.POST, "/api/compras/{cartaoId}/compras").hasRole("USER")
+                        .requestMatchers(HttpMethod.POST, "/api/compra/{cartaoId}/compra").hasRole("USER")
                         //  .requestMatchers(HttpMethod.GET, "/api/compras/{cartaoId}/compras").hasRole("USER") // listarComprasPorCartao
-                        .requestMatchers(HttpMethod.GET, "/api/compras/{cartaoId}/compra/{compraId}").hasRole("USER") //buscarCompra
+                        .requestMatchers(HttpMethod.GET, "/api/compra/{cartaoId}/compra/{compraId}").hasRole("USER") //buscarCompra
 
 
                         .anyRequest().authenticated()

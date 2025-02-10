@@ -23,7 +23,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/contas-a-pagar")
+@RequestMapping("/api/conta-a-pagar")
 public class ContaPagarController {
 
     private static final Logger logger = LoggerFactory.getLogger(ContaPagarController.class);

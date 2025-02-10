@@ -1,19 +1,23 @@
 package br.com.pinalli.financeirohome.model;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Entity
-@Table(name = "conta_receber")
-@Data
-@Setter
+
 @Getter
-@NoArgsConstructor
+@Setter
 @AllArgsConstructor
-public class ContaReceber {
+@NoArgsConstructor
+@Entity
+@Table(name = "compra_cartao")
+public class CompraCartao {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,16 +29,18 @@ public class ContaReceber {
     @Column(nullable = false)
     private BigDecimal valor;
 
-    @Column(name = "data_recebimento", nullable = false)
-    private LocalDate dataRecebimento;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private StatusConta status; // Agora é do tipo StatusConta
+    @Column(name = "data_compra", nullable = false)
+    private LocalDate dataCompra;
 
     private String categoria;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    private Integer parcelas;
+
+    @ManyToOne
+    @JoinColumn(name = "cartao_id", nullable = false)
+    private CartaoCredito cartao;
+
+    @ManyToOne
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
 
