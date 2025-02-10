@@ -34,16 +34,14 @@ public class UsuarioController {
     //private static final Logger log = LoggerFactory.getLogger(ComprasService.class); // For SLF4j
     private static final Logger log = LoggerFactory.getLogger(UsuarioController.class);
 
-
     @Autowired
     private br.com.pinalli.financeirohome.service.TokenService tokenService;
 
-
     private final UsuarioService usuarioService;
     private final AuthenticationManager authManager;
-    private final  UsuarioRepository usuarioRepository;
+    private final UsuarioRepository usuarioRepository;
     @Autowired
-    private  PasswordEncoder passwordEncoder;
+    private PasswordEncoder passwordEncoder;
 
     public UsuarioController(UsuarioService usuarioService, AuthenticationManager authManager, UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
         this.usuarioService = usuarioService;
@@ -51,7 +49,6 @@ public class UsuarioController {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
     }
-
 
     @PostMapping("/login")
     public ResponseEntity<?> autenticar(@Valid @RequestBody LoginForm form, BindingResult bindingResult) {
@@ -87,9 +84,8 @@ public class UsuarioController {
         }
     }
 
-
     @GetMapping("/{id}")
-    public ResponseEntity<Usuario> buscarUsuarioPorId(@PathVariable Long id, Authentication authentication) {
+    public ResponseEntity<UsuarioDTO> buscarUsuarioPorId(@PathVariable Long id, Authentication authentication) {
         // Recupera o email do usuário autenticado
         String emailAutenticado = authentication.getName();
 
@@ -101,7 +97,7 @@ public class UsuarioController {
 
             // Verifica se o email do usuário autenticado é o mesmo do usuário encontrado
             if (usuario.getEmail().equals(emailAutenticado)) {
-                return ResponseEntity.ok(usuario);
+                return ResponseEntity.ok(UsuarioDTO.fromUsuario(usuario));
             } else {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // Retorna 403 Forbidden se o usuário tentar acessar dados de outro usuário
             }
@@ -143,5 +139,5 @@ public class UsuarioController {
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
-}
+    }
 }

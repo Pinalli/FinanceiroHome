@@ -37,17 +37,14 @@ public class Usuario implements UserDetails {
     @Column(nullable = false)
     private String senha;
 
-    @Column(nullable = false, updatable = false)
-    @CreationTimestamp
-    private LocalDateTime data_criacao;
+    @Column(name = "data_criacao", nullable = false, updatable = false)
+    private LocalDateTime dataCriacao;
 
-    @Column(nullable = false)
-    @UpdateTimestamp
-    private LocalDateTime data_atualizacao;
+    @Column(name = "data_atualizacao", nullable = false)
+    private LocalDateTime dataAtualizacao;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ContaPagar> contasPagar;
+    private List<Conta> contas;
 
     public Usuario(String nome, String email, String senha) {
         this.nome = nome;
@@ -72,8 +69,17 @@ public class Usuario implements UserDetails {
     }
 
     @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
+    public boolean isAccountNonExpired() {
+        return true; // Conta nunca expira (ajuste conforme necessidade)
     }
 
+    @Override
+    public boolean isAccountNonLocked() {
+        return true; // Conta nunca é bloqueada (ajuste conforme necessidade)
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true; // Conta sempre ativa (ajuste conforme necessidade)
+    }
 }

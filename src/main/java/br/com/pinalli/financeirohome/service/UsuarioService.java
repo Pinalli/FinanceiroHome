@@ -23,7 +23,6 @@ import java.util.Optional;
 public class UsuarioService {
 
     private static final Logger logger = LoggerFactory.getLogger(UsuarioService.class);
-
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -31,7 +30,6 @@ public class UsuarioService {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
     }
-
     // Converte a entidade Usuario para UsuarioDTO
     public UsuarioDTO converterParaDTO(Usuario usuario) {
         return new UsuarioDTO(usuario.getId(), usuario.getNome(), usuario.getEmail());
@@ -58,7 +56,6 @@ public class UsuarioService {
         return usuario.getId();
     }
 
-
     public UsuarioDTO buscarUsuarioPorId(Long id) {
         Optional<Usuario> usuarioOptional = usuarioRepository.findById(id);
         if (usuarioOptional.isPresent()) {
@@ -68,11 +65,9 @@ public class UsuarioService {
         throw new EntityNotFoundException("Usuário não encontrado.");
     }
 
-
     public List<Usuario> listarUsuarios() {
         return usuarioRepository.findAll();
     }
-
 
     public Usuario getUsuarioAutenticado() {
         try {
@@ -116,7 +111,10 @@ public class UsuarioService {
     public Usuario atualizarUsuario(Long id, UsuarioDTO usuarioDTO) {
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-
+        
+        if (usuarioDTO.getSenha() != null && !usuarioDTO.getSenha().isEmpty()) {
+            usuario.setSenha(passwordEncoder.encode(usuarioDTO.getSenha()));
+        }
         if (usuarioRepository.findByEmail(usuarioDTO.getEmail()).isPresent() && !usuario.getEmail().equals(usuarioDTO.getEmail())) {
             throw new RuntimeException("E-mail já está em uso");
         }

@@ -9,3 +9,6 @@ CREATE TABLE contas (
                         usuario_id INT NOT NULL REFERENCES usuario(id) ON DELETE CASCADE,
                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE INDEX idx_contas_data ON contas(data);
+CREATE INDEX idx_compra_cartao_usuario ON compra_cartao(usuario_id);
