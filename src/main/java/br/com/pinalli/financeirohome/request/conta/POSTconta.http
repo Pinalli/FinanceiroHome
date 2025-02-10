@@ -1,0 +1,16 @@
+POST http://localhost:8080/api/contas
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJGaW5hbmNlaXJvSG9tZSIsInN1YiI6Imp1Y2EuYmFsYUBleGFtcGxlLmNvbSIsInJvbGVzIjpbeyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sImlhdCI6MTczOTIwNjQzMywiZXhwIjoxNzM5MjkyODMzfQ.CqF2rJ-v2m87hYhz-ad_-jziPBUIivUJexI8GtZMX8c
+content-Type: application/json
+
+{
+  "descricao": "Conta de Luz",
+  "valor": 250.75,
+  "dataVencimento": "2025-03-10",
+  "tipo": "PAGAR",
+  "status": "PENDENTE",
+  "categoriaId": 1,
+  "recorrente": true,
+  "periodicidade": "MENSAL",
+  "observacao": "Conta de luz de março",
+  "usuarioId": 1
+}

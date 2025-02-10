@@ -94,12 +94,16 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/cartoes-credito/{usuarioId}/limite-compras-abertas").hasRole("USER")
                         .requestMatchers(HttpMethod.GET, "/api/cartoes-credito/{id}/limite-e-compras").hasRole("USER")
 
-
                         // Compra Cartão de Crédito
                         .requestMatchers(HttpMethod.POST, "/api/compra/{cartaoId}/compra").hasRole("USER")
                         //  .requestMatchers(HttpMethod.GET, "/api/compras/{cartaoId}/compras").hasRole("USER") // listarComprasPorCartao
                         .requestMatchers(HttpMethod.GET, "/api/compra/{cartaoId}/compra/{compraId}").hasRole("USER") //buscarCompra
 
+                        //CONTAS
+                        .requestMatchers(HttpMethod.GET, "/api/contas/{id}").hasRole("USER")
+                        .requestMatchers(HttpMethod.POST, "/api/contas").hasRole("USER")
+                        .requestMatchers(HttpMethod.PUT, "/api/contas/{id}").hasRole("USER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/contas/**").hasRole("USER")
 
                         .anyRequest().authenticated()
                 )

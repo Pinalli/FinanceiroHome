@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -21,12 +22,26 @@ public class Conta {
     private LocalDate dataVencimento;
 
     @Enumerated(EnumType.STRING)
+    private TipoConta tipo; // Corrigido para Enum
+
+    @Enumerated(EnumType.STRING)
     private StatusConta status;
 
-    private String categoria;
+    @ManyToOne
+    @JoinColumn(name = "categoria_id")
+    private Categoria categoria;
 
-    @Column(nullable = false)
-    private boolean tipo; // true = conta a pagar, false = conta a receber
+  //  @Column(nullable = false)
+   // private boolean tipo; // true = conta a pagar, false = conta a receber
+    private boolean recorrente;
+
+    private String periodicidade;
+
+    private LocalDateTime dataCriacao = LocalDateTime.now();
+
+    private LocalDateTime dataAtualizacao;
+
+    private String observacao;
 
     @ManyToOne
     @JoinColumn(name = "usuario_id")
