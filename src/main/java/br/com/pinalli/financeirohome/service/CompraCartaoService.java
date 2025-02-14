@@ -1,9 +1,11 @@
 package br.com.pinalli.financeirohome.service;
 
 import br.com.pinalli.financeirohome.dto.CompraCartaoDTO;
-import br.com.pinalli.financeirohome.model.*;
+import br.com.pinalli.financeirohome.model.CartaoCredito;
+import br.com.pinalli.financeirohome.model.CompraCartao;
+import br.com.pinalli.financeirohome.model.ParcelaCompra;
+import br.com.pinalli.financeirohome.model.Usuario;
 import br.com.pinalli.financeirohome.repository.CartaoCreditoRepository;
-import br.com.pinalli.financeirohome.repository.CategoriaRepository;
 import br.com.pinalli.financeirohome.repository.CompraCartaoRepository;
 import br.com.pinalli.financeirohome.repository.UsuarioRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -19,17 +21,13 @@ public class CompraCartaoService {
     private final CompraCartaoRepository compraCartaoRepository;
     private final UsuarioRepository usuarioRepository;
     private final CartaoCreditoRepository cartaoRepository;
-    private final CategoriaRepository categoriaRepository;
-    private final ParcelaCompraService parcelaService;
 
     public CompraCartaoService(CompraCartaoRepository compraCartaoRepository,
                                UsuarioRepository usuarioRepository,
-                               CartaoCreditoRepository cartaoRepository, CategoriaRepository categoriaRepository, ParcelaCompraService parcelaService) {
+                               CartaoCreditoRepository cartaoRepository) {
         this.compraCartaoRepository = compraCartaoRepository;
         this.usuarioRepository = usuarioRepository;
         this.cartaoRepository = cartaoRepository;
-        this.categoriaRepository = categoriaRepository;
-        this.parcelaService = parcelaService;
     }
 
     public CompraCartao criarCompra(CompraCartaoDTO dto, Long cartaoId) {
@@ -39,25 +37,22 @@ public class CompraCartaoService {
         CartaoCredito cartao = cartaoRepository.findById(cartaoId)
                 .orElseThrow(() -> new EntityNotFoundException("Cartão não encontrado"));
 
-        Categoria categoria = categoriaRepository.findByNome(dto.getCategoria())
-                .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada: " + dto.getCategoria()));
-
         CompraCartao compra = new CompraCartao();
-        compra.setDescricao(dto.getDescricao());
-        compra.setValorTotal(dto.getValorTotal());
+        compra.setDescricao(dto.getDescricao()); // Corrigido para "setDescricao"
+        compra.setValorTotal(dto.getValorTotal()); // Assume que o DTO tem "valorTotal"
         compra.setDataCompra(dto.getDataCompra());
-        compra.setCategoria(categoria);
+        compra.setCategoria(dto.getCategoria());
         compra.setUsuario(usuario);
         compra.setCartao(cartao);
 
+        // Lógica para criar parcelas (se necessário)
         if (dto.isParcelado()) {
-            List<ParcelaCompra> parcelas = parcelaService.criarParcelas(compra, dto.getQuantidadeParcelas());
+            List<ParcelaCompra> parcelas = criarParcelas(compra, dto.getQuantidadeParcelas());
             compra.setParcelas(parcelas);
         }
 
         return compraCartaoRepository.save(compra);
     }
-
 
     public List<CompraCartao> listarComprasPorCartao(Long cartaoId) {
         return compraCartaoRepository.findByCartaoId(cartaoId);

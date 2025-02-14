@@ -9,7 +9,8 @@ import br.com.pinalli.financeirohome.repository.UsuarioRepository;
 import br.com.pinalli.financeirohome.security.CustomUserDetails;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.transaction.annotation.Transactional;
+import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -24,12 +25,18 @@ import java.util.stream.Collectors;
 @Service
 public class CartaoCreditoService {
 
-    private final EntityManager entityManager;
-    private final CartaoCreditoRepository cartaoCreditoRepository;
-    private final UsuarioRepository usuarioRepository;
+    @Autowired
+    private EntityManager entityManager;
 
-    public CartaoCreditoService(EntityManager entityManager, CartaoCreditoRepository cartaoCreditoRepository, UsuarioRepository usuarioRepository) {
-        this.entityManager = entityManager;
+    @Autowired
+    private CartaoCreditoRepository cartaoCreditoRepository;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
+
+
+    public CartaoCreditoService(CartaoCreditoRepository cartaoCreditoRepository, UsuarioRepository usuarioRepository) {
         this.cartaoCreditoRepository = cartaoCreditoRepository;
         this.usuarioRepository = usuarioRepository;
     }
@@ -69,10 +76,12 @@ public class CartaoCreditoService {
 
         String jpql = "SELECT SUM(c.valorTotal) FROM CompraCartao c WHERE c.cartao.id = :cartaoId";
         BigDecimal totalGasto = entityManager.createQuery(jpql, BigDecimal.class)
-                .setParameter("cartaoId", cartaoId) // Remover "s:" inválido
+                .setParameter("cartaoId", cartaoId)
                 .getSingleResult();
+
         return cartao.getLimiteTotal().subtract(totalGasto != null ? totalGasto : BigDecimal.ZERO);
     }
+
 
     @Transactional
     public CartaoCredito findById(Long id) {

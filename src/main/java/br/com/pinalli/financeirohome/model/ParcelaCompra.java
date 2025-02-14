@@ -26,14 +26,14 @@ public class ParcelaCompra {
     private Integer numeroParcela; // Ex: 1, 2, 3...
 
     @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal valor;
+    private BigDecimal valor; // Valor da parcela
 
     @Column(name = "data_vencimento", nullable = false)
-    private LocalDate dataVencimento;
+    private LocalDate dataVencimento; // Data de vencimento
 
-    @Enumerated(EnumType.STRING) // Usa enum diretamente
-    @Column(nullable = false)
-    private StatusParcela status;
+    @ManyToOne
+    @JoinColumn(name = "status_id", nullable = false)
+    private StatusParcelaCompra status; // Status (PENDENTE, PAGA, etc.)
 
     @ManyToOne
     @JoinColumn(name = "compra_id", nullable = false)

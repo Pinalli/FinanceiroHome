@@ -1,1 +1,0 @@
-DROP TABLE IF EXISTS status_parcela_compra; -- Remove apenas se a tabela existir

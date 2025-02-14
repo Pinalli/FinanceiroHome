@@ -55,8 +55,8 @@ public class ContaController {
                 conta.getId(),
                 conta.getDescricao(),
                 conta.getValor(),
-                conta.getData(),
-                conta.getTipo().name(),
+                conta.getTipo(),
+                conta.getStatus(),
                 conta.getCategoria() != null ? conta.getCategoria().getId() : null,
                 conta.getUsuario().getId()
         );

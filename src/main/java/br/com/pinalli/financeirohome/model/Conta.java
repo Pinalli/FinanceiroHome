@@ -22,6 +22,8 @@ public class Conta {
     private String descricao;
     private BigDecimal valor;
     private LocalDate data;
+    private String tipo; // 'PAGAR' ou 'RECEBER'
+    private String status; // 'PENDENTE', 'PAGO', 'RECEBIDO'
 
     @ManyToOne
     @JoinColumn(name = "categoria_id")
@@ -34,11 +36,5 @@ public class Conta {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private TipoConta tipo;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private StatusConta status;
 }
