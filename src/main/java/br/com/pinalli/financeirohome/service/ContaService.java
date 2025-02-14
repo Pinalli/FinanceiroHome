@@ -28,13 +28,19 @@ public class ContaService {
         Conta conta = new Conta();
         conta.setDescricao(contaDTO.getDescricao());
         conta.setValor(contaDTO.getValor());
-        conta.setDataVencimento(contaDTO.getDataVencimento());
-        conta.setTipo(contaDTO.getTipo());
-        conta.setStatus(contaDTO.getStatus() != null ? contaDTO.getStatus() : StatusConta.PENDENTE);
-        conta.setRecorrente(contaDTO.isRecorrente());
-        conta.setPeriodicidade(contaDTO.getPeriodicidade());
-        conta.setObservacao(contaDTO.getObservacao());
+        conta.setData(contaDTO.getDataVencimento());
 
+        // Converter String para TipoConta
+        TipoConta tipo = TipoConta.valueOf(contaDTO.getTipo().toUpperCase());
+        conta.setTipo(tipo);
+
+        // Definir status padrão se não fornecido
+        StatusConta status = (contaDTO.getStatus() != null)
+                ? StatusConta.valueOf(contaDTO.getStatus().toUpperCase())
+                : StatusConta.PENDENTE;
+        conta.setStatus(status);
+
+        // Buscar usuário e categoria
         Usuario usuario = usuarioRepository.findById(contaDTO.getUsuarioId())
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
         conta.setUsuario(usuario);
@@ -51,7 +57,4 @@ public class ContaService {
     public List<Conta> listarContasPorTipo(String tipo) {
         return contaRepository.findByTipo(TipoConta.valueOf(tipo)); // Query com filtro
     }
-
-
-
 }

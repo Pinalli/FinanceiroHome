@@ -3,12 +3,10 @@ package br.com.pinalli.financeirohome.service;
 import br.com.pinalli.financeirohome.exception.StatusNaoEncontradoException;
 import br.com.pinalli.financeirohome.model.CompraCartao;
 import br.com.pinalli.financeirohome.model.ParcelaCompra;
+import br.com.pinalli.financeirohome.model.StatusParcela;
 import br.com.pinalli.financeirohome.repository.ParcelaCompraRepository;
-import br.com.pinalli.financeirohome.repository.StatusParcelaCompraRepository;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import br.com.pinalli.financeirohome.model.StatusParcelaCompra;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -18,13 +16,10 @@ import java.util.List;
 @Service
 public class ParcelaCompraService {
 
-
     private final ParcelaCompraRepository parcelaRepository;
-    private final StatusParcelaCompraRepository statusParcelaCompraRepository;
 
-    public ParcelaCompraService(ParcelaCompraRepository parcelaRepository, StatusParcelaCompraRepository statusParcelaCompraRepository) {
+    public ParcelaCompraService(ParcelaCompraRepository parcelaRepository) {
         this.parcelaRepository = parcelaRepository;
-        this.statusParcelaCompraRepository = statusParcelaCompraRepository;
     }
 
     @Transactional
@@ -45,9 +40,8 @@ public class ParcelaCompraService {
                 RoundingMode.HALF_UP
         );
 
-        StatusParcelaCompra statusPendente = statusParcelaCompraRepository
-                .findByNome("PENDENTE")
-                .orElseThrow(() -> new StatusNaoEncontradoException("Status 'PENDENTE' não encontrado"));
+        // Usa o enum diretamente (não consulta mais o banco)
+        StatusParcela statusPadrao = StatusParcela.PENDENTE;
 
         for (int i = 1; i <= quantidadeParcelas; i++) {
             ParcelaCompra parcela = ParcelaCompra.builder()
@@ -56,7 +50,7 @@ public class ParcelaCompraService {
                     .dataVencimento(compra.getDataCompra().plusMonths(i))
                     .compra(compra)
                     .usuario(compra.getUsuario())
-                    .status(statusPendente)
+                    .status(statusPadrao) // Define o status via enum
                     .build();
 
             parcelas.add(parcela);
@@ -64,5 +58,4 @@ public class ParcelaCompraService {
 
         return parcelaRepository.saveAll(parcelas);
     }
-
 }

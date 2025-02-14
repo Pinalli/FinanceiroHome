@@ -13,9 +13,12 @@ public class Categoria {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "nome", nullable = false) // Nome do campo no banco
+    private String nome; // Nome do campo na entidade
+
     @Enumerated(EnumType.STRING)
-    private TipoCategoria tipo; // Enum: DESPESA, RECEITA, CARTAO
+    @Column(nullable = false)
+    private TipoCategoria tipo; // Ex: DESPESA, RECEITA, CARTAO
 
     @ManyToOne
     @JoinColumn(name = "usuario_id")

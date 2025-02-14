@@ -3,6 +3,7 @@ package br.com.pinalli.financeirohome.controller;
 import br.com.pinalli.financeirohome.dto.CompraCartaoDTO;
 import br.com.pinalli.financeirohome.model.CompraCartao;
 import br.com.pinalli.financeirohome.service.CompraCartaoService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,16 +22,16 @@ public class CompraCartaoController {
 
     @PostMapping("/{cartaoId}/compra")
     public ResponseEntity<CompraCartaoDTO> criarCompra(@PathVariable Long cartaoId,
-                                                       @RequestBody CompraCartaoDTO dto) {
+                                                       @Valid @RequestBody CompraCartaoDTO dto) {
         CompraCartao compra = compraCartaoService.criarCompra(dto, cartaoId);
 
         CompraCartaoDTO response = new CompraCartaoDTO();
         response.setId(compra.getId()); // Agora `setId` existe no DTO
         response.setDescricao(compra.getDescricao());
-        response.setValor(compra.getValor());
+        response.setValorTotal(compra.getValorTotal());
         response.setDataCompra(compra.getDataCompra());
-        response.setCategoria(compra.getCategoria());
-        response.setParcelas(compra.getParcelas());
+        response.setCategoria(compra.getCategoria().toString());
+        response.setQuantidadeParcelas(compra.getQuantidadeParcelas());
         response.setCartaoId(compra.getCartao().getId());
         response.setUsuarioId(compra.getUsuario().getId());
 
@@ -49,10 +50,10 @@ public class CompraCartaoController {
         CompraCartaoDTO dto = new CompraCartaoDTO();
         dto.setId(compraCartao.getId());
         dto.setDescricao(compraCartao.getDescricao());
-        dto.setValor(compraCartao.getValor());
+        dto.setValorTotal(compraCartao.getValorTotal());
         dto.setDataCompra(compraCartao.getDataCompra());
-        dto.setCategoria(compraCartao.getCategoria());
-        dto.setParcelas(compraCartao.getParcelas());
+        dto.setCategoria(compraCartao.getCategoria().toString());
+        dto.setQuantidadeParcelas(compraCartao.getQuantidadeParcelas());
         dto.setCartaoId(compraCartao.getCartao().getId());
         dto.setUsuarioId(compraCartao.getUsuario().getId());
         return dto;

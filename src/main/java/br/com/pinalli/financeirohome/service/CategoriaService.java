@@ -17,7 +17,6 @@ public class CategoriaService {
 
     public Categoria criarCategoria(CategoriaDTO categoriaDTO, Usuario usuario) {
         Categoria categoria = new Categoria();
-        categoria.setNome(categoriaDTO.getNome());
         categoria.setTipo(categoriaDTO.getTipo());
         categoria.setUsuario(usuario);
         return categoriaRepository.save(categoria);
