@@ -2,7 +2,6 @@ package br.com.pinalli.financeirohome.dto;
 
 import java.math.BigDecimal;
 
-
 public record CartaoCreditoResponse(
         Long id,
         String nome,

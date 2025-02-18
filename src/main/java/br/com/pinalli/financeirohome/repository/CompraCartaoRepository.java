@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CompraCartaoRepository extends JpaRepository<CompraCartao, Long> {
-    Optional<CompraCartao> findByCartaoIdAndId(Long cartaoId, Long id);
+    List<CompraCartao> findByUsuarioId(Long usuarioId);
     List<CompraCartao> findByCartaoId(Long cartaoId);
-
-    }
+}

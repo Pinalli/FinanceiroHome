@@ -1,70 +1,51 @@
 package br.com.pinalli.financeirohome.controller;
 
-import br.com.pinalli.financeirohome.dto.CompraCartaoDTO;
-import br.com.pinalli.financeirohome.model.CompraCartao;
+import br.com.pinalli.financeirohome.dto.CompraCartaoRequest;
+import br.com.pinalli.financeirohome.dto.CompraCartaoResponse;
+import br.com.pinalli.financeirohome.model.Usuario;
 import br.com.pinalli.financeirohome.service.CompraCartaoService;
+import br.com.pinalli.financeirohome.service.UsuarioService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/compra")
+@RequestMapping("/api/compras-cartao")
+@RequiredArgsConstructor
 public class CompraCartaoController {
 
-    private final CompraCartaoService compraCartaoService;
+    private final CompraCartaoService compraService;
+    private final UsuarioService usuarioService;
 
-    public CompraCartaoController(CompraCartaoService compraCartaoService) {
-        this.compraCartaoService = compraCartaoService;
+    @PostMapping
+    public ResponseEntity<CompraCartaoResponse> criarCompra(
+            @RequestBody @Valid CompraCartaoRequest request,
+            Principal principal
+    ) {
+        Usuario usuario = usuarioService.buscarPorEmail(principal.getName());
+        CompraCartaoResponse response = compraService.criarCompra(request, usuario);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PostMapping("/{cartaoId}/compra")
-    public ResponseEntity<CompraCartaoDTO> criarCompra(@PathVariable Long cartaoId,
-                                                       @RequestBody CompraCartaoDTO dto) {
-        CompraCartao compra = compraCartaoService.criarCompra(dto, cartaoId);
-
-        CompraCartaoDTO response = new CompraCartaoDTO();
-        response.setId(compra.getId()); // Agora `setId` existe no DTO
-        response.setDescricao(compra.getDescricao());
-        response.setValor(compra.getValor());
-        response.setDataCompra(compra.getDataCompra());
-        response.setCategoria(String.valueOf(compra.getCategoria()));
-        response.setParcelas(compra.getParcelas());
-        response.setCartaoId(compra.getCartao().getId());
-        response.setUsuarioId(compra.getUsuario().getId());
-
+    @GetMapping("/usuario")
+    public ResponseEntity<List<CompraCartaoResponse>> listarPorUsuario(Principal principal) {
+        Usuario usuario = usuarioService.buscarPorEmail(principal.getName());
+        List<CompraCartaoResponse> response = compraService.listarPorUsuario(usuario);
         return ResponseEntity.ok(response);
     }
 
-
-    @GetMapping("/compra/{compraId}")
-    public ResponseEntity<CompraCartaoDTO> buscarCompra(@PathVariable Long cartaoId,
-                                                        @PathVariable Long compraId) {
-        CompraCartao compraCartao = compraCartaoService.buscarCompraPorId(cartaoId, compraId);
-        return ResponseEntity.ok(convertToDTO(compraCartao));
+    @GetMapping("/cartao/{cartaoId}")
+    public ResponseEntity<List<CompraCartaoResponse>> listarPorCartao(
+            @PathVariable Long cartaoId,
+            Principal principal
+    ) {
+        Usuario usuario = usuarioService.buscarPorEmail(principal.getName());
+        List<CompraCartaoResponse> response = compraService.listarPorCartao(cartaoId, usuario);
+        return ResponseEntity.ok(response);
     }
-
-    private CompraCartaoDTO convertToDTO(CompraCartao compraCartao) {
-        CompraCartaoDTO dto = new CompraCartaoDTO();
-        dto.setId(compraCartao.getId());
-        dto.setDescricao(compraCartao.getDescricao());
-        dto.setValor(compraCartao.getValor());
-        dto.setDataCompra(compraCartao.getDataCompra());
-        dto.setCategoria(String.valueOf(compraCartao.getCategoria()));
-        dto.setParcelas(compraCartao.getParcelas());
-        dto.setCartaoId(compraCartao.getCartao().getId());
-        dto.setUsuarioId(compraCartao.getUsuario().getId());
-        return dto;
-    }
-
-    @GetMapping
-    public ResponseEntity<List<CompraCartaoDTO>> listarComprasPorCartao(@PathVariable Long cartaoId) {
-        List<CompraCartao> compras = compraCartaoService.listarComprasPorCartao(cartaoId);
-        List<CompraCartaoDTO> comprasDTO = compras.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(comprasDTO);
-    }
-
 }
