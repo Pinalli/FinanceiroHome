@@ -29,7 +29,7 @@ public class CompraCartaoController {
         response.setDescricao(compra.getDescricao());
         response.setValor(compra.getValor());
         response.setDataCompra(compra.getDataCompra());
-        response.setCategoria(compra.getCategoria());
+        response.setCategoria(String.valueOf(compra.getCategoria()));
         response.setParcelas(compra.getParcelas());
         response.setCartaoId(compra.getCartao().getId());
         response.setUsuarioId(compra.getUsuario().getId());
@@ -51,7 +51,7 @@ public class CompraCartaoController {
         dto.setDescricao(compraCartao.getDescricao());
         dto.setValor(compraCartao.getValor());
         dto.setDataCompra(compraCartao.getDataCompra());
-        dto.setCategoria(compraCartao.getCategoria());
+        dto.setCategoria(String.valueOf(compraCartao.getCategoria()));
         dto.setParcelas(compraCartao.getParcelas());
         dto.setCartaoId(compraCartao.getCartao().getId());
         dto.setUsuarioId(compraCartao.getUsuario().getId());

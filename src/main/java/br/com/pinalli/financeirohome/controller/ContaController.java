@@ -1,64 +1,52 @@
 package br.com.pinalli.financeirohome.controller;
 
-import br.com.pinalli.financeirohome.dto.ContaDTO;
-import br.com.pinalli.financeirohome.model.Conta;
+import br.com.pinalli.financeirohome.dto.ContaRequest;
+import br.com.pinalli.financeirohome.dto.ContaResponse;
 import br.com.pinalli.financeirohome.model.TipoConta;
-import br.com.pinalli.financeirohome.repository.ContaRepository;
+import br.com.pinalli.financeirohome.model.Usuario;
 import br.com.pinalli.financeirohome.service.ContaService;
+import br.com.pinalli.financeirohome.service.UsuarioService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
+import java.security.Principal;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/contas")
+@RequiredArgsConstructor
 public class ContaController {
 
     private final ContaService contaService;
-    private final ContaRepository contaRepository;
+    private final UsuarioService usuarioService;
 
-    public ContaController(ContaService contaService, ContaRepository contaRepository) {
-        this.contaService = contaService;
-        this.contaRepository = contaRepository;
-    }
-
+    // Endpoint para criar conta (apenas usuário autenticado)
     @PostMapping
-    public ResponseEntity<ContaDTO> criarConta(@RequestBody ContaDTO contaDTO) {
-        Conta novaConta = contaService.criarConta(contaDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(convertToDTO(novaConta)); // Retorna 201 CREATED
+    public ResponseEntity<ContaResponse> criarConta(
+            @RequestBody @Valid ContaRequest request,
+            Principal principal
+    ) {
+        Usuario usuario = usuarioService.buscarPorEmail(principal.getName());
+        ContaResponse response = contaService.criarConta(request, usuario);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-
-    @GetMapping("/tipo/{tipo}")
-    public ResponseEntity<List<ContaDTO>> listarContasPorTipo(@PathVariable String tipo) {
-        try {
-            TipoConta tipoConta = TipoConta.valueOf(tipo.toUpperCase()); // Converte string para enum
-            List<Conta> contas = contaService.listarContasPorTipo(String.valueOf(tipoConta));
-            List<ContaDTO> response = contas.stream().map(this::convertToDTO).collect(Collectors.toList());
-            return ResponseEntity.ok(response);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Collections.emptyList()); // Retorna 400 se tipo for inválido
-        }
-    }
-
+    // Endpoint único para listar contas por tipo (usando DTO e segurança)
     @GetMapping("/{tipo}")
-    public ResponseEntity<List<Conta>> listarPorTipo(@PathVariable String tipo) {
-        return ResponseEntity.ok(contaService.listarContasPorTipo(tipo));
-    }
-
-    private ContaDTO convertToDTO(Conta conta) {
-        return new ContaDTO(
-                conta.getId(),
-                conta.getDescricao(),
-                conta.getValor(),
-                conta.getTipo(),
-                conta.getStatus(),
-                conta.getCategoria() != null ? conta.getCategoria().getId() : null,
-                conta.getUsuario().getId()
-        );
+    public ResponseEntity<List<ContaResponse>> listarContasPorTipo(
+            @PathVariable String tipo,
+            Principal principal
+    ) {
+        try {
+            TipoConta tipoConta = TipoConta.valueOf(tipo.toUpperCase());
+            Usuario usuario = usuarioService.buscarPorEmail(principal.getName());
+            List<ContaResponse> contas = contaService.listarContasPorTipo(tipoConta, usuario);
+            return ResponseEntity.ok(contas);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Tipo de conta inválido: " + tipo);
+        }
     }
 }
