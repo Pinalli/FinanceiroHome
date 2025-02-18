@@ -1,67 +1,51 @@
 package br.com.pinalli.financeirohome.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import lombok.*;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-
 @Entity
-@Builder
+@Table(name = "cartao_credito")
 @Data
-@Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonIgnoreProperties({"usuario"})
-@Table(name = "cartao_credito")
 public class CartaoCredito {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "usuario_id", nullable = false)
-    private Usuario usuario;
+    @NotBlank
+    @Column(length = 100)
+    private String nome;
 
+    @NotBlank
+    @Column(length = 20)
+    private String numero;
 
-    @Column(name="bandeira_cartao",nullable = false, length = 100)
-    private String bandeiraCartao;
+    @Min(1)
+    @Max(31)
+    private Integer diaFechamento;
 
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal limite;
+    @Min(1)
+    @Max(31)
+    private Integer diaVencimento;
 
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal valor;
+    @DecimalMin("0.01")
+    @Column(precision = 10, scale = 2)
+    private BigDecimal limiteTotal;
 
-    @Column(name="limite_disponivel", nullable = false, precision = 10, scale = 2)
+    @DecimalMin("0.00")
+    @Column(precision = 10, scale = 2)
     private BigDecimal limiteDisponivel;
 
-    @Column(name = "total_compras_abertas",nullable = false, precision = 10, scale = 2)
-    private BigDecimal totalComprasAbertas;
-
-    @Column(name = "limite_total") // Nome do campo no banco
-    private BigDecimal limiteTotal; // Nome do campo na entidade
-
-
-    public void atualizarLimiteDisponivel(BigDecimal valorCompra) {
-        this.limiteDisponivel = this.limiteDisponivel.subtract(valorCompra);
-    }
-
-    public void atualizarTotalComprasAbertas(BigDecimal valorCompra) {
-        this.totalComprasAbertas = this.totalComprasAbertas.add(valorCompra);
-    }
-
-    public CartaoCredito toEntity() {
-        return CartaoCredito.builder()
-                .id(this.id)
-                .usuario(this.usuario)
-                .bandeiraCartao(this.bandeiraCartao)
-                .limite(this.limite)
-                .valor(this.valor)
-                .limiteDisponivel(this.limiteDisponivel)
-                .totalComprasAbertas(this.totalComprasAbertas)
-                .build();
-    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id", nullable = false)
+    private Usuario usuario;
 }

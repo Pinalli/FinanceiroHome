@@ -1,6 +1,6 @@
 package br.com.pinalli.financeirohome.auth;
 
-import br.com.pinalli.financeirohome.dto.CartaoCreditoDTO;
+import br.com.pinalli.financeirohome.dto.CartaoCreditoRequest;
 import br.com.pinalli.financeirohome.model.Usuario;
 import br.com.pinalli.financeirohome.repository.UsuarioRepository;
 import br.com.pinalli.financeirohome.security.JwtAuthenticationFilter;
@@ -55,7 +55,7 @@ public class CartaoCreditoAuthTest {
 
     @Test
     public void testCriarCartaoCreditoComTokenValido() throws Exception {
-        CartaoCreditoDTO dto = new CartaoCreditoDTO();
+        CartaoCreditoRequest dto = new CartaoCreditoRequest();
         dto.setBandeiraCartao("Cartão de Teste Auth");
         dto.setLimite(new BigDecimal("1000.00"));
         dto.setValor(new BigDecimal("0.00"));
@@ -70,7 +70,7 @@ public class CartaoCreditoAuthTest {
 
     @Test
     public void testCriarCartaoCreditoComTokenInvalido() throws Exception {
-        CartaoCreditoDTO dto = new CartaoCreditoDTO();
+        CartaoCreditoRequest dto = new CartaoCreditoRequest();
         dto.setBandeiraCartao("Cartão de Teste Auth Inválido");
         dto.setLimite(new BigDecimal("1000.00"));
         dto.setValor(new BigDecimal("0.00"));
@@ -91,7 +91,7 @@ public class CartaoCreditoAuthTest {
     @Test
     public void testAtualizarCartaoCreditoComTokenValido() throws Exception {
         // Primeiro, crie um cartão de crédito
-        CartaoCreditoDTO dto = new CartaoCreditoDTO();
+        CartaoCreditoRequest dto = new CartaoCreditoRequest();
         dto.setBandeiraCartao("Cartão Original Auth");
         dto.setLimite(new BigDecimal("3000.00"));
         dto.setValor(new BigDecimal("0.00"));
@@ -103,7 +103,7 @@ public class CartaoCreditoAuthTest {
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
 
-        CartaoCreditoDTO createdDto = objectMapper.readValue(response, CartaoCreditoDTO.class);
+        CartaoCreditoRequest createdDto = objectMapper.readValue(response, CartaoCreditoRequest.class);
 
         // Atualize o cartão
         createdDto.setBandeiraCartao("Cartão Atualizado Auth");
