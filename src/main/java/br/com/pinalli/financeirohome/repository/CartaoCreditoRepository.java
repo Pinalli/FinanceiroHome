@@ -1,19 +1,22 @@
 package br.com.pinalli.financeirohome.repository;
+
 import br.com.pinalli.financeirohome.model.CartaoCredito;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Optional;
+import java.math.BigDecimal;
 
-@Repository
 public interface CartaoCreditoRepository extends JpaRepository<CartaoCredito, Long> {
-    List<CartaoCredito> findByUsuarioId(Long usuarioId);
-    Optional<CartaoCredito> findById(Long id);
 
+    @Query(value = "SELECT limite_total - COALESCE(SUM(c.valor_total), 0) FROM cartao_credito cc " +
+            "LEFT JOIN compra_cartao c ON cc.id = c.cartao_id WHERE cc.id = ?1",
+            nativeQuery = true)
+    BigDecimal calcularLimiteDisponivel(Long cartaoId);
 
-    @Query("SELECT c.limiteDisponivel, c.totalComprasAbertas FROM CartaoCredito c WHERE c.usuario.id = :usuarioId")
-    List<Object[]> getLimiteDisponivelAndTotalComprasAbertasByUsuarioId(@Param("usuarioId") Long usuarioId);
+    @Modifying
+    @Query("UPDATE CartaoCredito cc SET cc.limiteDisponivel = :novoLimite WHERE cc.id = :cartaoId")
+    void atualizarLimiteDisponivel(@Param("cartaoId") Long cartaoId,
+                                   @Param("novoLimite") BigDecimal novoLimite);
 }
