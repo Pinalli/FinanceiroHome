@@ -46,7 +46,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleCompraNaoEncontrada(CompraNaoEncontradaException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
-  
+
     @ExceptionHandler(CompraNotFoundException.class)
     public ResponseEntity<String> handleCompraNotFoundException(CompraNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
@@ -62,6 +62,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ocorreu um erro no servidor. Tente novamente mais tarde.");
     }
 
+    @ExceptionHandler(CategoriaInvalidaException.class)
+    public ResponseEntity<String> handleCategoriaInvalida(CategoriaInvalidaException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleIllegalArgument(IllegalArgumentException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
 }
 

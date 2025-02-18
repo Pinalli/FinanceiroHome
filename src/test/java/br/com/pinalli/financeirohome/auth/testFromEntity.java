@@ -1,9 +1,5 @@
 package br.com.pinalli.financeirohome.auth;
 
-import br.com.pinalli.financeirohome.dto.CartaoCreditoDTO;
-import br.com.pinalli.financeirohome.model.CartaoCredito;
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 //@Test
@@ -13,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  //   cartao.setTotalComprasAbertas("1234567890123456");
    // cartao.setLimite(5000.0);
 
-    //CartaoCreditoDTO dto = CartaoCreditoDTO.fromEntity(cartao);
+    //CartaoCreditoRequest dto = CartaoCreditoRequest.fromEntity(cartao);
 
  //   assertEquals(1L, dto.getId());
     //assertEquals("1234567890123456", dto.getNumero());

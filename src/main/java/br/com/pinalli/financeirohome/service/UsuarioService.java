@@ -30,6 +30,7 @@ public class UsuarioService {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
     }
+
     // Converte a entidade Usuario para UsuarioDTO
     public UsuarioDTO converterParaDTO(Usuario usuario) {
         return new UsuarioDTO(usuario.getId(), usuario.getNome(), usuario.getEmail());
@@ -111,7 +112,7 @@ public class UsuarioService {
     public Usuario atualizarUsuario(Long id, UsuarioDTO usuarioDTO) {
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-        
+
         if (usuarioDTO.getSenha() != null && !usuarioDTO.getSenha().isEmpty()) {
             usuario.setSenha(passwordEncoder.encode(usuarioDTO.getSenha()));
         }
@@ -133,4 +134,8 @@ public class UsuarioService {
         return usuarioRepository.findByEmail(email);
     }
 
+    public Usuario buscarPorEmail(String email) {
+        return usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado com o email: " + email));
+    }
 }

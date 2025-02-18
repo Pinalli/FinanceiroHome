@@ -1,23 +1,31 @@
 package br.com.pinalli.financeirohome.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.validation.constraints.NotBlank;
+import lombok.*;
+
 
 @Getter
 @Setter
 @Entity
-@Table(name = "categorias")
+@Table(name = "categoria")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Categoria {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @NotBlank
+    @Column(length = 50)
+    private String nome;
+
     @Enumerated(EnumType.STRING)
-    private TipoCategoria tipo; // Enum: DESPESA, RECEITA, CARTAO
+    @Column(length = 10)
+    private TipoCategoria tipo; // Enum: DESPESA, RECEITA
 
     @ManyToOne
     @JoinColumn(name = "usuario_id")
-    private Usuario usuario;
+    private Usuario usuario; // NULL para categorias padrão
 }
