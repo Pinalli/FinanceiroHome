@@ -37,10 +37,12 @@ public class Usuario implements UserDetails {
     @Column(nullable = false)
     private String senha;
 
-    @Column(name = "data_criacao", nullable = false, updatable = false)
+    @CreationTimestamp
+    @Column(name = "data_criacao", updatable = false)
     private LocalDateTime dataCriacao;
 
-    @Column(name = "data_atualizacao", nullable = false)
+    @UpdateTimestamp
+    @Column(name = "data_atualizacao")
     private LocalDateTime dataAtualizacao;
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)

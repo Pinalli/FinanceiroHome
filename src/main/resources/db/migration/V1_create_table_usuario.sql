@@ -1,3 +1,4 @@
+-- Criação da tabela usuario
 CREATE TABLE usuario (
                          id SERIAL PRIMARY KEY,
                          nome VARCHAR(100) NOT NULL,
@@ -7,14 +8,17 @@ CREATE TABLE usuario (
                          data_atualizacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Função para atualizar data_atualizacao
 CREATE OR REPLACE FUNCTION update_usuario_timestamp()
 RETURNS TRIGGER AS $$
 BEGIN
+    -- Atualiza data_atualizacao apenas durante operações de UPDATE
     NEW.data_atualizacao = CURRENT_TIMESTAMP;
 RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
+-- Trigger para chamar a função durante operações de UPDATE
 CREATE TRIGGER usuario_update_trigger
     BEFORE UPDATE ON usuario
     FOR EACH ROW
