@@ -11,9 +11,6 @@ public record ContaResponse(
         String descricao,
         BigDecimal valor,
         LocalDate dataVencimento,
-        LocalDate dataPagamento,
-        TipoConta tipo,
         StatusConta status,
-        Long categoriaId,
         String categoriaNome
 ) {}

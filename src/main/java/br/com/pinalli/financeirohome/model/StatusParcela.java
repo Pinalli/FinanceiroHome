@@ -1,5 +1,6 @@
 package br.com.pinalli.financeirohome.model;
 
-public enum StatusParcela {
+public enum StatusParcela
+{
     PENDENTE, PAGA, ATRASADA
 }

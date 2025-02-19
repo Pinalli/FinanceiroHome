@@ -16,9 +16,11 @@ public class UsuarioDTO {
     private Long id;
     @NotBlank(message = "O nome é obrigatório")
     private String nome;
+
     @NotBlank(message = "O e-mail é obrigatório")
     @Email(message = "O e-mail não é válido")
     private String email;
+
     @NotBlank(message = "A senha é obrigatória")
     private String senha;
 

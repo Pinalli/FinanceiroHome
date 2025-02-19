@@ -21,20 +21,23 @@ public class ContaService {
     private final CategoriaService categoriaService;
     private final UsuarioService usuarioService;
 
-    public Conta criarConta(ContaRequest request, Usuario usuario) {
-        Categoria categoria = categoriaService.buscarPorIdEUsuario(request.categoriaId(), usuario);
-        validarCompatibilidadeTipo(request.tipo(), categoria.getTipo());
-
+    public ContaResponse criarConta(ContaRequest request, Usuario usuario) {
         Conta conta = new Conta();
+        // Preencha os campos da conta com base no request e usuário
+        // Exemplo:
         conta.setDescricao(request.descricao());
         conta.setValor(request.valor());
         conta.setDataVencimento(request.dataVencimento());
-        conta.setTipo(request.tipo());
         conta.setUsuario(usuario);
 
-        conta.setCategoria(categoria);
-        return contaRepository.save(conta);
+        // Salve a conta no banco de dados
+        Conta savedConta = contaRepository.save(conta);
+
+        // Converta a entidade para DTO
+        return convertToResponse(savedConta);
     }
+
+
     public List<ContaResponse> listarContasPorTipo(TipoConta tipo, Usuario usuario) {
         return contaRepository.findByTipoAndUsuario(tipo, usuario)
                 .stream()
@@ -55,11 +58,8 @@ public class ContaService {
                 conta.getDescricao(),
                 conta.getValor(),
                 conta.getDataVencimento(),
-                conta.getDataPagamento(),
-                conta.getTipo(),
                 conta.getStatus(),
-                conta.getCategoria().getId(),
-                conta.getCategoria().getNome()
+                conta.getCategoria().getNome() // Supondo que Conta tenha uma relação com Categoria
         );
     }
 }

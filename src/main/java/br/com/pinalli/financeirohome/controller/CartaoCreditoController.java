@@ -45,7 +45,7 @@ public class CartaoCreditoController {
     }
 
     @GetMapping("/{id}/limite")
-    public ResponseEntity<Map<String, BigDecimal>> getLimit(@PathVariable Long id) {
+    public ResponseEntity<Map<String, BigDecimal>> getLimite(@PathVariable Long id) {
         LimiteCartaoView view = limiteCartaoViewRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Cartão não encontrado"));
         Map<String, BigDecimal> response = new HashMap<>();
