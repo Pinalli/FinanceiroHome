@@ -5,3 +5,6 @@ CREATE TABLE parcela_compra (
                                 status VARCHAR(10) NOT NULL CHECK (status IN ('PENDENTE', 'PAGA', 'ATRASADA')),
                                 compra_id INT NOT NULL REFERENCES compra_cartao(id) ON DELETE CASCADE
 )
+
+UPDATE parcela_compra pc
+SET status = (SELECT nome FROM status_parcela_compra spc WHERE spc.id = pc.status_id);
