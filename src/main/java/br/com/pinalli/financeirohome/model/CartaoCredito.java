@@ -23,7 +23,7 @@ public class CartaoCredito {
 
     @NotBlank
     @Column(length = 100)
-    private String nome;
+    private String bandeiraCartao;
 
     @NotBlank
     @Column(length = 20)

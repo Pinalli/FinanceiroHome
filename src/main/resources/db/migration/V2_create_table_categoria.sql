@@ -14,7 +14,7 @@ INSERT INTO categoria (nome, tipo, usuario_id) VALUES
 
 
 -- Campo	Descrição
--- nome   	Nome da categoria (ex: "Aluguel", "Salário").
+-- bandeiraCartao   	Nome da categoria (ex: "Aluguel", "Salário").
 -- tipo  	Define se a categoria é para DESPESA (contas a pagar) ou RECEITA (contas a receber).
 
 -- usuario_id	NULL = categoria padrão do sistema (ex: "Alimentação").

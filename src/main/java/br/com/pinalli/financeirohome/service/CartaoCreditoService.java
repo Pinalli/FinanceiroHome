@@ -34,17 +34,12 @@ import java.util.stream.Collectors;
 public class CartaoCreditoService {
 
     private final CartaoCreditoRepository cartaoCreditoRepository;
-    private final CompraCartaoRepository compraCartaoRepository;
 
-    @Transactional
     public CartaoCreditoResponse criarCartao(CartaoCreditoRequest request, Usuario usuario) {
         CartaoCredito cartao = new CartaoCredito();
-        cartao.setNome(request.nome());
-        cartao.setNumero(request.numero());
-        cartao.setDiaFechamento(request.diaFechamento());
-        cartao.setDiaVencimento(request.diaVencimento());
-        cartao.setLimiteTotal(request.limiteTotal());
-        cartao.setLimiteDisponivel(request.limiteTotal()); // Disponível inicial = limite total
+        cartao.setBandeiraCartao(request.bandeiraCartao()); // Ou request.bandeiraCartao()
+        cartao.setLimiteTotal(request.limite());
+        cartao.setLimiteDisponivel(request.limiteDisponivel());
         cartao.setUsuario(usuario);
 
         CartaoCredito saved = cartaoCreditoRepository.save(cartao);
@@ -54,7 +49,7 @@ public class CartaoCreditoService {
     private CartaoCreditoResponse convertToResponse(CartaoCredito cartao) {
         return new CartaoCreditoResponse(
                 cartao.getId(),
-                cartao.getNome(),
+                cartao.getBandeiraCartao(),
                 cartao.getNumero(),
                 cartao.getDiaFechamento(),
                 cartao.getDiaVencimento(),
@@ -99,7 +94,7 @@ public class CartaoCreditoService {
                 compra.getQuantidadeParcelas(),
                 compra.getDataCompra(),
                 compra.getCartao().getId(),
-                compra.getCartao().getNome(),
+                compra.getCartao().getBandeiraCartao(),
                 compra.getCategoria().getId(),
                 compra.getCategoria().getNome(),
                 compra.getParcelas().stream()
@@ -121,7 +116,7 @@ public class CartaoCreditoService {
     private CartaoCreditoResponse convertCartaoToResponse(CartaoCredito cartao) {
         return new CartaoCreditoResponse(
                 cartao.getId(),
-                cartao.getNome(),
+                cartao.getBandeiraCartao(),
                 cartao.getNumero(),
                 cartao.getDiaFechamento(),
                 cartao.getDiaVencimento(),
@@ -129,7 +124,4 @@ public class CartaoCreditoService {
                 cartao.getLimiteDisponivel()
         );
     }
-
-
-
 }

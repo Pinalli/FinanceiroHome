@@ -93,7 +93,7 @@ public class CompraCartaoService {
                 compra.getQuantidadeParcelas(),
                 compra.getDataCompra(),
                 compra.getCartao().getId(),
-                compra.getCartao().getNome(),
+                compra.getCartao().getBandeiraCartao(),
                 compra.getCategoria().getId(),
                 compra.getCategoria().getNome(),
                 compra.getParcelas().stream()

@@ -1,9 +1,9 @@
-POST http://localhost:8080/api/cartoes-credito
-Authorization: Bearer
-Content-Type: application/json
+POST http://localhost:8080/api/cartoes
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJGaW5hbmNlaXJvSG9tZSIsInN1YiI6Imp1Y2EuYmFsYUBleGFtcGxlLmNvbSIsInJvbGVzIjpbeyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sImlhdCI6MTc0MDAxMzY4NSwiZXhwIjoxNzQwMTAwMDg1fQ.MKRCrosyPtvmi3izyQNlIsIHxBO0QAePmYmOW_7EkVg
+content-Type: application/json
 
 {
-  "bandeiraCartao": "Cartão Mastercard Master Platinum",
+  "nome": "Cartão Mastercard Master Platinum",
   "limite": 75000.00,
   "valor": 0.00,
   "limiteDisponivel": 75000.00,

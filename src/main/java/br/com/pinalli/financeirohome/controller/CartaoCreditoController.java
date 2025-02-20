@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/cartoes")
+@RequestMapping("/api/cartao_credito")
 @RequiredArgsConstructor
 public class CartaoCreditoController {
 

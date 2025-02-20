@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 
 public record CartaoCreditoResponse(
         Long id,
-        String nome,
+        String bandeiraCartao,
         String numero,
         Integer diaFechamento,
         Integer diaVencimento,
