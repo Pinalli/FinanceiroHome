@@ -8,8 +8,8 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.math.BigDecimal;
+
 @Entity
 @Table(name = "cartao_credito")
 @Data
@@ -22,7 +22,7 @@ public class CartaoCredito {
     private Long id;
 
     @NotBlank
-    @Column(length = 100)
+    @Column(name = "bandeira_cartao", length = 100)
     private String bandeiraCartao;
 
     @NotBlank

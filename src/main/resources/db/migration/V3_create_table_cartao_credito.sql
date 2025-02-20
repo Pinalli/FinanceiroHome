@@ -1,6 +1,6 @@
 CREATE TABLE cartao_credito (
                                 id SERIAL PRIMARY KEY,
-                                bandeiraCartao VARCHAR(100) NOT NULL,
+                                bandeira_cartao VARCHAR(100) NOT NULL,
                                 numero VARCHAR(20) NOT NULL,
                                 dia_fechamento INT NOT NULL CHECK (dia_fechamento BETWEEN 1 AND 31),
                                 dia_vencimento INT NOT NULL CHECK (dia_vencimento BETWEEN 1 AND 31),

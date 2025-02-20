@@ -1,11 +1,13 @@
-POST http://localhost:8080/api/cartoes
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJGaW5hbmNlaXJvSG9tZSIsInN1YiI6Imp1Y2EuYmFsYUBleGFtcGxlLmNvbSIsInJvbGVzIjpbeyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sImlhdCI6MTc0MDAxMzY4NSwiZXhwIjoxNzQwMTAwMDg1fQ.MKRCrosyPtvmi3izyQNlIsIHxBO0QAePmYmOW_7EkVg
+POST http://localhost:8080/api/cartao_credito
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJGaW5hbmNlaXJvSG9tZSIsInN1YiI6Imp1Y2EuYmFsYUBleGFtcGxlLmNvbSIsInJvbGVzIjpbeyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sImlhdCI6MTc0MDAxNjAwMywiZXhwIjoxNzQwMTAyNDAzfQ.nR8GIfb7u0QKRRpCAVp3sx_Sk04seZFx95CR4JmA8Hk
 content-Type: application/json
 
 {
-  "nome": "Cartão Mastercard Master Platinum",
-  "limite": 75000.00,
-  "valor": 0.00,
-  "limiteDisponivel": 75000.00,
-  "totalComprasAbertas": 0.00
+  "bandeiraCartao": "Mastercard",
+  "numero": "5246312345678901",
+  "limite": 10000.00,
+  "limiteDisponivel": 8000.00,
+  "totalComprasAbertas": 2000.00,
+  "diaFechamento": 20,
+  "diaVencimento": 28
 }
