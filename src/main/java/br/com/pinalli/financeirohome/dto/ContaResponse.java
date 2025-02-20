@@ -10,6 +10,7 @@ public record ContaResponse(
         Long id,
         String descricao,
         BigDecimal valor,
+        TipoConta tipo,
         LocalDate dataVencimento,
         StatusConta status,
         String categoriaNome

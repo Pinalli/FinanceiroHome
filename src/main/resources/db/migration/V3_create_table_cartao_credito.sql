@@ -9,7 +9,7 @@ CREATE TABLE cartao_credito (
                                 usuario_id INT NOT NULL REFERENCES usuario(id) ON DELETE CASCADE
 );
 
--- View para cálculo automático
+-- View para cálculo automatico
 CREATE VIEW view_limite_cartao AS
 SELECT
     cc.id,

@@ -31,7 +31,7 @@ public class CategoriaService {
         return repository.findByTipoAndUsuarioOrUsuarioIsNull(tipo, usuario);
     }
 
-    public Categoria buscarPorIdEUsuario(@NotNull Long aLong, Usuario usuario) {
-        return (Categoria) repository.findByIdAndUsuario(aLong, usuario).orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada"));
+    public Categoria buscarPorIdEUsuario(@NotNull Long id, Usuario usuario) {
+        return (Categoria) repository.findByIdAndUsuario(id, usuario).orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada"));
     }
 }
