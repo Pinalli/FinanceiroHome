@@ -6,8 +6,8 @@ import java.math.BigDecimal;
 
 public record CartaoCreditoRequest(
         @NotBlank String bandeiraCartao,
-        @NotBlank @Size(min = 13, max = 19) String numero,
-        @Positive BigDecimal limite,
+        @NotBlank String numero,
+        @Positive BigDecimal limiteTotal, // Alterado de "limite" para "limiteTotal"
         @PositiveOrZero BigDecimal limiteDisponivel,
         @PositiveOrZero BigDecimal totalComprasAbertas,
         @Min(1) @Max(31) Integer diaFechamento,

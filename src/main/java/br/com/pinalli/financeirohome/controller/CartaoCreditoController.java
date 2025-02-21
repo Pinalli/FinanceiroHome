@@ -28,7 +28,6 @@ public class CartaoCreditoController {
     private final UsuarioService usuarioService;
     private final LimiteCartaoViewRepository limiteCartaoViewRepository;
 
-
     @PostMapping
     public ResponseEntity<CartaoCreditoResponse> criarCartao(
             @RequestBody @Valid CartaoCreditoRequest request,

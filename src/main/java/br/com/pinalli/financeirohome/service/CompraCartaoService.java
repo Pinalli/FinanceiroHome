@@ -29,6 +29,7 @@ public class CompraCartaoService {
     public CompraCartaoResponse criarCompra(CompraCartaoRequest request, Usuario usuario) {
         CartaoCredito cartao = cartaoService.buscarPorIdEUsuario(request.cartaoId(), usuario);
         Categoria categoria = categoriaService.buscarPorIdEUsuario(request.categoriaId(), usuario);
+
         validarCategoria(categoria);
 
         // Cria compra

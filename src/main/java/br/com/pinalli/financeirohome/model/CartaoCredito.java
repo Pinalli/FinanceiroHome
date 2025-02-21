@@ -1,51 +1,57 @@
 package br.com.pinalli.financeirohome.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.*;
+import lombok.*;
+
 import java.math.BigDecimal;
 
-@Entity
-@Table(name = "cartao_credito")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
+@Table(name = "cartao_credito")
 public class CartaoCredito {
-
+    // Getters e Setters
+    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+
     @NotBlank
-    @Column(name = "bandeira_cartao", length = 100)
     private String bandeiraCartao;
 
+
     @NotBlank
-    @Column(length = 20)
     private String numero;
 
-    @Min(1)
-    @Max(31)
-    private Integer diaFechamento;
 
-    @Min(1)
-    @Max(31)
-    private Integer diaVencimento;
-
-    @DecimalMin("0.01")
+    @Positive
     @Column(precision = 10, scale = 2)
     private BigDecimal limiteTotal;
 
-    @DecimalMin("0.00")
+
+    @PositiveOrZero
     @Column(precision = 10, scale = 2)
     private BigDecimal limiteDisponivel;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+
+    @PositiveOrZero
+    @Column(precision = 10, scale = 2)
+    private BigDecimal totalComprasAbertas;
+
+
+    @Min(1)
+    @Max(31)
+    private Integer  diaFechamento;
+
+    @Min(1)
+    @Max(31)
+    private Integer  diaVencimento;
+
+    @ManyToOne
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
+
 }

@@ -16,26 +16,28 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class CartaoCreditoService {
 
-    private final CartaoCreditoRepository cartaoCreditoRepository;
+        private final CartaoCreditoRepository cartaoCreditoRepository;
 
-    public CartaoCreditoResponse criarCartao(CartaoCreditoRequest request, Usuario usuario) {
-        CartaoCredito cartao = new CartaoCredito();
-        cartao.setBandeiraCartao(request.bandeiraCartao());
-        cartao.setNumero(request.numero());
-        cartao.setLimiteTotal(request.limite());
-        cartao.setLimiteDisponivel(request.limiteDisponivel());
-        cartao.setDiaFechamento(request.diaFechamento());
-        cartao.setDiaVencimento(request.diaVencimento());
-        cartao.setUsuario(usuario);
+        public CartaoCreditoResponse criarCartao(CartaoCreditoRequest request, Usuario usuario) {
+            CartaoCredito cartao = new CartaoCredito();
+            cartao.setBandeiraCartao(request.bandeiraCartao());
+            cartao.setNumero(request.numero());
+            cartao.setLimiteTotal(request.limiteTotal());
+            cartao.setLimiteDisponivel(request.limiteDisponivel());
+            cartao.setTotalComprasAbertas(request.totalComprasAbertas());
+            cartao.setDiaFechamento(request.diaFechamento());
+            cartao.setDiaVencimento(request.diaVencimento());
+            cartao.setUsuario(usuario);
 
-        CartaoCredito saved = cartaoCreditoRepository.save(cartao);
-        return convertToResponse(saved);
-    }
+            CartaoCredito saved = cartaoCreditoRepository.save(cartao);
+            return convertToResponse(saved);
+        }
 
     private CartaoCreditoResponse convertToResponse(CartaoCredito cartao) {
         return new CartaoCreditoResponse(
@@ -45,7 +47,8 @@ public class CartaoCreditoService {
                 cartao.getDiaFechamento(),
                 cartao.getDiaVencimento(),
                 cartao.getLimiteTotal(),
-                cartao.getLimiteDisponivel()
+                cartao.getLimiteDisponivel(),
+                cartao.getTotalComprasAbertas()
         );
     }
 
@@ -53,9 +56,8 @@ public class CartaoCreditoService {
         return cartaoCreditoRepository.findByUsuario(usuario)
                 .stream()
                 .map(this::convertToResponse)
-                .toList();
+                .collect(Collectors.toList());
     }
-
 
     public CartaoCredito buscarPorIdEUsuario(Long cartaoId, Usuario usuario) {
         return cartaoCreditoRepository.findByIdAndUsuarioId(cartaoId, usuario.getId())
@@ -112,6 +114,7 @@ public class CartaoCreditoService {
                 cartao.getDiaFechamento(),
                 cartao.getDiaVencimento(),
                 cartao.getLimiteTotal(),
+                cartao.getLimiteDisponivel(),
                 cartao.getLimiteDisponivel()
         );
     }
