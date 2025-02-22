@@ -5,8 +5,13 @@ CREATE TABLE usuario (
                          email VARCHAR(100) UNIQUE NOT NULL,
                          senha VARCHAR(255) NOT NULL,
                          data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                         data_atualizacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                         data_atualizacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                         ativo BOOLEAN DEFAULT TRUE
 );
+
+ALTER TABLE usuario
+    ADD COLUMN role VARCHAR(50) DEFAULT 'USER',
+    ADD COLUMN ativo BOOLEAN DEFAULT TRUE;
 
 -- Função para atualizar data_atualizacao
 CREATE OR REPLACE FUNCTION update_usuario_timestamp()

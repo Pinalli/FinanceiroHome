@@ -7,11 +7,12 @@ CREATE TABLE contas (
                         data_pagamento DATE, -- Novo campo
                         status VARCHAR(10) CHECK (status IN ('PENDENTE', 'PAGA', 'RECEBIDA')),
                         tipo VARCHAR(10) CHECK (tipo IN ('PAGAR', 'RECEBER')),
+                        observacao TEXT,
                         usuario_id INT REFERENCES usuario(id) ON DELETE CASCADE,
                         categoria_id INT REFERENCES categoria(id) ON DELETE RESTRICT -- Não permite excluir categoria em uso
 );
 
-
+CREATE INDEX idx_contas_usuario_data ON contas(usuario_id, data_vencimento);
 CREATE INDEX idx_contas_data ON contas(data);
 CREATE INDEX idx_compra_cartao_usuario ON compra_cartao(usuario_id);
 

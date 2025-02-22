@@ -1,12 +1,16 @@
 CREATE TABLE cartao_credito (
                                 id SERIAL PRIMARY KEY,
-                                bandeira_cartao VARCHAR(100) NOT NULL,
+                                nome VARCHAR(100), -- Nome personalizado do cartão (ex: "Cartão Nubank")
+                                bandeira_cartao VARCHAR(100) NOT NULL, -- Bandeira do cartão (ex: "Visa", "Mastercard")
                                 numero VARCHAR(20) NOT NULL,
+                                limite_total NUMERIC(10, 2) NOT NULL,
+                                limite_disponivel NUMERIC(10, 2) NOT NULL,
+                                total_compras_abertas NUMERIC(10, 2) NOT NULL,
                                 dia_fechamento INT NOT NULL CHECK (dia_fechamento BETWEEN 1 AND 31),
                                 dia_vencimento INT NOT NULL CHECK (dia_vencimento BETWEEN 1 AND 31),
-                                limite_total DECIMAL(10,2) NOT NULL CHECK (limite_total > 0),
-                                limite_disponivel DECIMAL(10,2) NOT NULL CHECK (limite_disponivel >= 0),
-                                usuario_id INT NOT NULL REFERENCES usuario(id) ON DELETE CASCADE
+                                usuario_id INT NOT NULL REFERENCES usuario(id),
+                                ativo BOOLEAN DEFAULT TRUE, -- Para desativar cartões sem excluí-los
+                                CONSTRAINT limite_disponivel_check CHECK (limite_disponivel <= limite_total)
 );
 
 -- View para cálculo automatico
