@@ -5,11 +5,20 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
 
 public record CartaoCreditoResponse(
+
+
         Long id,
+
+        @JsonProperty("nome")
+        String nome,
+
+        @JsonProperty("bandeira_cartao")
         String bandeiraCartao,
+
+        @JsonProperty("numero")
         String numero,
 
-        @JsonProperty("dia_fechamento")
+        String cartaoNumero, @JsonProperty("dia_fechamento")
         Integer diaFechamento,
 
         @JsonProperty("dia_vencimento")

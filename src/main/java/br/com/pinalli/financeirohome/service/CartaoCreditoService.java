@@ -3,7 +3,7 @@ package br.com.pinalli.financeirohome.service;
 import br.com.pinalli.financeirohome.dto.CartaoCreditoRequest;
 import br.com.pinalli.financeirohome.dto.CartaoCreditoResponse;
 import br.com.pinalli.financeirohome.dto.CompraCartaoResponse;
-import br.com.pinalli.financeirohome.dto.ParcelaResponse;
+import br.com.pinalli.financeirohome.dto.ParcelaCompraResponse;
 import br.com.pinalli.financeirohome.model.CartaoCredito;
 import br.com.pinalli.financeirohome.model.CompraCartao;
 import br.com.pinalli.financeirohome.model.ParcelaCompra;
@@ -24,15 +24,16 @@ public class CartaoCreditoService {
 
         private final CartaoCreditoRepository cartaoCreditoRepository;
 
-        public CartaoCreditoResponse criarCartao(CartaoCreditoRequest request, Usuario usuario) {
+        public CartaoCreditoResponse criarCartaoCredito(CartaoCreditoRequest request, Usuario usuario) {
             CartaoCredito cartao = new CartaoCredito();
+            cartao.setNome(request.nome());
             cartao.setBandeiraCartao(request.bandeiraCartao());
             cartao.setNumero(request.numero());
             cartao.setLimiteTotal(request.limiteTotal());
             cartao.setLimiteDisponivel(request.limiteDisponivel());
-            cartao.setTotalComprasAbertas(request.totalComprasAbertas());
             cartao.setDiaFechamento(request.diaFechamento());
             cartao.setDiaVencimento(request.diaVencimento());
+            cartao.setTotalComprasAbertas(request.totalComprasAbertas());
             cartao.setUsuario(usuario);
 
             CartaoCredito saved = cartaoCreditoRepository.save(cartao);
@@ -42,9 +43,10 @@ public class CartaoCreditoService {
     private CartaoCreditoResponse convertToResponse(CartaoCredito cartao) {
         return new CartaoCreditoResponse(
                 cartao.getId(),
+                cartao.getNome(),
                 cartao.getBandeiraCartao(),
                 cartao.getNumero(),
-                cartao.getDiaFechamento(),
+                cartao.getNumero(), cartao.getDiaFechamento(),
                 cartao.getDiaVencimento(),
                 cartao.getLimiteTotal(),
                 cartao.getLimiteDisponivel(),
@@ -96,8 +98,8 @@ public class CartaoCreditoService {
         );
     }
 
-    private ParcelaResponse convertParcelaToResponse(ParcelaCompra parcela) {
-        return new ParcelaResponse(
+    private ParcelaCompraResponse convertParcelaToResponse(ParcelaCompra parcela) {
+        return new ParcelaCompraResponse(
                 parcela.getId(),
                 parcela.getValor(),
                 parcela.getDataVencimento(),
@@ -109,13 +111,17 @@ public class CartaoCreditoService {
     private CartaoCreditoResponse convertCartaoToResponse(CartaoCredito cartao) {
         return new CartaoCreditoResponse(
                 cartao.getId(),
+                cartao.getNome(),
                 cartao.getBandeiraCartao(),
+                cartao.getNumero(),
                 cartao.getNumero(),
                 cartao.getDiaFechamento(),
                 cartao.getDiaVencimento(),
                 cartao.getLimiteTotal(),
                 cartao.getLimiteDisponivel(),
-                cartao.getLimiteDisponivel()
+                cartao.getTotalComprasAbertas()
         );
     }
+
+
 }

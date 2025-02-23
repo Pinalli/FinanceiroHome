@@ -29,14 +29,21 @@ public class CartaoCreditoController {
     private final LimiteCartaoViewRepository limiteCartaoViewRepository;
 
     @PostMapping
-    public ResponseEntity<CartaoCreditoResponse> criarCartao(
+    public ResponseEntity<CartaoCreditoResponse> criarCartaoCredito(
             @RequestBody @Valid CartaoCreditoRequest request,
             Principal principal
     ) {
+       // Log para verificar o que está sendo recebido
+        System.out.println("Valor de bandeiraCartao: '" + request.bandeiraCartao() + "'");
+        System.out.println("Recebendo CartaoCreditoRequest: " + request.nome());
+        System.out.println("Usuário autenticado: " + principal.getName());
+
         Usuario usuario = usuarioService.buscarPorEmail(principal.getName());
-        CartaoCreditoResponse response = cartaoCreditoService.criarCartao(request, usuario);
+        CartaoCreditoResponse response = cartaoCreditoService.criarCartaoCredito(request, usuario);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
+
 
     @GetMapping("/{id}/limite-disponivel")
     public ResponseEntity<BigDecimal> getLimiteDisponivel(@PathVariable Long id) {

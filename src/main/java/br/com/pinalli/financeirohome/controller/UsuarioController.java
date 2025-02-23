@@ -31,7 +31,6 @@ import java.util.Optional;
 @RequestMapping("/api/usuario")
 public class UsuarioController {
 
-    //private static final Logger log = LoggerFactory.getLogger(ComprasService.class); // For SLF4j
     private static final Logger log = LoggerFactory.getLogger(UsuarioController.class);
 
     @Autowired

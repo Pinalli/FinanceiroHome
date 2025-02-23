@@ -2,7 +2,7 @@ package br.com.pinalli.financeirohome.service;
 
 import br.com.pinalli.financeirohome.dto.CompraCartaoRequest;
 import br.com.pinalli.financeirohome.dto.CompraCartaoResponse;
-import br.com.pinalli.financeirohome.dto.ParcelaResponse;
+import br.com.pinalli.financeirohome.dto.ParcelaCompraResponse;
 import br.com.pinalli.financeirohome.exception.CategoriaInvalidaException;
 import br.com.pinalli.financeirohome.model.*;
 import br.com.pinalli.financeirohome.repository.CompraCartaoRepository;
@@ -124,8 +124,8 @@ public class CompraCartaoService {
                 .toList();
     }
 
-    private ParcelaResponse convertParcelaToResponse(ParcelaCompra parcela) {
-        return new ParcelaResponse(
+    private ParcelaCompraResponse convertParcelaToResponse(ParcelaCompra parcela) {
+        return new ParcelaCompraResponse(
                 parcela.getId(),
                 parcela.getValor(),
                 parcela.getDataVencimento(),

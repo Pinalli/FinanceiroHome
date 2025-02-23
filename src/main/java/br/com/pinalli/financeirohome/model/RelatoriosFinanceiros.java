@@ -29,6 +29,4 @@ public class RelatoriosFinanceiros {
 
     @Column(name = "data_fim", nullable = false)
     private LocalDate dataFim;
-
-
 }

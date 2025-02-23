@@ -5,7 +5,7 @@ import br.com.pinalli.financeirohome.model.StatusParcela;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-public record ParcelaResponse(
+public record ParcelaCompraResponse(
         Long id,
         BigDecimal valor,
         LocalDate dataVencimento,
