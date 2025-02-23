@@ -43,7 +43,6 @@ O sistema de gestão de contas domésticas tem como objetivo auxiliar usuários 
 - **PostgreSQL**: Banco de dados relacional.
 - **Front-end:** Interface desenvolvida na linguagem (a definir), desde que seja uma aplicação web, para fornecer uma experiência interativa e moderna.
 
-
 ## Benefícios do Sistema
 - Centralização de todas as informações financeiras domésticas em um único local.
 - Melhoria no planejamento financeiro ao ter controle sobre receitas e despesas.
@@ -62,3 +61,9 @@ Usuário: Seleciona categoria e preenche formulário<br>
 Frontend -> Backend: POST /api/contas-pagar (com categoria_id)<br>
 Backend: Valida se categoria_id é DESPESA<br>
 Backend -> Database: INSERT INTO conta_pagar (...)<br>
+
+# Diagrama de Classes das Tabelas
+
+#### Tabelas e Relacionamentos
+
+![Image](https://github.com/user-attachments/assets/868043f2-0400-45b2-ba48-616c443a0674)
