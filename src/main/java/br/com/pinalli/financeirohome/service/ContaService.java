@@ -7,11 +7,10 @@ import br.com.pinalli.financeirohome.exception.CategoriaInvalidaException;
 import br.com.pinalli.financeirohome.model.*;
 import br.com.pinalli.financeirohome.repository.CategoriaRepository;
 import br.com.pinalli.financeirohome.repository.ContaRepository;
+import br.com.pinalli.financeirohome.repository.UsuarioRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -23,41 +22,54 @@ public class ContaService {
     private final ContaRepository contaRepository;
     private final CategoriaService categoriaService;
     private final UsuarioService usuarioService;
+    private final UsuarioRepository usuarioRepository;
     private final CategoriaRepository categoriaRepository;
 
     public ContaResponse criarConta(ContaRequest request, Usuario usuario) {
-
-        // Buscar categoria no banco
+        // Busca a categoria e o usuário
         Categoria categoria = categoriaRepository.findById(request.categoriaId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Categoria não encontrada"));
+                .orElseThrow(() -> new RuntimeException("Categoria não encontrada"));
+         usuario = usuarioRepository.findById(request.usuarioId())
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
+        // Verifica se o tipo da categoria corresponde ao tipo da conta
+        validarTipoCategoria(request.tipo(), String.valueOf(categoria.getTipo()));
+
+        // Cria a conta
         Conta conta = new Conta();
-        // Preencha os campos da conta com base no request e usuário
-        // Exemplo:
         conta.setDescricao(request.descricao());
         conta.setValor(request.valor());
         conta.setDataVencimento(request.dataVencimento());
-        conta.setTipo(request.tipo());
-        conta.setStatus(StatusConta.PENDENTE);
+        conta.setDataPagamento(request.dataPagamento());
+        conta.setStatus(StatusConta.valueOf(request.status()));
+        conta.setTipo(TipoConta.valueOf(request.tipo()));
+        conta.setObservacao(request.observacao());
+        conta.setUsuario(usuario);
         conta.setCategoria(categoria);
-        conta.setUsuario(usuario); // Associar ao usuário autenticado
 
-        // Salve a conta no banco de dados
-        Conta savedConta = contaRepository.save(conta);
+        // Salva a conta
+        Conta contaSalva = contaRepository.save(conta);
 
-        // Retornar resposta
-        return new ContaResponse(
-                savedConta.getId(),
-                savedConta.getDescricao(),
-                savedConta.getValor(),
-                savedConta.getTipo(),
-                savedConta.getDataVencimento(),
-                savedConta.getStatus(),
-                savedConta.getCategoria().getNome() // Pegando nome da categoria
-        );
+        // Converte a entidade Conta em ContaResponse
+        return ContaResponse.fromConta(contaSalva);
     }
-        // Converta a entidade para DTO
-      //  return convertToResponse(savedConta);
+
+    // Método auxiliar para validar o tipo da categoria
+    private void validarTipoCategoria(String tipoConta, String tipoCategoria) {
+        if (("PAGAR".equals(tipoConta) && !"DESPESA".equals(tipoCategoria))) {
+            throw new RuntimeException("A categoria deve ser do tipo DESPESA para contas a pagar");
+        }
+        if (("RECEBER".equals(tipoConta) && !"RECEITA".equals(tipoCategoria))) {
+            throw new RuntimeException("A categoria deve ser do tipo RECEITA para contas a receber");
+        }
+    }
+
+
+    public List<ContaResponse> listarContas() {
+        return contaRepository.findAll().stream()
+                .map(ContaResponse::fromConta) // Converte cada Conta em ContaResponse
+                .toList();
+    }
 
     public List<ContaResponse> listarContasPorTipo(TipoConta tipo, Usuario usuario) {
         return contaRepository.findByTipoAndUsuario(tipo, usuario)
@@ -75,13 +87,18 @@ public class ContaService {
 
     private ContaResponse convertToResponse(Conta conta) {
         return new ContaResponse(
-                conta.getId(),
-                conta.getDescricao(),
-                conta.getValor(),
-                conta.getTipo(),
-                conta.getDataVencimento(),
-                conta.getStatus(),
-                conta.getCategoria().getNome() // Supondo que Conta tenha uma relação com Categoria
+                conta.getId(), // id
+                conta.getDescricao(), // descricao
+                conta.getValor(), // valor
+                conta.getTipo(), // tipo (TipoConta)
+                conta.getDataVencimento(), // dataVencimento
+                conta.getStatus(), // status (StatusConta)
+                conta.getDataPagamento(), // dataPagamento
+                conta.getObservacao(), // observacao
+                conta.getUsuario().getId(), // usuarioId
+                conta.getUsuario().getNome(), // usuarioNome
+                conta.getCategoria().getId(), // categoriaId
+                conta.getCategoria().getNome() // categoriaNome
         );
     }
 }

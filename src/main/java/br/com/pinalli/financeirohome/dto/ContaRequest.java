@@ -13,7 +13,13 @@ import java.time.LocalDate;
 public record ContaRequest(
         @NotBlank String descricao,
         @Positive BigDecimal valor,
-        @NotNull TipoConta tipo,
-        @NotNull @FutureOrPresent LocalDate dataVencimento,
-        @NotNull Long categoriaId
+        @NotBlank String tipo, // "PAGAR" ou "RECEBER"
+        @NotNull LocalDate dataVencimento,
+        @NotBlank String status, // "PENDENTE", "PAGA" ou "RECEBIDA"
+        LocalDate dataPagamento, // Opcional
+        String observacao, // Opcional
+        @NotNull Long usuarioId,
+        String usuarioNome,
+        @NotNull Long categoriaId,
+        String categoriaNome
 ) {}

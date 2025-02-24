@@ -40,6 +40,9 @@ public class Conta {
     @Enumerated(EnumType.STRING)
     private TipoConta tipo; // PAGAR, RECEBER
 
+    @JoinColumn(name = "observacao")
+    private String observacao;
+
     @ManyToOne
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
