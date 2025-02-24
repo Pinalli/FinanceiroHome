@@ -6,7 +6,7 @@ CREATE TABLE parcela_compra (
                                 status_id INT NOT NULL REFERENCES status_parcela_compra(id) ON DELETE RESTRICT,
                                 compra_id INT NOT NULL REFERENCES compra_cartao(id) ON DELETE CASCADE,
                                 numero_parcela INT NOT NULL CHECK (numero_parcela >= 1),
-                                data_pagamento DATE
+                                data_pagamento DATE CHECK (data_pagamento >= data_vencimento OR data_pagamento IS NULL)
 );
 
 -- CREATE TABLE parcela_compra (

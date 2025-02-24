@@ -5,13 +5,13 @@ CREATE TABLE categoria (
                            usuario_id INT REFERENCES usuario(id) ON DELETE CASCADE, -- Categorias do usuário (NULL = categoria padrão)
                            CONSTRAINT categoria_unica_por_usuario UNIQUE (nome, tipo, usuario_id) -- Evita duplicatas
 );
-
-INSERT INTO categoria (nome, tipo, usuario_id) VALUES
-                                                   ('Alimentação', 'DESPESA', NULL),
-                                                   ('Transporte', 'DESPESA', NULL),
-                                                   ('Salário', 'RECEITA', NULL);
-
-
+--
+-- INSERT INTO categoria (nome, tipo, usuario_id) VALUES
+--                                                    ('Alimentação', 'DESPESA', NULL),
+--                                                    ('Transporte', 'DESPESA', NULL),
+--                                                    ('Salário', 'RECEITA', NULL);
+--
+--
 
 -- Campo	Descrição
 -- bandeiraCartao   	Nome da categoria (ex: "Aluguel", "Salário").

@@ -3,6 +3,7 @@ CREATE TABLE cartao_credito (
                                 nome VARCHAR(100), -- Nome personalizado do cartão (ex: "Cartão Nubank")
                                 bandeira_cartao VARCHAR(100) NOT NULL, -- Bandeira do cartão (ex: "Visa", "Mastercard")
                                 numero VARCHAR(20) NOT NULL,
+                                numero_criptografado VARCHAR(255),
                                 limite_total NUMERIC(10, 2) NOT NULL,
                                 limite_disponivel NUMERIC(10, 2) NOT NULL,
                                 total_compras_abertas NUMERIC(10, 2) NOT NULL,
@@ -12,13 +13,3 @@ CREATE TABLE cartao_credito (
                                 ativo BOOLEAN DEFAULT TRUE, -- Para desativar cartões sem excluí-los
                                 CONSTRAINT limite_disponivel_check CHECK (limite_disponivel <= limite_total)
 );
-
--- View para cálculo automatico
-CREATE VIEW view_limite_cartao AS
-SELECT
-    cc.id,
-    cc.limite_total,
-    (cc.limite_total - COALESCE(SUM(c.valor_total), 0)) AS limite_disponivel
-FROM cartao_credito cc
-         LEFT JOIN compra_cartao c ON cc.id = c.cartao_id
-GROUP BY cc.id;

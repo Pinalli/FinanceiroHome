@@ -6,7 +6,7 @@ CREATE TABLE notificacao (
                              lida BOOLEAN NOT NULL DEFAULT false,
                              data_leitura TIMESTAMP, -- Novo campo para registrar quando a notificação foi lida
                              usuario_id INT NOT NULL REFERENCES usuario(id) ON DELETE CASCADE,
-                             conta_id INT REFERENCES contas(id) ON DELETE SET NULL,
+                             conta_id INT REFERENCES contas(id) ON DELETE SET NULL CHECK (conta_id IS NOT NULL OR compra_cartao_id IS NOT NULL OR parcela_compra_id IS NOT NULL),
                              compra_cartao_id INT REFERENCES compra_cartao(id) ON DELETE SET NULL, -- Novo campo para compras no cartão
                              parcela_compra_id INT REFERENCES parcela_compra(id) ON DELETE SET NULL,-- Novo campo para parcelas de compras no cartão
                              tipo_notificacao VARCHAR(50) NOT NULL -- Novo campo para o tipo de notificação

@@ -4,7 +4,7 @@ CREATE TABLE contas (
                         descricao VARCHAR(255) NOT NULL,
                         valor NUMERIC(10, 2) NOT NULL,
                         data_vencimento DATE NOT NULL,
-                        data_pagamento DATE, -- Novo campo
+                        data_pagamento DATE CHECK (data_pagamento >= data_vencimento OR data_pagamento IS NULL),
                         status VARCHAR(10) CHECK (status IN ('PENDENTE', 'PAGA', 'RECEBIDA')),
                         tipo VARCHAR(10) CHECK (tipo IN ('PAGAR', 'RECEBER')),
                         observacao TEXT,
@@ -13,8 +13,8 @@ CREATE TABLE contas (
 );
 
 CREATE INDEX idx_contas_usuario_data ON contas(usuario_id, data_vencimento);
-CREATE INDEX idx_contas_data ON contas(data);
-CREATE INDEX idx_compra_cartao_usuario ON compra_cartao(usuario_id);
+
+
 
 -- Validações de Negócio--
 --     Ao Criar uma Conta (contas):--
