@@ -32,7 +32,7 @@ public class CompraCartaoService {
     private final CartaoCreditoRepository cartaoCreditoRepository;
     private final CategoriaRepository categoriaRepository;
     private final ParcelaCompraRepository parcelaCompraRepository;
-
+    private final CartaoCreditoService cartaoCreditoService;
 
     public CompraCartaoResponse criarCompraCartao(CompraCartaoRequest request, Usuario usuario) {
         // Busca o cartão e a categoria
@@ -63,6 +63,9 @@ public class CompraCartaoService {
         // Atualiza a compra com as parcelas
         compraSalva.setParcelas(parcelas);
         compraCartaoRepository.save(compraSalva); // Atualiza a compra com as parcelas associadas
+
+        // Após salvar a compra, atualiza o limite disponível do cartão
+        cartaoCreditoService.atualizarLimiteDisponivel(request.cartaoId(), request.valorTotal());
 
         // Retorna a resposta
         return CompraCartaoResponse.fromCompraCartao(compraSalva);

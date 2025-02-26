@@ -2,6 +2,7 @@ package br.com.pinalli.financeirohome.controller;
 
 import br.com.pinalli.financeirohome.dto.CartaoCreditoRequest;
 import br.com.pinalli.financeirohome.dto.CartaoCreditoResponse;
+import br.com.pinalli.financeirohome.dto.LimiteDisponivelResponse;
 import br.com.pinalli.financeirohome.model.LimiteCartaoView;
 import br.com.pinalli.financeirohome.model.Usuario;
 import br.com.pinalli.financeirohome.repository.LimiteCartaoViewRepository;
@@ -44,10 +45,10 @@ public class CartaoCreditoController {
     }
 
 
-
-    @GetMapping("/{id}/limite-disponivel")
-    public ResponseEntity<BigDecimal> getLimiteDisponivel(@PathVariable Long id) {
-        return ResponseEntity.ok(cartaoCreditoService.calcularLimiteDisponivel(id));
+    @GetMapping("/{cartaoId}/limite-disponivel")
+    public ResponseEntity<LimiteDisponivelResponse> getLimiteDisponivel(@PathVariable Long cartaoId) {
+        LimiteDisponivelResponse response = cartaoCreditoService.getLimiteDisponivel(cartaoId);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}/limite")

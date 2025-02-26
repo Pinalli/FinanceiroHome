@@ -1,9 +1,6 @@
 package br.com.pinalli.financeirohome.service;
 
-import br.com.pinalli.financeirohome.dto.CartaoCreditoRequest;
-import br.com.pinalli.financeirohome.dto.CartaoCreditoResponse;
-import br.com.pinalli.financeirohome.dto.CompraCartaoResponse;
-import br.com.pinalli.financeirohome.dto.ParcelaCompraResponse;
+import br.com.pinalli.financeirohome.dto.*;
 import br.com.pinalli.financeirohome.model.CartaoCredito;
 import br.com.pinalli.financeirohome.model.CompraCartao;
 import br.com.pinalli.financeirohome.model.ParcelaCompra;
@@ -77,6 +74,36 @@ public class CartaoCreditoService {
         cartaoCreditoRepository.atualizarLimiteDisponivel(cartaoId, novoLimite);
     }
 
+    @Transactional
+    public void atualizarLimiteDisponivel(Long cartaoId, BigDecimal valorCompra) {
+        CartaoCredito cartao = cartaoCreditoRepository.findById(cartaoId)
+                .orElseThrow(() -> new RuntimeException("Cartão não encontrado"));
+
+        // Valida se o cartão tem limite suficiente
+        if (cartao.getLimiteDisponivel().compareTo(valorCompra) < 0) {
+            throw new RuntimeException("Limite insuficiente no cartão");
+        }
+
+        // Atualiza o limite disponível e o total de compras em aberto
+        cartao.setLimiteDisponivel(cartao.getLimiteDisponivel().subtract(valorCompra));
+        cartao.setTotalComprasAbertas(cartao.getTotalComprasAbertas().add(valorCompra));
+
+        cartaoCreditoRepository.save(cartao);
+    }
+
+    public LimiteDisponivelResponse getLimiteDisponivel(Long cartaoId) {
+        CartaoCredito cartao = cartaoCreditoRepository.findById(cartaoId)
+                .orElseThrow(() -> new RuntimeException("Cartão não encontrado"));
+
+        return new LimiteDisponivelResponse(
+                cartao.getId(),
+                cartao.getNome(),
+                cartao.getBandeiraCartao(),
+                cartao.getLimiteTotal(),
+                cartao.getLimiteDisponivel(),
+                cartao.getTotalComprasAbertas()
+        );
+    }
 
     private CompraCartaoResponse convertCompraToResponse(CompraCartao compra) {
         if (compra.getCartao() == null || compra.getCategoria() == null) {
@@ -98,13 +125,13 @@ public class CartaoCreditoService {
         );
     }
 
-    private ParcelaCompraResponse convertParcelaToResponse(ParcelaCompra parcela) {
-        return new ParcelaCompraResponse(
+    private ParcelaResponse convertParcelaToResponse(ParcelaCompra parcela) {
+        return new ParcelaResponse(
                 parcela.getId(),
                 parcela.getValor(),
                 parcela.getDataVencimento(),
-                parcela.getStatus()
-        );
+                parcela.getStatus(),
+                parcela.getNumeroParcela());
     }
 
     // No CartaoCreditoService
@@ -122,6 +149,5 @@ public class CartaoCreditoService {
                 cartao.getTotalComprasAbertas()
         );
     }
-
 
 }
