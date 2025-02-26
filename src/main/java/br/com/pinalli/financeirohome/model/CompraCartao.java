@@ -1,5 +1,6 @@
 package br.com.pinalli.financeirohome.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -25,18 +26,20 @@ public class CompraCartao {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
+    @NotBlank(message = "A descrição não pode estar em branco")
     private String descricao;
 
-    @Positive
+    @Positive(message = "O valor total deve ser um valor positivo")
     @Column(precision = 10, scale = 2)
     private BigDecimal valorTotal;
 
-    @Min(1)
-    private Integer quantidadeParcelas;
+    @Min(value = 1, message = "A quantidade de parcelas deve ser pelo menos 1")
+    private int quantidadeParcelas;
 
-    @NotNull
+    @NotNull(message = "A data da compra não pode ser nula")
     private LocalDate dataCompra;
+
+    private String observacao;
 
     @ManyToOne
     @JoinColumn(name = "cartao_id", nullable = false)
@@ -50,6 +53,7 @@ public class CompraCartao {
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
 
-    @OneToMany(mappedBy = "compra", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "compra", cascade = CascadeType.PERSIST, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonManagedReference // Evita problemas de serialização no retorno JSON
     private List<ParcelaCompra> parcelas = new ArrayList<>();
 }

@@ -23,12 +23,16 @@ public class CompraCartaoController {
     private final UsuarioService usuarioService;
 
     @PostMapping
-    public ResponseEntity<CompraCartaoResponse> criarCompra(
+    public ResponseEntity<CompraCartaoResponse> criarCompraCartao(
             @RequestBody @Valid CompraCartaoRequest request,
             Principal principal
     ) {
+        // Log para verificar o que está sendo recebido
+        System.out.println("Recebendo CompraCartaoRequest: " + request);
+        System.out.println("Usuário autenticado: " + principal.getName());
+
         Usuario usuario = usuarioService.buscarPorEmail(principal.getName());
-        CompraCartaoResponse response = compraService.criarCompra(request, usuario);
+        CompraCartaoResponse response = compraService.criarCompraCartao(request, usuario);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

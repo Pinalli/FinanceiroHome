@@ -3,7 +3,7 @@ CREATE TABLE parcela_compra (
                                 id SERIAL PRIMARY KEY,
                                 valor DECIMAL(10,2) NOT NULL CHECK (valor > 0),
                                 data_vencimento DATE NOT NULL,
-                                status_id INT NOT NULL REFERENCES status_parcela_compra(id) ON DELETE RESTRICT,
+                                status VARCHAR(50) NOT NULL,
                                 compra_id INT NOT NULL REFERENCES compra_cartao(id) ON DELETE CASCADE,
                                 numero_parcela INT NOT NULL CHECK (numero_parcela >= 1),
                                 data_pagamento DATE CHECK (data_pagamento >= data_vencimento OR data_pagamento IS NULL)

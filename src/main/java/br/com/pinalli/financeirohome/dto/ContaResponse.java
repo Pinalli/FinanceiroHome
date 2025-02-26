@@ -24,18 +24,18 @@ public record ContaResponse(
     // Metodo estático para converter Conta em ContaResponse
     public static ContaResponse fromConta(Conta conta) {
         return new ContaResponse(
-                        conta.getId(),
-                        conta.getDescricao(),
-                        conta.getValor(),
+                conta.getId(),
+                conta.getDescricao(),
+                conta.getValor(),
                 conta.getTipo(),
-                        conta.getDataPagamento(),
-                        conta.getStatus(),
                 conta.getDataVencimento(),
-                        conta.getObservacao(),
-                        conta.getUsuario().getId(), // ID do usuário
-                        conta.getUsuario().getNome(), // Nome do usuário
-                        conta.getCategoria().getId(), // ID da categoria
-                        conta.getCategoria().getNome() // Nome da categoria
-                );
+                conta.getStatus(),
+                conta.getDataPagamento(),
+                conta.getObservacao(),
+                conta.getUsuario().getId(), // ID do usuário
+                conta.getUsuario().getNome(), // Nome do usuário
+                conta.getCategoria().getId(), // ID da categoria
+                conta.getCategoria().getNome() // Nome da categoria
+        );
     }
 }

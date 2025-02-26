@@ -2,7 +2,7 @@ package br.com.pinalli.financeirohome.service;
 
 import br.com.pinalli.financeirohome.model.CompraCartao;
 import br.com.pinalli.financeirohome.model.ParcelaCompra;
-import br.com.pinalli.financeirohome.model.StatusParcela;
+import br.com.pinalli.financeirohome.model.StatusParcelaCompra;
 import br.com.pinalli.financeirohome.repository.ParcelaCompraRepository;
 import org.springframework.stereotype.Service;
 
@@ -53,7 +53,7 @@ public class ParcelaCompraService {
             parcela.setDataVencimento(
                     calcularDataVencimento(compra.getDataCompra(), i) // Método auxiliar
             );
-            parcela.setStatus(StatusParcela.PENDENTE); // Enum definido
+            parcela.setStatus(StatusParcelaCompra.PENDENTE); // Enum definido
             parcela.setCompra(compra); // Relacionamento com a compra
             parcelas.add(parcela);
         }
