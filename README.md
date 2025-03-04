@@ -67,3 +67,95 @@ Backend -> Database: INSERT INTO conta_pagar (...)<br>
 #### Tabelas e Relacionamentos
 
 ![Image](https://github.com/user-attachments/assets/868043f2-0400-45b2-ba48-616c443a0674)
+
+
+### **1. Objetivo do Projeto**  
+Desenvolver um sistema para ajudar usuários a gerenciar finanças pessoais, incluindo:  
+- Registro de **contas a pagar** e **contas a receber**.  
+- Controle de **compras com cartão de crédito** (à vista ou parceladas).  
+- Geração de **relatórios financeiros** (despesas por categoria, saldo mensal, etc.).  
+- Notificações automáticas de vencimento.  
+- Autenticação segura de usuários.  
+
+---
+
+### **2. Tecnologias Utilizadas**  
+- **Backend**:  
+  - Java 17 + Spring Boot 3.1.  
+  - Spring Data JPA (PostgreSQL).  
+  - Spring Security + JWT para autenticação.  
+  - Lombok para redução de boilerplate.  
+  - Docker para containerização.  
+- **Banco de Dados**:  
+  - PostgreSQL (relacional).  
+  - Migrações via arquivos SQL (ex: `V1_create_table_usuario.sql`).  
+- **Outras Ferramentas**:  
+  - Maven para gerenciamento de dependências.  
+  - Hibernate Validator para validações.  
+  - JSON Web Tokens (JWT) para autenticação.  
+
+---
+
+### **3. Funcionalidades Principais**  
+1. **Módulo de Contas**:  
+   - Registro de contas a pagar/receber com categorias.  
+   - Notificações de vencimento.  
+   - Atualização de status (PENDENTE, PAGA, RECEBIDA).  
+
+2. **Módulo de Cartão de Crédito**:  
+   - Registro de compras (à vista ou parceladas).  
+   - Acompanhamento de limite disponível.  
+   - Controle de parcelas e seus status.  
+
+3. **Relatórios Financeiros**:  
+   - Exportação para PDF/Excel.  
+   - Filtros por período, categoria e tipo de transação.  
+
+4. **Autenticação**:  
+   - Cadastro/login de usuários.  
+   - Senhas criptografadas com BCrypt.  
+
+---
+
+### **4. Estrutura do Banco de Dados**  
+- **Tabelas Principais**:  
+  - `usuario`: Dados de autenticação e perfil.  
+  - `categoria`: Categorias de transações (DESPESA, RECEITA, CARTAO).  
+  - `contas`: Unifica contas a pagar/receber (tipo: PAGAR/RECEBER).  
+  - `cartao_credito`: Limite total, datas de fechamento/vencimento.  
+  - `compra_cartao`: Compras com cartão + relacionamento com parcelas.  
+  - `parcela_compra`: Parcelas de compras (status: PENDENTE, PAGA, ATRASADA).  
+
+- **Decisões de Modelagem**:  
+  - **Normalização**: Tabela `categoria` separada para evitar redundância.  
+  - **Unificação**: Tabela única `contas` para simplificar consultas.  
+  - **Cálculo Dinâmico**: Limite disponível do cartão calculado via JPQL, sem armazenar no banco.  
+
+---
+
+### **5. Implementações-Chave**  
+- **Entidades JPA**:  
+  - Uso de `@Enumerated(EnumType.STRING)` para status (ex: `StatusConta.PENDENTE`).  
+  - Relacionamentos `@OneToMany` e `@ManyToOne` (ex: `CompraCartao` → `ParcelaCompra`).  
+- **DTOs (Data Transfer Objects)**:  
+  - Conversão de `String` para enums (ex: `TipoConta.valueOf(dto.getTipo())`).  
+  - Validações com `@NotBlank`, `@Positive`, `@Pattern`.  
+- **Serviços**:  
+  - `ParcelaCompraService`: Geração automática de parcelas com validação de quantidade.  
+  - `CartaoCreditoService`: Cálculo do limite disponível via JPQL.  
+  - Transações com `@Transactional` para operações atômicas.  
+
+---
+
+### **6. Validações e Segurança**  
+- **Validações em Três Camadas**:  
+  1. **DTO**: Anotações como `@NotBlank` e `@Email`.  
+  2. **Serviço**: Regras de negócio (ex: categoria compatível com tipo de conta).  
+  3. **Banco de Dados**: `CHECK` constraints (ex: `quantidade_parcelas >= 1`).  
+- **Segurança**:  
+  - Autenticação JWT com Spring Security.  
+  - Criptografia de senhas com BCrypt.  
+  - Controle de acesso baseado em roles (usuário só acessa seus dados).  
+
+---
+
