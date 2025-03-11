@@ -14,7 +14,16 @@ CREATE TABLE contas (
 
 CREATE INDEX idx_contas_usuario_data ON contas(usuario_id, data_vencimento);
 
+-- Remover a restrição atual na coluna data_pagamento
+ALTER TABLE contas
+ALTER COLUMN data_pagamento DROP CONSTRAINT;
 
+-- Opcionalmente, adicionar uma nova restrição que apenas verifica se o status está consistente
+-- com a presença de data_pagamento, sem verificar a relacao com data_vencimento
+ALTER TABLE contas
+    ADD CONSTRAINT check_pagamento_status
+        CHECK ((status IN ('PAGA', 'RECEBIDA') AND data_pagamento IS NOT NULL) OR
+               (status = 'PENDENTE' AND data_pagamento IS NULL));
 
 -- Validações de Negócio--
 --     Ao Criar uma Conta (contas):--
